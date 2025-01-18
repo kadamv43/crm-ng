@@ -28,23 +28,13 @@ export class AppMenuComponent implements OnInit {
             },
         ];
 
-        if (this.role == 'admin') {
+        if (this.role == 'superadmin') {
             this.model.push(
                 {
                     label: '',
                     items: [
                         {
-                            label: 'Appointments',
-                            icon: 'pi pi-fw pi-book',
-                            routerLink: ['appointments'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Staff',
+                            label: 'Employees',
                             icon: 'pi pi-fw pi-users',
                             routerLink: ['users'],
                         },
@@ -54,39 +44,9 @@ export class AppMenuComponent implements OnInit {
                     label: '',
                     items: [
                         {
-                            label: 'Services',
-                            icon: 'pi pi-fw pi-briefcase',
-                            routerLink: ['products'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Doctors',
-                            icon: 'pi pi-fw pi-users',
-                            routerLink: ['doctors'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Patients',
-                            icon: 'pi pi-fw pi-users',
-                            routerLink: ['patients'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Invoices',
-                            icon: 'pi pi-fw pi-file',
-                            routerLink: ['invoices'],
+                            label: 'Stores',
+                            icon: 'pi pi-fw pi-home',
+                            routerLink: ['branches'],
                         },
                     ],
                 },
@@ -95,110 +55,29 @@ export class AppMenuComponent implements OnInit {
                     icon: 'pi pi-fw pi-briefcase',
                     items: [
                         {
-                            label: 'Website',
-                            icon: 'pi pi-fw pi-globe',
+                            label: 'Bank Details',
+                            icon: 'pi pi-fw pi-money-bill',
                             items: [
                                 {
-                                    label: 'Banners',
-                                    icon: 'pi pi-fw pi-image',
-                                    routerLink: ['banners'],
+                                    label: 'Bank',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['banks'],
                                 },
                                 {
-                                    label: 'Gallery',
-                                    icon: 'pi pi-fw pi-image',
+                                    label: 'UPI',
+                                    icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['gallery'],
                                 },
                                 {
-                                    label: 'Blog',
-                                    icon: 'pi pi-fw pi-pencil',
+                                    label: 'Payment Link',
+                                    icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['blogs'],
-                                },
-                                {
-                                    label: 'Contact Details',
-                                    icon: 'pi pi-fw pi-phone',
-                                    routerLink: ['contact-details'],
                                 },
                             ],
                         },
                     ],
                 }
             );
-        } else if (this.role == 'staff') {
-            this.model.push(
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Appointments',
-                            icon: 'pi pi-fw pi-book',
-                            routerLink: ['appointments'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Patients',
-                            icon: 'pi pi-fw pi-users',
-                            routerLink: ['patients'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    items: [
-                        {
-                            label: 'Invoices',
-                            icon: 'pi pi-fw pi-file',
-                            routerLink: ['invoices'],
-                        },
-                    ],
-                },
-                {
-                    label: '',
-                    icon: 'pi pi-fw pi-briefcase',
-                    items: [
-                        {
-                            label: 'Website',
-                            icon: 'pi pi-fw pi-globe',
-                            items: [
-                                {
-                                    label: 'Banners',
-                                    icon: 'pi pi-fw pi-image',
-                                    routerLink: ['banners'],
-                                },
-                                {
-                                    label: 'Gallery',
-                                    icon: 'pi pi-fw pi-image',
-                                    routerLink: ['gallery'],
-                                },
-                                {
-                                    label: 'Blog',
-                                    icon: 'pi pi-fw pi-pencil',
-                                    routerLink: ['blogs'],
-                                },
-                                {
-                                    label: 'Contact Details',
-                                    icon: 'pi pi-fw pi-phone',
-                                    routerLink: ['contact-details'],
-                                },
-                            ],
-                        },
-                    ],
-                }
-            );
-        } else if (this.role == 'doctor') {
-            this.model.push({
-                label: '',
-                items: [
-                    {
-                        label: 'Appointments',
-                        icon: 'pi pi-fw pi-book',
-                        routerLink: ['appointments'],
-                    },
-                ],
-            });
         }
     }
 }

@@ -39,6 +39,11 @@ export class AppointmentService {
         return this.httpService.delete(url);
     }
 
+    deleteReport(id: string, image_id: number) {
+        const url = `${this.baseUrl}/reports/${id}`;
+        return this.httpService.patch(url, { image_id });
+    }
+
     searchBy(params: HttpParams) {
         const url = `${this.baseUrl}/search`;
         return this.httpService.get(url, params);

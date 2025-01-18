@@ -1,0 +1,41 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="branchForm" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Branch Name</label>
+                        <span class="required">*</span>
+                        <input pInputText id="name" type="text" formControlName="name" />
+                        <small class="p-error block" *ngIf="
+                        name.invalid && (name.dirty || name.touched)
+                            ">
+                            Branch Name is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="address">Address</label>
+                        <span class="required">*</span>
+                        <textarea rows="5" cols="30" pInputTextarea formControlName="address"></textarea>
+
+                        <small class="p-error block" *ngIf="
+                        address.invalid && (address.dirty || address.touched)
+                            ">
+                            Address is required</small>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/branches']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

@@ -1,0 +1,25 @@
+<form (ngSubmit)="onUpload()" [formGroup]="reportForm">
+    <div class="grid">
+        <div class="col-12">
+            <input formControlName="file" (change)="onFileSelected($event)" type="file" />
+            <small class="p-error block" *ngIf="
+            file.invalid &&
+                                    (file.dirty || file.touched)
+                                ">
+                file is required</small>
+        </div>
+        <div class="col-12">
+            <input formControlName="report_name" placeholder="report name" pInputText type="text" />
+            <small class="p-error block" *ngIf="
+            report_name.invalid &&
+                                    (report_name.dirty || report_name.touched)
+                                ">
+                report name is required</small>
+        </div>
+        <div class="col-12">
+            <button pButton class="primary" type="submit">Upload</button>
+        </div>
+    </div>
+</form>
+
+<p-toast></p-toast>

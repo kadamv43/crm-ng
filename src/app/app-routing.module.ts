@@ -85,6 +85,22 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'banks',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./bank/bank.module').then(
+                                    (m) => m.BankModule
+                                ),
+                        },
+                        {
+                            path: 'branches',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./branch/branch.module').then(
+                                    (m) => m.BranchModule
+                                ),
+                        },
+                        {
                             path: 'gallery',
                             canActivate: [AuthGuard],
                             loadChildren: () =>

@@ -11,7 +11,6 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ApiService } from 'src/app/services/api.service';
 
-
 @Component({
     selector: 'app-user-edit',
     templateUrl: './user-edit.component.html',
@@ -21,6 +20,12 @@ import { ApiService } from 'src/app/services/api.service';
 export class UserEditComponent implements OnInit {
     userForm: FormGroup;
     id: string;
+
+    roles = [
+        { name: 'Admin', code: 'admin' },
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
 
     constructor(
         private fb: FormBuilder,
@@ -34,6 +39,10 @@ export class UserEditComponent implements OnInit {
             last_name: ['', Validators.required],
             mobile: ['', [Validators.required, this.mobileNumberValidator]],
             email: ['', [Validators.email, Validators.required]],
+            username: ['', Validators.required],
+            password: ['', Validators.required],
+            role: ['', Validators.required],
+            target: ['', Validators.required],
         });
     }
     ngOnInit(): void {
@@ -45,7 +54,10 @@ export class UserEditComponent implements OnInit {
                     first_name: res.first_name,
                     last_name: res.last_name,
                     email: res.email,
-                    mobile:res?.mobile
+                    mobile: res?.mobile,
+                    role: res?.role,
+                    username: res?.username,
+                    target: res?.target,
                 });
             });
         });
@@ -63,6 +75,21 @@ export class UserEditComponent implements OnInit {
 
     get mobile() {
         return this.userForm.get('mobile');
+    }
+
+    get username() {
+        return this.userForm.get('username');
+    }
+    get password() {
+        return this.userForm.get('password');
+    }
+
+    get role() {
+        return this.userForm.get('role');
+    }
+
+    get target() {
+        return this.userForm.get('target');
     }
 
     mobileNumberValidator(control: AbstractControl): ValidationErrors | null {
@@ -85,7 +112,7 @@ export class UserEditComponent implements OnInit {
                     key: 'tst',
                     severity: 'success',
                     summary: 'Success Message',
-                    detail: 'Staff updated successfully',
+                    detail: 'Employee updated successfully',
                 });
                 setTimeout(() => {
                     this.router.navigateByUrl('users');

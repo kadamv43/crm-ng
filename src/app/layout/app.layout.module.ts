@@ -15,8 +15,8 @@ import { RouterModule } from '@angular/router';
 import { AppTopBarComponent } from './app.topbar.component';
 import { AppFooterComponent } from './app.footer.component';
 import { AppConfigModule } from './config/config.module';
-import { AppSidebarComponent } from "./app.sidebar.component";
-import { AppLayoutComponent } from "./app.layout.component";
+import { AppSidebarComponent } from './app.sidebar.component';
+import { AppLayoutComponent } from './app.layout.component';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { NotepadComponent } from './notepad/notepad.component';
 import { EditorModule } from 'primeng/editor';
@@ -34,7 +34,7 @@ import { UpdateModalComponent } from './update-modal/update-modal.component';
         AppSidebarComponent,
         AppLayoutComponent,
         NotepadComponent,
-        UpdateModalComponent
+        UpdateModalComponent,
     ],
     imports: [
         BrowserModule,
@@ -53,8 +53,8 @@ import { UpdateModalComponent } from './update-modal/update-modal.component';
         OverlayPanelModule,
         EditorModule,
         ProgressBarModule,
-        ButtonModule
+        ButtonModule,
     ],
-    exports: [AppLayoutComponent]
+    exports: [AppLayoutComponent],
 })
-export class AppLayoutModule { }
+export class AppLayoutModule {}

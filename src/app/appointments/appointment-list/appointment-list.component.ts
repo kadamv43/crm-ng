@@ -7,12 +7,9 @@ import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileUploadFormComponent } from '../file-upload-form/file-upload-form.component';
 import { DatePipe } from '@angular/common';
-import {
-    debounceTime,
-    distinctUntilChanged,
-    Subject,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { UploadReportsComponent } from '../upload-reports/upload-reports.component';
 
 @Component({
     selector: 'app-appointment-list',
@@ -79,7 +76,6 @@ export class AppointmentListComponent implements OnInit {
             });
     }
 
-
     onStatusChange(value: string) {
         this.selectedStatus = value;
         this.queryParams['status'] = value;
@@ -139,13 +135,12 @@ export class AppointmentListComponent implements OnInit {
                 this.selectedDate[1] = new Date(data['to']);
             }
             if (data['from'] && !data['to']) {
-                this.selectedDate[1] = null
+                this.selectedDate[1] = null;
                 this.selectedDate[0] = new Date(data['from']);
             }
 
             this.queryParams = { ...data };
         });
-        ;
         this.role = this.authService.getRole();
     }
 
@@ -195,11 +190,14 @@ export class AppointmentListComponent implements OnInit {
     }
 
     async clear(event) {
-        this.router.navigate(['/appointments']);
+        this.selectedStatus = '';
+        this.searchText = '';
+        let data = { first: 0, rows: 10 };
+        this.loadAppointments(data);
     }
 
     openDialog(id: string) {
-        this.ref = this.dialogService.open(FileUploadFormComponent, {
+        this.ref = this.dialogService.open(UploadReportsComponent, {
             data: {
                 id,
                 fileNameInput: false,

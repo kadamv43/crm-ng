@@ -36,7 +36,7 @@
                                 (ngModelChange)="onSearchName($event)" placeholder="Search by patient name, mobile"
                                 class="w-full" />
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <p-dropdown [options]="statusList" optionLabel="name" optionValue="code"
                                 placeholder="Select Status" autoWidth="false" (ngModelChange)="onStatusChange($event)"
                                 [(ngModel)]="selectedStatus" [style]="{ width: '100%' }" />
@@ -61,7 +61,7 @@
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 OPD No.
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
@@ -96,17 +96,17 @@
                                 <!-- <p-columnFilter type="numeric" field="balance" display="menu" currency="USD"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 6rem">
                             <div class="flex justify-content-between align-items-center">
                                 Status
                             </div>
                         </th>
-                        <th style="min-width: 10rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Doctor
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 12rem">
                             <div class="flex justify-content-between align-items-center">
                                 Action
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
@@ -154,13 +154,13 @@
                         </td>
                         <td>
                             <button *ngIf="customer.status == 'Created'" pButton pRipple type="button"
-                                label="{{ customer.status }}" class="p-button-secondary p-button-text"></button>
+                                label="{{ customer.status }}" class="p-button-secondary cursor p-button-text"></button>
                             <button *ngIf="customer.status == 'Ongoing'" pButton pRipple type="button"
-                                label="{{ customer.status }}" class="p-button-info p-button-text"></button>
+                                label="{{ customer.status }}" class="p-button-info cursor p-button-text"></button>
                             <button *ngIf="customer.status == 'Completed'" pButton pRipple type="button"
-                                label="{{ customer.status }}" class="p-button-success p-button-text"></button>
+                                label="{{ customer.status }}" class="p-button-success cursor p-button-text"></button>
                             <button *ngIf="customer.status == 'Cancelled'" pButton pRipple type="button"
-                                label="{{ customer.status }}" class="p-button-danger p-button-text"></button>
+                                label="{{ customer.status }}" class="p-button-danger cursor p-button-text"></button>
                         </td>
                         <td>
                             Dr. {{ customer?.doctor?.first_name }}
@@ -168,21 +168,22 @@
                         </td>
                         <td class="text-center">
                             <p-toast></p-toast>
-                            <i (click)="openDialog(customer._id)" class="pi pi-upload text-green-500 mx-2"></i>
+                            <i (click)="openDialog(customer._id)" class="pi pi-upload cursor text-green-500 mx-2"></i>
                             <i *ngIf="role != 'doctor'" [routerLink]="[
                                     '/appointments',
                                     'generate-invoice',
                                     customer._id
                                 ]" [queryParams]="queryParams"
-                                class="pi mx-2 true-icon pi-money-bill text-green-500"></i>
+                                class="pi mx-2 cursor true-icon pi-money-bill text-green-500"></i>
                             <i [routerLink]="[
                                     '/appointments',
                                     'edit',
                                     customer._id
-                                ]" [queryParams]="queryParams" class="pi mx-2 true-icon pi-pencil text-green-500"></i>
+                                ]" [queryParams]="queryParams"
+                                class="pi cursor mx-2 true-icon pi-pencil text-green-500"></i>
 
                             <i [routerLink]="['/appointments','reports',customer._id]" [queryParams]="queryParams"
-                                class="pi mx-2 true-icon pi-file text-green-500"></i>
+                                class="pi mx-2 true-icon pi-file text-green-500 cursor"></i>
                         </td>
                     </tr>
                 </ng-template>

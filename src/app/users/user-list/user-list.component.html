@@ -3,26 +3,15 @@
         <p-toolbar styleClass="mb-4">
             <ng-template pTemplate="left">
                 <div class="my-2">
-                    <button
-                        pButton
-                        label="New Staff"
-                        class="p-button-outlined mb-2"
-                        icon="pi pi-plus"
-                        [routerLink]="['/users', 'create']"
-                    ></button>
+                    <button pButton label="New Employee" class="p-button-outlined mb-2" icon="pi pi-plus"
+                        [routerLink]="['/users', 'create']"></button>
                 </div>
             </ng-template>
 
             <ng-template pTemplate="right">
                 <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload> -->
-                <button
-                    pButton
-                    pRipple
-                    label="Export"
-                    icon="pi pi-download"
-                    class="p-button-help secondary"
-                    (click)="exportExcel()"
-                ></button>
+                <!-- <button pButton pRipple label="Export" icon="pi pi-download" class="p-button-help secondary"
+                    (click)="exportExcel()"></button> -->
             </ng-template>
         </p-toolbar>
     </div>
@@ -30,106 +19,71 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Staff</h5>
-            <p-table
-                #dt1
-                [value]="users"
-                dataKey="id"
-                [rows]="10"
-				[lazy]="true"
-                [totalRecords]="totalRecords"
-                [rowHover]="true"
-                styleClass="p-datatable-gridlines"
-                [paginator]="true"
-				 (onLazyLoad)="loadUsers($event)"
+            <h5>Employee</h5>
+            <p-table #dt1 [value]="users" dataKey="id" [rows]="10" [lazy]="true" [totalRecords]="totalRecords"
+                [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" (onLazyLoad)="loadUsers($event)"
                 [globalFilterFields]="[
                     'name',
                     'country.name',
                     'representative.name',
                     'status'
-                ]"
-                responsiveLayout="scroll"
-            >
+                ]" responsiveLayout="scroll">
                 <ng-template pTemplate="caption">
-                    <div
-                        class="flex justify-content-between flex-column sm:flex-row"
-                    >
+                    <div class="flex justify-content-between flex-column sm:flex-row">
                         <!-- <button pButton label="New Staff" class="p-button-outlined mb-2" icon="pi pi-plus" (click)="goTo('users/create')"></button> -->
                         <!-- <button pButton type="button" label="New" icon="pi pi-plus" class="mr-2"></button> -->
                         <span class="p-input-icon-left mb-2">
                             <i class="pi pi-search"></i>
-                            <input
-                                pInputText
-                                type="text"
-                                #filter
-                                (input)="search(dt1, $event)"
-                                placeholder="Search Keyword"
-                                class="w-full"
-                            />
+                            <input pInputText type="text" #filter (input)="search(dt1, $event)"
+                                placeholder="Search Keyword" class="w-full" />
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="min-width: 12rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 First Name
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
                         <th style="min-width: 12rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Last Name
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
                         <th style="min-width: 12rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Email
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                         <th style="min-width: 12rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
                                 Mobile
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
                         <th style="min-width: 8rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Role
                             </div>
                         </th>
                         <th style="min-width: 8rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Created
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
                         <th style="min-width: 8rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Status
                             </div>
                         </th>
 
                         <th style="min-width: 8rem">
-                            <div
-                                class="flex justify-content-between align-items-center"
-                            >
+                            <div class="flex justify-content-between align-items-center">
                                 Action
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
                             </div>
@@ -147,7 +101,7 @@
                         <td>
                             {{ customer.email }}
                         </td>
-                         <td>
+                        <td>
                             {{ customer.mobile }}
                         </td>
                         <td>
@@ -159,22 +113,19 @@
                         <td>Active</td>
                         <td class="">
                             <p-toast></p-toast>
-                            <i
-                                [routerLink]="[
+                            <i [routerLink]="[
                                     '/users',
                                     'edit',
                                     customer._id
-                                ]"
-                                class="pi mx-4 true-icon pi-pencil text-green-500 cursor-pointer"
-                            ></i>
-                            <!-- <i (click)="confirm2($event,customer)" class="pi false-icon pi-trash text-pink-500" ></i> -->
+                                ]" class="pi mx-4 true-icon pi-pencil text-green-500 cursor-pointer"></i>
+                            <i (click)="confirm2($event,customer)" class="pi false-icon pi-trash text-pink-500"></i>
                             <p-confirmPopup key="confirm2"></p-confirmPopup>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="8">No customers found.</td>
+                        <td colspan="8">No Employee found.</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="loadingbody">

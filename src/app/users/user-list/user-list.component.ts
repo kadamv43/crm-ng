@@ -65,7 +65,7 @@ export class UserListComponent {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
-                        detail: 'User Deleted Successfully',
+                        detail: 'Employee Deleted Successfully',
                     });
                     let removedItemIndex = this.users.findIndex(
                         (item) => item._id == user._id
