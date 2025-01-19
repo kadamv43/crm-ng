@@ -25,7 +25,10 @@ export class UserCreateComponent implements OnInit {
     userForm: FormGroup;
     branches: any = [];
     tlList: any = [];
+    adminList: any = [];
     showTlList = false;
+    showAdminList = false;
+    selectedRole = '';
 
     roles = [
         { name: 'Admin', code: 'admin' },
@@ -53,9 +56,14 @@ export class UserCreateComponent implements OnInit {
             role: ['', [Validators.required]],
             branch: ['', Validators.required],
             teamlead: [''],
+            admin: [''],
         });
     }
     ngOnInit(): void {
+        this.getBranchList();
+    }
+
+    getBranchList() {
         let params = {};
         params['page'] = 0;
         params['size'] = 30;
@@ -68,8 +76,29 @@ export class UserCreateComponent implements OnInit {
                 });
             },
         });
+    }
+    getAdminList() {
+        let params = {};
+        params['page'] = 0;
+        params['size'] = 30;
+        params['role'] = 'admin';
+        params['branch'] = this.userForm.get('branch').value;
+        let queryParams2 = this.commonService.getHttpParamsByJson(params);
+        this.userService.getAll(queryParams2).subscribe({
+            next: (res: any) => {
+                this.adminList = res?.data?.map((element) => {
+                    return { name: element.username, code: element._id };
+                });
+            },
+        });
+    }
 
+    getTlList() {
+        let params = {};
+        params['page'] = 0;
+        params['size'] = 30;
         params['role'] = 'teamlead';
+        params['branch'] = this.userForm.get('branch').value;
         let queryParams2 = this.commonService.getHttpParamsByJson(params);
         this.userService.getAll(queryParams2).subscribe({
             next: (res: any) => {
@@ -96,6 +125,10 @@ export class UserCreateComponent implements OnInit {
 
     get teamlead() {
         return this.userForm.get('teamlead');
+    }
+
+    get admin() {
+        return this.userForm.get('admin');
     }
 
     get username() {
@@ -129,16 +162,34 @@ export class UserCreateComponent implements OnInit {
     }
 
     onRoleChange() {
-        if (this.userForm.get('role').value == 'employee') {
+        this.selectedRole = this.userForm.get('role').value;
+        if (this.selectedRole == 'employee') {
+            this.getTlList();
             this.userForm.get('teamlead')?.setValidators([Validators.required]);
             this.userForm.get('teamlead')?.updateValueAndValidity();
+            this.userForm.get('admin')?.removeValidators([Validators.required]);
+            this.userForm.get('admin')?.updateValueAndValidity();
             this.showTlList = true;
+            this.showAdminList = false;
+        } else if (this.selectedRole == 'teamlead') {
+            this.getAdminList();
+            this.userForm.get('admin')?.setValidators([Validators.required]);
+            this.userForm.get('admin')?.updateValueAndValidity();
+            this.userForm
+                .get('teamlead')
+                ?.removeValidators([Validators.required]);
+            this.userForm.get('teamlead')?.updateValueAndValidity();
+            this.showAdminList = true;
+            this.showTlList = false;
         } else {
             this.userForm
                 .get('teamlead')
                 ?.removeValidators([Validators.required]);
             this.userForm.get('teamlead')?.updateValueAndValidity();
+            this.userForm.get('admin')?.removeValidators([Validators.required]);
+            this.userForm.get('admin')?.updateValueAndValidity();
             this.showTlList = false;
+            this.showAdminList = false;
         }
     }
     async submitUser() {

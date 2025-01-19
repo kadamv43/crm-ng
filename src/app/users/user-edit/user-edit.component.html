@@ -4,16 +4,6 @@
             <h5>Employee</h5>
             <form [formGroup]="userForm" (ngSubmit)="submitUser()">
                 <div class="p-fluid p-formgrid grid">
-                    <div class="field col-12 md:col-12">
-                        <label htmlFor="title">Store Branch</label>
-                        <span class="required">*</span>
-                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
-                            placeholder="Select Store branch" />
-                        <small class="p-error block" *ngIf="
-                            branch.invalid && (branch.dirty || branch.touched)
-                                ">
-                            Store Branch is required</small>
-                    </div>
                     <div class="field col-6 md:col-6">
                         <label htmlFor="firstname2">First name</label>
                         <input pInputText id="firstname2" type="text" formControlName="first_name" />
@@ -92,6 +82,25 @@
 
                 <div class="p-fluid p-formgrid grid">
                     <div class="field col-6">
+                        <label htmlFor="lastname2">Target</label>
+                        <input pInputText id="lastname2" type="text" formControlName="target" />
+                        <small class="p-error block" *ngIf="
+                        target.invalid &&
+                               (target.dirty || target.touched) && target.hasError('required')
+                           ">
+                            Target is required</small>
+                    </div>
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="title">Store Branch</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
+                            placeholder="Select Store branch" />
+                        <small class="p-error block" *ngIf="
+                            branch.invalid && (branch.dirty || branch.touched)
+                                ">
+                            Store Branch is required</small>
+                    </div>
+                    <div class="field col-6">
                         <label htmlFor="lastname2">Role</label>
                         <p-dropdown [options]="roles" optionLabel="name" optionValue="code" formControlName="role"
                             placeholder="Select Role" />
@@ -101,15 +110,7 @@
                            ">
                             role is required</small>
                     </div>
-                    <div class="field col-6">
-                        <label htmlFor="lastname2">Target</label>
-                        <input pInputText id="lastname2" type="text" formControlName="target" />
-                        <small class="p-error block" *ngIf="
-                        target.invalid &&
-                               (target.dirty || target.touched) && target.hasError('required')
-                           ">
-                            Target is required</small>
-                    </div>
+
                 </div>
 
                 <div class="grid">
