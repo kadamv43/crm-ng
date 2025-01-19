@@ -28,16 +28,25 @@ export class NewPasswordComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute
     ) {
-        this.loginForm = fb.group({
-            password: ['', [Validators.required]],
-            conf_password: ['', [Validators.required]],
-            otp: ['', Validators.required],
-        });
+        this.loginForm = fb.group(
+            {
+                password: ['', [Validators.required]],
+                conf_password: ['', [Validators.required]],
+                otp: ['', Validators.required],
+            },
+            { validator: this.passwordMatchValidator } // Attach the custom validator
+        );
     }
     ngOnInit(): void {
         this.route.paramMap.subscribe((params: ParamMap) => {
             this.id = params.get('id');
         });
+    }
+
+    passwordMatchValidator(group: FormGroup) {
+        const password = group.get('password')?.value;
+        const confirmPassword = group.get('conf_password')?.value;
+        return password === confirmPassword ? null : { mismatch: true };
     }
 
     get password() {

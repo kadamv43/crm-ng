@@ -48,7 +48,7 @@ export class UserEditComponent implements OnInit {
             mobile: ['', [Validators.required, this.mobileNumberValidator]],
             email: ['', [Validators.email, Validators.required]],
             username: ['', Validators.required],
-            password: ['', Validators.required],
+            password: [''],
             role: ['', Validators.required],
             target: ['', Validators.required],
             branch: ['', Validators.required],

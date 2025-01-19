@@ -1,8 +1,8 @@
 {
-    "name": "Genomics",
-    "version": "1.2.12",
-    "author": "Shree Swami Samarth Media Pvt Ltd",
-    "description": "Genomics Admin App",
+    "name": "CRM",
+    "version": "1.0.0",
+    "author": "Vinayak",
+    "description": "CRM",
     "main": "app.js",
     "license": "MIT",
     "scripts": {
@@ -16,8 +16,8 @@
         "electron": "ng build --configuration=production --aot --base-href ./ && electron ."
     },
     "build": {
-        "appId": "com.example.app",
-        "productName": "Genomics Admin",
+        "appId": "com.example.crm",
+        "productName": "CRM",
         "directories": {
             "output": "dist"
         },
@@ -42,7 +42,7 @@
             {
                 "provider": "github",
                 "owner": "kadamv43",
-                "repo": "genomics-updater"
+                "repo": "crm-updater"
             }
         ]
     },

@@ -41,44 +41,45 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 First Name
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Last Name
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 9rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Username
+                                <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 10rem">
                             <div class="flex justify-content-between align-items-center">
                                 Email
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 6rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 6rem">
                             <div class="flex justify-content-between align-items-center">
                                 Role
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 6rem">
                             <div class="flex justify-content-between align-items-center">
                                 Created
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
-                            </div>
-                        </th>
-                        <th style="min-width: 8rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Status
                             </div>
                         </th>
 
@@ -99,6 +100,9 @@
                             {{ customer.last_name }}
                         </td>
                         <td>
+                            {{ customer.username }}
+                        </td>
+                        <td>
                             {{ customer.email }}
                         </td>
                         <td>
@@ -110,7 +114,7 @@
                         <td>
                             {{ customer.created_at | date : "MM/dd/yyyy" }}
                         </td>
-                        <td>Active</td>
+                        <!-- <td>Active</td> -->
                         <td class="">
                             <p-toast></p-toast>
                             <i [routerLink]="[
