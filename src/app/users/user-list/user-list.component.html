@@ -65,6 +65,12 @@
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                branch
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
                         <th style="min-width: 6rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
@@ -105,6 +111,10 @@
                         <td>
                             {{ customer.email }}
                         </td>
+                        <td>
+                            {{ customer?.branch?.name }}
+                        </td>
+
                         <td>
                             {{ customer.mobile }}
                         </td>
