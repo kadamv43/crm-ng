@@ -1,0 +1,54 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Store Branch</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
+                            placeholder="Select Store branch" />
+                        <small class="p-error block" *ngIf="
+                        branch.invalid && (branch.dirty || branch.touched)
+                            ">
+                            Store Branch is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Name</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="name" />
+                        <small class="p-error block" *ngIf="
+                        name.invalid && (name.dirty || name.touched)
+                            ">
+                            Name is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Link</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="link" />
+                        <small class="p-error block" *ngIf="
+                        link.invalid && (link.dirty || link.touched)
+                            ">
+                            Link is required</small>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/payment-links']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

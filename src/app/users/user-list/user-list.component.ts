@@ -36,6 +36,7 @@ export class UserListComponent {
 
         params['page'] = page;
         params['size'] = size;
+        // params['role'] = 'teamlead';
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
 

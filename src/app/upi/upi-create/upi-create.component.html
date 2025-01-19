@@ -1,0 +1,54 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Store Branch</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
+                            placeholder="Select Store branch" />
+                        <small class="p-error block" *ngIf="
+                        branch.invalid && (branch.dirty || branch.touched)
+                            ">
+                            Store Branch is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">UPI ID</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="upi_id" />
+                        <small class="p-error block" *ngIf="
+                        upi_id.invalid && (upi_id.dirty || upi_id.touched)
+                            ">
+                            UPI ID is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">UPI Number</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="upi_number" />
+                        <small class="p-error block" *ngIf="
+                        upi_number.invalid && (upi_number.dirty || upi_number.touched)
+                            ">
+                            Link is required</small>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/upi']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

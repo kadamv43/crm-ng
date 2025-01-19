@@ -66,12 +66,12 @@ export class AppMenuComponent implements OnInit {
                                 {
                                     label: 'UPI',
                                     icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['gallery'],
+                                    routerLink: ['upi'],
                                 },
                                 {
                                     label: 'Payment Link',
                                     icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['blogs'],
+                                    routerLink: ['payment-links'],
                                 },
                             ],
                         },

@@ -5,20 +5,21 @@ import { MessageService } from 'primeng/api';
 import { BanksService } from 'src/app/services/banks/banks.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { CommonService } from 'src/app/services/common/common.service';
+import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 
 @Component({
-    selector: 'app-bank-edit',
-    templateUrl: './bank-edit.component.html',
-    styleUrl: './bank-edit.component.scss',
+    selector: 'app-payment-link-edit',
+    templateUrl: './payment-link-edit.component.html',
+    styleUrl: './payment-link-edit.component.scss',
     providers: [MessageService],
 })
-export class BankEditComponent implements OnInit {
+export class PaymentLinkEditComponent {
     form: FormGroup;
     id: string;
     loading = false;
     branches: any = [];
     constructor(
-        private service: BanksService,
+        private service: PaymentLinksService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder,
@@ -27,11 +28,9 @@ export class BankEditComponent implements OnInit {
         private branchService: BranchesService
     ) {
         this.form = this.fb.group({
-            account_holder: ['', Validators.required],
-            account_number: ['', Validators.required],
-            bank_name: ['', Validators.required],
+            name: ['', Validators.required],
+            link: ['', Validators.required],
             branch: ['', Validators.required],
-            ifsc_code: ['', [Validators.required]],
         });
     }
 
@@ -40,11 +39,9 @@ export class BankEditComponent implements OnInit {
             this.id = params.get('id');
             this.service.findById(this.id).subscribe((res: any) => {
                 this.form.patchValue({
-                    account_holder: res?.account_holder,
-                    account_number: res?.account_number,
-                    bank_name: res?.bank_name,
+                    link: res?.link,
+                    name: res?.name,
                     branch: res?.branch?._id,
-                    ifsc_code: res?.ifsc_code,
                 });
             });
         });
@@ -67,19 +64,11 @@ export class BankEditComponent implements OnInit {
         return this.form.get('branch');
     }
 
-    get account_holder() {
-        return this.form.get('account_holder');
+    get name() {
+        return this.form.get('name');
     }
-    get account_number() {
-        return this.form.get('account_number');
-    }
-
-    get bank_name() {
-        return this.form.get('bank_name');
-    }
-
-    get ifsc_code() {
-        return this.form.get('ifsc_code');
+    get link() {
+        return this.form.get('link');
     }
 
     async submit() {
@@ -93,9 +82,9 @@ export class BankEditComponent implements OnInit {
                         key: 'tst',
                         severity: 'success',
                         summary: 'Success Message',
-                        detail: 'Bank Updated successfully',
+                        detail: 'Payment Link Updated successfully',
                     });
-                    this.router.navigateByUrl('banks');
+                    this.router.navigateByUrl('payment-links');
                 },
                 error: (err) => {
                     this.toast.add({

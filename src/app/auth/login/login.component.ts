@@ -27,13 +27,13 @@ export class LoginComponent {
         private router: Router
     ) {
         this.loginForm = fb.group({
-            email: ['', [Validators.required, Validators.email]],
+            username: ['', Validators.required],
             password: ['', Validators.required],
         });
     }
 
-    get email() {
-        return this.loginForm.get('email');
+    get username() {
+        return this.loginForm.get('username');
     }
 
     get password() {
@@ -51,15 +51,18 @@ export class LoginComponent {
 
                     this.apiService
                         .getAuthUserDetails()
-                        .subscribe(async(res: any) => {
-                            localStorage.setItem('mobile',res?.mobile)
+                        .subscribe(async (res: any) => {
+                            localStorage.setItem('mobile', res?.mobile);
                             localStorage.setItem('role', res.role);
                             this.apiService.getAppConfig().subscribe({
-                                next:(res)=>{
-                                    localStorage.setItem("config",JSON.stringify(res))
-                                }
-                            })
-                            
+                                next: (res) => {
+                                    localStorage.setItem(
+                                        'config',
+                                        JSON.stringify(res)
+                                    );
+                                },
+                            });
+
                             setTimeout(() => {
                                 this.loading = false;
                                 this.router.navigateByUrl('/');

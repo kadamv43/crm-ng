@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { Table } from 'primeng/table';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -8,17 +7,16 @@ import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
 import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import * as FileSaver from 'file-saver';
-import { BanksService } from 'src/app/services/banks/banks.service';
+import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 
 @Component({
-    selector: 'app-bank-list',
-    templateUrl: './bank-list.component.html',
-    styleUrl: './bank-list.component.scss',
+    selector: 'app-payment-link-list',
+    templateUrl: './payment-link-list.component.html',
+    styleUrl: './payment-link-list.component.scss',
     providers: [MessageService, ConfirmationService, DialogService, DatePipe],
 })
-export class BankListComponent {
+export class PaymentLinkListComponent {
     statusList = [
         { name: 'Created', code: 'Created' },
         { name: 'Ongoing', code: 'Ongoing' },
@@ -50,7 +48,7 @@ export class BankListComponent {
     ref: DynamicDialogRef | undefined;
 
     constructor(
-        private banksService: BanksService,
+        private service: PaymentLinksService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
@@ -96,7 +94,7 @@ export class BankListComponent {
         params['size'] = size;
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.banksService.getAll(queryParams).subscribe((data: any) => {
+        this.service.getAll(queryParams).subscribe((data: any) => {
             this.appointments = data.data;
             this.totalRecords = data.total;
             this.loading = false;
@@ -114,7 +112,7 @@ export class BankListComponent {
             message: 'Are you sure that you want to proceed?',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.banksService.delete(user._id).subscribe((res) => {
+                this.service.delete(user._id).subscribe((res) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
@@ -165,12 +163,12 @@ export class BankListComponent {
         }
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.banksService.getAll(queryParams).subscribe((res) => {
+        this.service.getAll(queryParams).subscribe((res) => {
             this.appointments = res;
         });
     }
     async updateStatus(id, status) {
-        this.banksService.update(id, { status }).subscribe((res) => {
+        this.service.update(id, { status }).subscribe((res) => {
             this.messageService.add({
                 // key: 'tst',
                 severity: 'success',

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     AbstractControl,
     FormBuilder,
@@ -11,6 +11,9 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { concatMap, switchMap } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
+import { BranchesService } from 'src/app/services/branches/branches.service';
+import { CommonService } from 'src/app/services/common/common.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
     selector: 'app-user-create',
@@ -18,8 +21,10 @@ import { ApiService } from 'src/app/services/api.service';
     styleUrl: './user-create.component.scss',
     providers: [MessageService],
 })
-export class UserCreateComponent {
+export class UserCreateComponent implements OnInit {
     userForm: FormGroup;
+    branches: any = [];
+    tlList: any = [];
 
     roles = [
         { name: 'Admin', code: 'admin' },
@@ -31,6 +36,9 @@ export class UserCreateComponent {
         private fb: FormBuilder,
         private api: ApiService,
         private toast: MessageService,
+        private branchService: BranchesService,
+        private userService: UsersService,
+        private commonService: CommonService,
         private router: Router
     ) {
         this.userForm = fb.group({
@@ -42,6 +50,32 @@ export class UserCreateComponent {
             target: ['', [Validators.required]],
             password: ['', [Validators.required]],
             role: ['', [Validators.required]],
+            branch: ['', Validators.required],
+            teamlead: [''],
+        });
+    }
+    ngOnInit(): void {
+        let params = {};
+        params['page'] = 0;
+        params['size'] = 30;
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+        this.branchService.getAll(queryParams).subscribe({
+            next: (res: any) => {
+                this.branches = res?.data?.map((element) => {
+                    return { name: element.name, code: element._id };
+                });
+            },
+        });
+
+        params['role'] = 'teamlead';
+        let queryParams2 = this.commonService.getHttpParamsByJson(params);
+        this.userService.getAll(queryParams2).subscribe({
+            next: (res: any) => {
+                this.tlList = res?.data?.map((element) => {
+                    return { name: element.username, code: element._id };
+                });
+            },
         });
     }
 
@@ -53,6 +87,14 @@ export class UserCreateComponent {
     }
     get email() {
         return this.userForm.get('email');
+    }
+
+    get branch() {
+        return this.userForm.get('branch');
+    }
+
+    get teamlead() {
+        return this.userForm.get('teamlead');
     }
 
     get username() {

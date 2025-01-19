@@ -5,20 +5,22 @@ import { MessageService } from 'primeng/api';
 import { BanksService } from 'src/app/services/banks/banks.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { CommonService } from 'src/app/services/common/common.service';
+import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
+import { UpiService } from 'src/app/services/upi/upi.service';
 
 @Component({
-    selector: 'app-bank-edit',
-    templateUrl: './bank-edit.component.html',
-    styleUrl: './bank-edit.component.scss',
+    selector: 'app-upi-edit',
+    templateUrl: './upi-edit.component.html',
+    styleUrl: './upi-edit.component.scss',
     providers: [MessageService],
 })
-export class BankEditComponent implements OnInit {
+export class UpiEditComponent {
     form: FormGroup;
     id: string;
     loading = false;
     branches: any = [];
     constructor(
-        private service: BanksService,
+        private service: UpiService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder,
@@ -27,11 +29,9 @@ export class BankEditComponent implements OnInit {
         private branchService: BranchesService
     ) {
         this.form = this.fb.group({
-            account_holder: ['', Validators.required],
-            account_number: ['', Validators.required],
-            bank_name: ['', Validators.required],
+            upi_id: ['', Validators.required],
+            upi_number: ['', Validators.required],
             branch: ['', Validators.required],
-            ifsc_code: ['', [Validators.required]],
         });
     }
 
@@ -40,11 +40,9 @@ export class BankEditComponent implements OnInit {
             this.id = params.get('id');
             this.service.findById(this.id).subscribe((res: any) => {
                 this.form.patchValue({
-                    account_holder: res?.account_holder,
-                    account_number: res?.account_number,
-                    bank_name: res?.bank_name,
+                    upi_id: res?.upi_id,
+                    upi_number: res?.upi_number,
                     branch: res?.branch?._id,
-                    ifsc_code: res?.ifsc_code,
                 });
             });
         });
@@ -67,19 +65,11 @@ export class BankEditComponent implements OnInit {
         return this.form.get('branch');
     }
 
-    get account_holder() {
-        return this.form.get('account_holder');
+    get upi_id() {
+        return this.form.get('upi_id');
     }
-    get account_number() {
-        return this.form.get('account_number');
-    }
-
-    get bank_name() {
-        return this.form.get('bank_name');
-    }
-
-    get ifsc_code() {
-        return this.form.get('ifsc_code');
+    get upi_number() {
+        return this.form.get('upi_number');
     }
 
     async submit() {
@@ -93,9 +83,9 @@ export class BankEditComponent implements OnInit {
                         key: 'tst',
                         severity: 'success',
                         summary: 'Success Message',
-                        detail: 'Bank Updated successfully',
+                        detail: 'UPI Updated successfully',
                     });
-                    this.router.navigateByUrl('banks');
+                    this.router.navigateByUrl('upi');
                 },
                 error: (err) => {
                     this.toast.add({

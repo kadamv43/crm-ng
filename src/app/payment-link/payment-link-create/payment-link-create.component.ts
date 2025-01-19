@@ -6,32 +6,31 @@ import { BanksService } from 'src/app/services/banks/banks.service';
 import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { CommonService } from 'src/app/services/common/common.service';
+import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'app-bank-create',
-    templateUrl: './bank-create.component.html',
-    styleUrl: './bank-create.component.scss',
+    selector: 'app-payment-link-create',
+    templateUrl: './payment-link-create.component.html',
+    styleUrl: './payment-link-create.component.scss',
     providers: [MessageService],
 })
-export class BankCreateComponent implements OnInit {
-    bankForm: FormGroup;
+export class PaymentLinkCreateComponent {
+    form: FormGroup;
     branches: any = [];
 
     constructor(
-        private bankService: BanksService,
+        private service: PaymentLinksService,
         private commonService: CommonService,
         private branchService: BranchesService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder
     ) {
-        this.bankForm = this.fb.group({
-            account_holder: ['', Validators.required],
-            account_number: ['', Validators.required],
-            bank_name: ['', Validators.required],
+        this.form = this.fb.group({
+            name: ['', Validators.required],
+            link: ['', Validators.required],
             branch: ['', Validators.required],
-            ifsc_code: ['', [Validators.required]],
         });
     }
 
@@ -51,36 +50,28 @@ export class BankCreateComponent implements OnInit {
     }
 
     get branch() {
-        return this.bankForm.get('branch');
+        return this.form.get('branch');
     }
 
-    get account_holder() {
-        return this.bankForm.get('account_holder');
+    get name() {
+        return this.form.get('name');
     }
-    get account_number() {
-        return this.bankForm.get('account_number');
-    }
-
-    get bank_name() {
-        return this.bankForm.get('bank_name');
-    }
-
-    get ifsc_code() {
-        return this.bankForm.get('ifsc_code');
+    get link() {
+        return this.form.get('link');
     }
 
     async submit() {
-        this.bankForm.markAllAsTouched();
-        if (this.bankForm.valid) {
-            this.bankService.create(this.bankForm.value).subscribe((res) => {
+        this.form.markAllAsTouched();
+        if (this.form.valid) {
+            this.service.create(this.form.value).subscribe((res) => {
                 this.toast.add({
                     key: 'tst',
                     severity: 'success',
                     summary: 'Success Message',
-                    detail: 'Bank created successfully',
+                    detail: 'Payment Link created successfully',
                 });
                 setTimeout(() => {
-                    this.router.navigateByUrl('banks');
+                    this.router.navigateByUrl('payment-links');
                 }, 2000);
             });
         }

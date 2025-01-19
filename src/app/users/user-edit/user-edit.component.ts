@@ -10,6 +10,9 @@ import {
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ApiService } from 'src/app/services/api.service';
+import { BranchesService } from 'src/app/services/branches/branches.service';
+import { CommonService } from 'src/app/services/common/common.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
     selector: 'app-user-edit',
@@ -20,6 +23,8 @@ import { ApiService } from 'src/app/services/api.service';
 export class UserEditComponent implements OnInit {
     userForm: FormGroup;
     id: string;
+    branches: any = [];
+    tlList: any = [];
 
     roles = [
         { name: 'Admin', code: 'admin' },
@@ -30,6 +35,9 @@ export class UserEditComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private api: ApiService,
+        private commonService: CommonService,
+        private branchService: BranchesService,
+        private userService: UsersService,
         private toast: MessageService,
         private router: Router,
         private route: ActivatedRoute
@@ -43,6 +51,7 @@ export class UserEditComponent implements OnInit {
             password: ['', Validators.required],
             role: ['', Validators.required],
             target: ['', Validators.required],
+            branch: ['', Validators.required],
         });
     }
     ngOnInit(): void {
@@ -58,9 +67,41 @@ export class UserEditComponent implements OnInit {
                     role: res?.role,
                     username: res?.username,
                     target: res?.target,
+                    branch: res?.branch?._id,
                 });
             });
         });
+
+        this.getApis();
+    }
+
+    getApis(): void {
+        let params = {};
+        params['page'] = 0;
+        params['size'] = 30;
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+        this.branchService.getAll(queryParams).subscribe({
+            next: (res: any) => {
+                this.branches = res?.data?.map((element) => {
+                    return { name: element.name, code: element._id };
+                });
+            },
+        });
+
+        params['role'] = 'teamlead';
+        let queryParams2 = this.commonService.getHttpParamsByJson(params);
+        this.userService.getAll(queryParams2).subscribe({
+            next: (res: any) => {
+                this.tlList = res?.data?.map((element) => {
+                    return { name: element.username, code: element._id };
+                });
+            },
+        });
+    }
+
+    get branch() {
+        return this.userForm.get('branch');
     }
 
     get first_name() {

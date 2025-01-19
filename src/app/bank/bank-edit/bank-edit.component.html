@@ -1,1 +1,77 @@
-<p>bank-edit works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Store Branch</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
+                            placeholder="Select Store branch" />
+                        <small class="p-error block" *ngIf="
+                        branch.invalid && (branch.dirty || branch.touched)
+                            ">
+                            Store Branch is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Account Holder</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="account_holder" />
+                        <small class="p-error block" *ngIf="
+                        account_holder.invalid && (account_holder.dirty || account_holder.touched)
+                            ">
+                            Account Holder is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Account Number</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="account_number" />
+                        <small class="p-error block" *ngIf="
+                        account_number.invalid && (account_number.dirty || account_number.touched)
+                            ">
+                            Account Number is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Bank Name</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="bank_name" />
+                        <small class="p-error block" *ngIf="
+                        bank_name.invalid && (bank_name.dirty || bank_name.touched)
+                            ">
+                            Bank Name is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="title">Ifsc Code</label>
+                        <span class="required">*</span>
+                        <input pInputText id="title" type="text" formControlName="ifsc_code" />
+                        <small class="p-error block" *ngIf="
+                        ifsc_code.invalid && (ifsc_code.dirty || ifsc_code.touched)
+                            ">
+                            ifsc Code is required</small>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton [loading]="loading" pRipple class="primary" type="submit"
+                            label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/banks']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

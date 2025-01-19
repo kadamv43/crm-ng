@@ -93,6 +93,22 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'payment-links',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import(
+                                    './payment-link/payment-link.module'
+                                ).then((m) => m.PaymentLinkModule),
+                        },
+                        {
+                            path: 'upi',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./upi/upi.module').then(
+                                    (m) => m.UpiModule
+                                ),
+                        },
+                        {
                             path: 'branches',
                             canActivate: [AuthGuard],
                             loadChildren: () =>
