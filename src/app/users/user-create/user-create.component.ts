@@ -25,6 +25,7 @@ export class UserCreateComponent implements OnInit {
     userForm: FormGroup;
     branches: any = [];
     tlList: any = [];
+    showTlList = false;
 
     roles = [
         { name: 'Admin', code: 'admin' },
@@ -127,11 +128,23 @@ export class UserCreateComponent implements OnInit {
             : { invalidMobile: true };
     }
 
+    onRoleChange() {
+        if (this.userForm.get('role').value == 'employee') {
+            this.userForm.get('teamlead')?.setValidators([Validators.required]);
+            this.userForm.get('teamlead')?.updateValueAndValidity();
+            this.showTlList = true;
+        } else {
+            this.userForm
+                .get('teamlead')
+                ?.removeValidators([Validators.required]);
+            this.userForm.get('teamlead')?.updateValueAndValidity();
+            this.showTlList = false;
+        }
+    }
     async submitUser() {
         this.userForm.markAllAsTouched();
         let user = this.userForm.value;
-        user.password = 'pass';
-        user.phone = '';
+        user.password_text = user.password;
 
         if (this.userForm.valid) {
             this.api.createUser(user).subscribe((res: any) => {

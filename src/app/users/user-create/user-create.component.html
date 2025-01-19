@@ -100,8 +100,8 @@
                     </div>
                     <div class="field col-6">
                         <label htmlFor="lastname2">Role</label>
-                        <p-dropdown [options]="roles" optionLabel="name" optionValue="code" formControlName="role"
-                            placeholder="Select Role" />
+                        <p-dropdown (onChange)="onRoleChange()" [options]="roles" optionLabel="name" optionValue="code"
+                            formControlName="role" placeholder="Select Role" />
                         <small class="p-error block" *ngIf="
                         role.invalid &&
                                (role.dirty || role.touched) && role.hasError('required')
@@ -110,7 +110,7 @@
                     </div>
                 </div>
 
-                <div class="p-fluid p-formgrid grid">
+                <div *ngIf="showTlList" class="p-fluid p-formgrid grid">
                     <div class="field col-6">
                         <label htmlFor="lastname2">TL</label>
                         <p-dropdown [options]="tlList" optionLabel="name" optionValue="code" formControlName="teamlead"

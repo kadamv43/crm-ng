@@ -116,7 +116,7 @@ export class PaymentLinkListComponent {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
-                        detail: 'Appointments Deleted Successfully',
+                        detail: 'Payment Link Deleted Successfully',
                     });
                     let removedItemIndex = this.appointments.findIndex(
                         (item) => item._id == user._id
@@ -128,7 +128,7 @@ export class PaymentLinkListComponent {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Rejected',
-                    detail: 'Unable to delete Appointments',
+                    detail: 'Unable to delete Payment Link',
                 });
             },
         });

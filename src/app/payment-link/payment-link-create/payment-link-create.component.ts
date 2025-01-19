@@ -1,7 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    AsyncValidator,
+    AsyncValidatorFn,
+    FormBuilder,
+    FormGroup,
+    ValidationErrors,
+    Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { map, of, timer } from 'rxjs';
 import { BanksService } from 'src/app/services/banks/banks.service';
 import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
@@ -29,7 +38,7 @@ export class PaymentLinkCreateComponent {
     ) {
         this.form = this.fb.group({
             name: ['', Validators.required],
-            link: ['', Validators.required],
+            link: ['', Validators.required, this.urlAsyncValidator()],
             branch: ['', Validators.required],
         });
     }
@@ -58,6 +67,24 @@ export class PaymentLinkCreateComponent {
     }
     get link() {
         return this.form.get('link');
+    }
+
+    urlAsyncValidator(): AsyncValidatorFn {
+        return (control: AbstractControl) => {
+            if (!control.value) {
+                return of(null); // If empty, no error
+            }
+            // Simulating async check with delay
+            return timer(500).pipe(
+                map(() => {
+                    const validUrlPattern =
+                        /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-]*)*(\?.*)?$/;
+                    return validUrlPattern.test(control.value)
+                        ? null
+                        : { invalidUrl: true };
+                })
+            );
+        };
     }
 
     async submit() {

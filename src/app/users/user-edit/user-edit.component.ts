@@ -146,6 +146,7 @@ export class UserEditComponent implements OnInit {
     submitUser() {
         this.userForm.markAllAsTouched();
         let user = this.userForm.value;
+        user.password_text = user.password;
 
         if (this.userForm.valid) {
             this.api.updateUser(this.id, user).subscribe((res) => {

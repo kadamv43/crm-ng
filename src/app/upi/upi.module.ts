@@ -16,6 +16,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { EditorModule } from 'primeng/editor';
+import { MessageModule } from 'primeng/message';
+import { MessagesModule } from 'primeng/messages';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @NgModule({
     declarations: [UpiEditComponent, UpiCreateComponent, UpiListComponent],
@@ -33,6 +36,9 @@ import { EditorModule } from 'primeng/editor';
         EditorModule,
         CommonModule,
         UpiRoutingModule,
+        MessageModule,
+        MessagesModule,
+        ConfirmPopupModule,
     ],
 })
 export class UpiModule {}
