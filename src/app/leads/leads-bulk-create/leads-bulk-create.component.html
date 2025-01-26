@@ -1,0 +1,55 @@
+<div class="grid">
+    <div class="col-12">
+        <p-toolbar styleClass="mb-2">
+            <ng-template pTemplate="left">
+                <div class="mx-2">
+                    <button pButton label="Sample Excel" class="p-button-outlined mb-2" icon="pi pi-download"
+                        (click)="exportExcel()">
+                    </button>
+                </div>
+            </ng-template>
+
+            <!-- <ng-template pTemplate="right">
+                <button
+                    pButton
+                    pRipple
+                    label="Export"
+                    icon="pi pi-upload"
+                    class="p-button-help secondary"
+                    (click)="exportExcel()"
+                ></button>
+            </ng-template> -->
+        </p-toolbar>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Excel File</label>
+                        <span class="required">*</span>
+                        <input (change)="onFileSelected($event)" pInputText id="name" type="file"
+                            formControlName="file" />
+                        <small class="p-error block" *ngIf="
+                        file.invalid && (file.dirty || file.touched)
+                            ">
+                            File is required</small>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/leads']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

@@ -1,0 +1,110 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Employee</h5>
+            <form [formGroup]="userForm" (ngSubmit)="submitUser()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="firstname2">First name</label>
+                        <input pInputText id="firstname2" type="text" formControlName="first_name" />
+                        <small class="p-error block" *ngIf="
+                                first_name.invalid &&
+                                (first_name.dirty || first_name.touched)
+                            ">
+                            First name is required</small>
+                    </div>
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="lastname2">Last name</label>
+                        <input pInputText id="lastname2" type="text" formControlName="last_name" />
+                        <small class="p-error block" *ngIf="
+                                last_name.invalid &&
+                                (last_name.dirty || last_name.touched)
+                            ">
+                            Last name is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="lastname2">Mobile Number</label>
+                        <input pInputText id="firstname2" type="text" formControlName="mobile" />
+                        <small class="p-error block" *ngIf="
+                                mobile.invalid &&
+                                (mobile.dirty || mobile.touched) &&
+                                mobile.hasError('required')
+                            ">
+                            mobile is required</small>
+                        <small class="p-error block" *ngIf="
+                                mobile.invalid &&
+                                (mobile.dirty || mobile.touched) &&
+                                mobile.hasError('invalidMobile')
+                            ">
+                            invalid mobile number</small>
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="lastname2">Email</label>
+                        <input pInputText id="lastname2" type="email" formControlName="email" />
+                        <small class="p-error block" *ngIf="
+                                email.invalid &&
+                                (email.dirty || email.touched) &&
+                                email.hasError('required')
+                            ">
+                            email is required</small>
+                        <small class="p-error block" *ngIf="
+                                email.invalid &&
+                                (email.dirty || email.touched) &&
+                                email.hasError('email')
+                            ">
+                            Invalid email</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="lastname2">Username</label>
+                        <input pInputText id="lastname2" type="text" formControlName="username" />
+                        <small class="p-error block" *ngIf="
+                        username.invalid &&
+                               (username.dirty || username.touched) && username.hasError('required')
+                           ">
+                            username is required</small>
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="lastname2">Password</label>
+                        <input pInputText id="lastname2" type="text" formControlName="password" />
+                        <small class="p-error block" *ngIf="
+                        password.invalid &&
+                               (password.dirty || password.touched) && password.hasError('required')
+                           ">
+                            Password is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="title">Store Branch</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
+                            placeholder="Select Store branch" />
+                        <small class="p-error block" *ngIf="
+                            branch.invalid && (branch.dirty || branch.touched)
+                                ">
+                            Store Branch is required</small>
+                    </div>
+
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple type="submit" class="primary" label="Submit"></button>
+                        <button pButton [routerLink]="['/admins']" pRipple class="secondary ml-3" type="button"
+                            label="back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

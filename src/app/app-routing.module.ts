@@ -93,6 +93,30 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'hot-leads',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./hot-leads/hot-leads.module').then(
+                                    (m) => m.HotLeadsModule
+                                ),
+                        },
+                        {
+                            path: 'leads',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./leads/leads.module').then(
+                                    (m) => m.LeadsModule
+                                ),
+                        },
+                        {
+                            path: 'admins',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./admins/admins.module').then(
+                                    (m) => m.AdminsModule
+                                ),
+                        },
+                        {
                             path: 'payment-links',
                             canActivate: [AuthGuard],
                             loadChildren: () =>
