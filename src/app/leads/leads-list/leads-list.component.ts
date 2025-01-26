@@ -13,6 +13,7 @@ import * as FileSaver from 'file-saver';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
     selector: 'app-leads-list',
@@ -35,6 +36,7 @@ export class LeadsListComponent {
     display = false;
     selectedStatus = '';
     selectedDate = '';
+    selectedUser = '';
     searchText = '';
     selectedProducts: any[] = [];
 
@@ -54,6 +56,8 @@ export class LeadsListComponent {
 
     totalRecords = 0;
 
+    users: any = [];
+
     ref: DynamicDialogRef | undefined;
 
     constructor(
@@ -63,6 +67,7 @@ export class LeadsListComponent {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
+        private userService: UsersService,
         private commonService: CommonService,
         private dialogService: DialogService,
         private datePipe: DatePipe
@@ -70,10 +75,37 @@ export class LeadsListComponent {
 
     ngOnInit() {
         this.role = this.authService.getRole();
+        this.getUsers();
     }
 
     logSelection() {
         console.log(this.selectedProducts);
+    }
+
+    getUsers() {
+        const page = 0;
+        const size = 50;
+
+        let params = {};
+        if (this.searchText != '') {
+            params['q'] = this.searchText;
+        }
+
+        params['page'] = page;
+        params['size'] = size;
+        params['role'] = 'employee';
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+
+        this.userService.getAll(queryParams).subscribe((data: any) => {
+            this.users = data.data.map((element) => {
+                return {
+                    name: element?.first_name + ' ' + element?.last_name,
+                    code: element?._id,
+                };
+            });
+            this.totalRecords = data.total;
+        });
     }
 
     loadBLogs(event: any) {

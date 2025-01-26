@@ -15,9 +15,10 @@
             </ng-template>
 
             <ng-template pTemplate="right">
-                <p-dropdown [options]="bloodGroups" optionLabel="name" class="mr-3" optionValue="code"
-                    formControlName="blood_group" placeholder="Select Employee" />
-                <button pButton pRipple label="Assign" icon="pi pi-upload" class="p-button-help primary"></button>
+                <p-dropdown [filter]="true" filterBy="name" [(ngModel)]="selectedUser" [options]="users"
+                    optionLabel="name" class="mr-3" optionValue="code" placeholder="Select Employee" />
+                <button [disabled]="selectedProducts.length == 0 " pButton pRipple label="Assign" icon="pi pi-upload"
+                    class="p-button-help primary"></button>
             </ng-template>
         </p-toolbar>
     </div>
@@ -28,38 +29,14 @@
         <div class="card">
             <h5>Leads</h5>
             <p-table #dt1 [(selection)]="selectedProducts" [value]="appointments" dataKey="_id" [rowHover]="true"
-                [lazy]="true" [rows]="10" [totalRecords]="totalRecords" styleClass="p-datatable-gridlines"
-                [paginator]="true" (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+                [lazy]="true" paginatorPosition="bottom" [rows]="50" [rowsPerPageOptions]="[50,100,150,200]"
+                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
+                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
                     'name',
                     'country.name',
                     'representative.name',
                     'status'
                 ]" responsiveLayout="scroll">
-                <ng-template pTemplate="caption">
-                    <div class="grid">
-                        <div class="col-3">
-                            <input pInputText type="text" [(ngModel)]="searchText" placeholder="Search Keyword"
-                                class="w-full" />
-                        </div>
-                        <div class="col-2">
-                            <p-dropdown [options]="statusList" optionLabel="name" optionValue="code"
-                                placeholder="Select Status" autoWidth="false" [(ngModel)]="selectedStatus"
-                                [style]="{ width: '100%' }" />
-                        </div>
-                        <div class="col-3">
-                            <p-calendar [showIcon]="true" [hourFormat]="12" inputId="icon" [style]="{ width: '100%' }"
-                                [(ngModel)]="selectedDate" selectionMode="range" dateFormat="dd/mm/yy"></p-calendar>
-                        </div>
-                        <div class="col-1">
-                            <button pButton class="primary" type="button" label="fiter" (click)="loadAppointments(dt1)"
-                                icon="pi pi-filter"></button>
-                        </div>
-                        <div class="col-1">
-                            <button pButton type="button" class="p-button-secondary" (click)="clear(dt1)" label="Clear"
-                                icon="pi pi-times"></button>
-                        </div>
-                    </div>
-                </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="width: 3em">

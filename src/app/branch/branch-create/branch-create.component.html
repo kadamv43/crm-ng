@@ -5,13 +5,38 @@
             <form [formGroup]="branchForm" (ngSubmit)="submit()">
                 <div class="p-fluid p-formgrid grid">
                     <div class="field col-12 md:col-6">
-                        <label htmlFor="name">Branch Name</label>
+                        <label htmlFor="name">Company Name</label>
                         <span class="required">*</span>
                         <input pInputText id="name" type="text" formControlName="name" />
                         <small class="p-error block" *ngIf="
                         name.invalid && (name.dirty || name.touched)
                             ">
-                            Branch Name is required</small>
+                            Company Name is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Maximum Users Allowed</label>
+                        <span class="required">*</span>
+                        <input pInputText id="name" type="text" formControlName="max_users" />
+                        <small class="p-error block" *ngIf="
+                        max_users.invalid && (max_users.dirty || max_users.touched)
+                            ">
+                            Maximum Users Allowed is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="lastname2">Expiry Date</label>
+                        <span class="required">*</span>
+                        <p-calendar formControlName="expiry_date" [showIcon]="true" [hourFormat]="12" inputId="icon"
+                            [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <small class="p-error block" *ngIf="
+                        expiry_date.invalid &&
+                                (expiry_date.dirty ||
+                                expiry_date.touched)
+                            ">
+                            Expiry Date is required</small>
                     </div>
                 </div>
                 <div class="p-fluid p-formgrid grid">

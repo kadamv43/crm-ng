@@ -35,6 +35,18 @@
                     </div>
                 </div>
 
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Investment</label>
+                        <!-- <span class="required">*</span> -->
+                        <input pInputText id="name" type="text" formControlName="investment" />
+                        <small class="p-error block" *ngIf="
+                        investment.invalid && (investment.dirty || investment.touched) &&  investment.hasError('required')
+                            ">
+                            investment is required</small>
+                    </div>
+                </div>
+
                 <div class="grid">
                     <div class="col-12">
                         <button pButton pRipple class="primary" type="submit" label="Submit"></button>

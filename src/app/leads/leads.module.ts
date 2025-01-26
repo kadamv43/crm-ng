@@ -12,12 +12,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { EditorModule } from 'primeng/editor';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @NgModule({
     declarations: [
@@ -35,11 +36,13 @@ import { EditorModule } from 'primeng/editor';
         ButtonModule,
         ReactiveFormsModule,
         PanelModule,
+        FormsModule,
         DropdownModule,
         MultiSelectModule,
         ToastModule,
         EditorModule,
         CommonModule,
+        InputTextareaModule,
         LeadsRoutingModule,
     ],
 })

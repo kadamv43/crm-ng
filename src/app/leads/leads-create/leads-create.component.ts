@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     AbstractControl,
     FormBuilder,
@@ -7,11 +7,14 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { an } from '@fullcalendar/core/internal-common';
 import { MessageService } from 'primeng/api';
 import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
+import { CommonService } from 'src/app/services/common/common.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
+import { UsersService } from 'src/app/services/users/users.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -20,22 +23,51 @@ import { environment } from 'src/environments/environment';
     styleUrl: './leads-create.component.scss',
     providers: [MessageService],
 })
-export class LeadsCreateComponent {
+export class LeadsCreateComponent implements OnInit {
     form: FormGroup;
     imageBasePath = environment.uploadPath;
     selectedFile: File | null = null;
+    users: any = [];
+    totalRecords = 0;
     imagePreview: string | ArrayBuffer | null = null;
 
     constructor(
         private leadsService: LeadsService,
+        private userService: UsersService,
+        private commonService: CommonService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder
     ) {
         this.form = this.fb.group({
-            mobile: ['', [Validators.required, this.mobileNumberValidator]],
-            name: [''],
-            city: [''],
+            mobile: ['', [Validators.required]],
+            user: ['',Validators.required],
+        });
+    }
+    ngOnInit(): void {
+        this.getUsers();
+    }
+
+    getUsers() {
+        const page = 0;
+        const size = 50;
+
+        let params = {};
+
+        params['page'] = page;
+        params['size'] = size;
+        params['role'] = 'employee';
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+
+        this.userService.getAll(queryParams).subscribe((data: any) => {
+            this.users = data.data.map((element) => {
+                return {
+                    name: element?.first_name + ' ' + element?.last_name,
+                    code: element?._id,
+                };
+            });
+            this.totalRecords = data.total;
         });
     }
 
@@ -43,12 +75,8 @@ export class LeadsCreateComponent {
         return this.form.get('mobile');
     }
 
-    get name() {
-        return this.form.get('name');
-    }
-
-    get city() {
-        return this.form.get('city');
+    get user() {
+        return this.form.get('user');
     }
 
     mobileNumberValidator(control: AbstractControl): ValidationErrors | null {

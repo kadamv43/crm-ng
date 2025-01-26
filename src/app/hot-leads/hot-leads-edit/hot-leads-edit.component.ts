@@ -32,6 +32,7 @@ export class HotLeadsEditComponent {
             mobile: ['', [Validators.required, this.mobileNumberValidator]],
             name: [''],
             city: [''],
+            investment: [''],
         });
     }
 
@@ -58,6 +59,10 @@ export class HotLeadsEditComponent {
 
     get city() {
         return this.form.get('city');
+    }
+
+    get investment() {
+        return this.form.get('investment');
     }
 
     mobileNumberValidator(control: AbstractControl): ValidationErrors | null {

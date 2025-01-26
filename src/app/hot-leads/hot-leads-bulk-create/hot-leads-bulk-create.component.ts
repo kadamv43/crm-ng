@@ -70,6 +70,7 @@ export class HotLeadsBulkCreateComponent {
                 mobile: '',
                 name: '',
                 city: '',
+                investment: '',
             },
         ];
         import('xlsx').then((xlsx) => {

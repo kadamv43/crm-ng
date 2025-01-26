@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -12,11 +12,12 @@ import { environment } from 'src/environments/environment';
     styleUrl: './branch-create.component.scss',
     providers: [MessageService],
 })
-export class BranchCreateComponent {
+export class BranchCreateComponent implements OnInit {
     branchForm: FormGroup;
     imageBasePath = environment.uploadPath;
     selectedFile: File | null = null;
     imagePreview: string | ArrayBuffer | null = null;
+    minDate;
 
     constructor(
         private branchesService: BranchesService,
@@ -27,7 +28,12 @@ export class BranchCreateComponent {
         this.branchForm = this.fb.group({
             name: ['', Validators.required],
             address: ['', Validators.required],
+            max_users: ['', Validators.required],
+            expiry_date: ['', Validators.required],
         });
+    }
+    ngOnInit(): void {
+        this.minDate = new Date();
     }
 
     get name() {
@@ -38,6 +44,13 @@ export class BranchCreateComponent {
         return this.branchForm.get('address');
     }
 
+    get max_users() {
+        return this.branchForm.get('max_users');
+    }
+
+    get expiry_date() {
+        return this.branchForm.get('expiry_date');
+    }
     async submit() {
         this.branchForm.markAllAsTouched();
         if (this.branchForm.valid) {

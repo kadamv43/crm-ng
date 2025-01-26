@@ -7,32 +7,24 @@
                     <div class="field col-12 md:col-6">
                         <label htmlFor="name">Mobile</label>
                         <span class="required">*</span>
-                        <input pInputText id="name" type="text" formControlName="mobile" />
+                        <textarea rows="10" cols="10" pInputTextarea formControlName="mobile"></textarea>
                         <small class="p-error block" *ngIf="
                         mobile.invalid && (mobile.dirty || mobile.touched) &&  mobile.hasError('required')
                             ">
                             Mobile is required</small>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="field col-12 md:col-6">
+                        <p-dropdown [filter]="true" filterBy="name" formControlName="user" [options]="users"
+                            optionLabel="name" class="mr-3" optionValue="code" placeholder="Select Employee" />
                         <small class="p-error block" *ngIf="
-                            mobile.invalid &&
-                            (mobile.dirty || mobile.touched) &&
-                            mobile.hasError('invalidMobile')
-                        ">
-                            invalid mobile number</small>
+                        user.invalid && (user.dirty || user.touched) &&  user.hasError('required')
+                            ">
+                            Employee is required</small>
+
                     </div>
-                </div>
-                <div class="p-fluid p-formgrid grid">
-                    <div class="field col-12 md:col-6">
-                        <label htmlFor="name">Name</label>
-                        <!-- <span class="required">*</span> -->
-                        <input pInputText id="name" type="text" formControlName="name" />
-                    </div>
-                </div>
-                <div class="p-fluid p-formgrid grid">
-                    <div class="field col-12 md:col-6">
-                        <label htmlFor="name">City</label>
-                        <!-- <span class="required">*</span> -->
-                        <input pInputText id="name" type="text" formControlName="city" />
-                    </div>
+
                 </div>
 
                 <div class="grid">

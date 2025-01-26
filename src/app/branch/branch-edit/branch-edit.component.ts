@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -10,10 +10,11 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
     styleUrl: './branch-edit.component.scss',
     providers: [MessageService],
 })
-export class BranchEditComponent {
+export class BranchEditComponent implements OnInit {
     branchForm: FormGroup;
     id: string;
     loading = false;
+    minDate;
     constructor(
         private branchesService: BranchesService,
         private toast: MessageService,
@@ -24,6 +25,8 @@ export class BranchEditComponent {
         this.branchForm = this.fb.group({
             name: ['', Validators.required],
             address: ['', Validators.required],
+            max_users: ['', Validators.required],
+            expiry_date: ['', Validators.required],
         });
     }
 
@@ -33,10 +36,16 @@ export class BranchEditComponent {
             this.branchesService.findById(this.id).subscribe((res: any) => {
                 this.branchForm.patchValue({
                     name: res?.name,
+                    max_users: res?.max_users,
+                    expiry_date: res?.expiry_date
+                        ? new Date(res.expiry_date)
+                        : null,
                     address: res?.address,
                 });
             });
         });
+
+        this.minDate = new Date();
     }
 
     get name() {
@@ -44,6 +53,14 @@ export class BranchEditComponent {
     }
     get address() {
         return this.branchForm.get('address');
+    }
+
+    get max_users() {
+        return this.branchForm.get('max_users');
+    }
+
+    get expiry_date() {
+        return this.branchForm.get('expiry_date');
     }
 
     async submit() {
