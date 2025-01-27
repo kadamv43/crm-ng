@@ -3,18 +3,7 @@
         <div class="card">
             <h5></h5>
             <form [formGroup]="form" (ngSubmit)="submit()">
-                <div class="p-fluid p-formgrid grid">
-                    <div class="field col-12 md:col-6">
-                        <label htmlFor="title">Store Branch</label>
-                        <span class="required">*</span>
-                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
-                            placeholder="Select Store branch" />
-                        <small class="p-error block" *ngIf="
-                        branch.invalid && (branch.dirty || branch.touched)
-                            ">
-                            Store Branch is required</small>
-                    </div>
-                </div>
+
 
                 <div class="p-fluid p-formgrid grid">
                     <div class="field col-12 md:col-6">

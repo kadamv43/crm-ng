@@ -2,10 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BanksService } from 'src/app/services/banks/banks.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { CommonService } from 'src/app/services/common/common.service';
-import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 import { UpiService } from 'src/app/services/upi/upi.service';
 
 @Component({
@@ -14,24 +10,21 @@ import { UpiService } from 'src/app/services/upi/upi.service';
     styleUrl: './upi-edit.component.scss',
     providers: [MessageService],
 })
-export class UpiEditComponent {
+export class UpiEditComponent implements OnInit {
     form: FormGroup;
     id: string;
     loading = false;
-    branches: any = [];
+
     constructor(
         private service: UpiService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder,
-        private route: ActivatedRoute,
-        private commonService: CommonService,
-        private branchService: BranchesService
+        private route: ActivatedRoute
     ) {
         this.form = this.fb.group({
             upi_id: ['', Validators.required],
             upi_number: ['', Validators.required],
-            branch: ['', Validators.required],
         });
     }
 
@@ -42,27 +35,9 @@ export class UpiEditComponent {
                 this.form.patchValue({
                     upi_id: res?.upi_id,
                     upi_number: res?.upi_number,
-                    branch: res?.branch?._id,
                 });
             });
         });
-
-        let params = {};
-        params['page'] = 0;
-        params['size'] = 30;
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.branchService.getAll(queryParams).subscribe({
-            next: (res: any) => {
-                this.branches = res?.data?.map((element) => {
-                    return { name: element.name, code: element._id };
-                });
-            },
-        });
-    }
-
-    get branch() {
-        return this.form.get('branch');
     }
 
     get upi_id() {

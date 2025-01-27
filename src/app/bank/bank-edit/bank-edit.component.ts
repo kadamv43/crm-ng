@@ -3,8 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { BanksService } from 'src/app/services/banks/banks.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { CommonService } from 'src/app/services/common/common.service';
 
 @Component({
     selector: 'app-bank-edit',
@@ -16,21 +14,18 @@ export class BankEditComponent implements OnInit {
     form: FormGroup;
     id: string;
     loading = false;
-    branches: any = [];
+
     constructor(
         private service: BanksService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder,
-        private route: ActivatedRoute,
-        private commonService: CommonService,
-        private branchService: BranchesService
+        private route: ActivatedRoute
     ) {
         this.form = this.fb.group({
             account_holder: ['', Validators.required],
             account_number: ['', Validators.required],
             bank_name: ['', Validators.required],
-            branch: ['', Validators.required],
             ifsc_code: ['', [Validators.required]],
         });
     }
@@ -43,28 +38,10 @@ export class BankEditComponent implements OnInit {
                     account_holder: res?.account_holder,
                     account_number: res?.account_number,
                     bank_name: res?.bank_name,
-                    branch: res?.branch?._id,
                     ifsc_code: res?.ifsc_code,
                 });
             });
         });
-
-        let params = {};
-        params['page'] = 0;
-        params['size'] = 30;
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.branchService.getAll(queryParams).subscribe({
-            next: (res: any) => {
-                this.branches = res?.data?.map((element) => {
-                    return { name: element.name, code: element._id };
-                });
-            },
-        });
-    }
-
-    get branch() {
-        return this.form.get('branch');
     }
 
     get account_holder() {

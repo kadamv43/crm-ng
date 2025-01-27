@@ -1,20 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
     AbstractControl,
-    AsyncValidator,
     AsyncValidatorFn,
     FormBuilder,
     FormGroup,
-    ValidationErrors,
     Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { map, of, timer } from 'rxjs';
-import { BanksService } from 'src/app/services/banks/banks.service';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { CommonService } from 'src/app/services/common/common.service';
 import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 import { environment } from 'src/environments/environment';
 
@@ -26,12 +20,9 @@ import { environment } from 'src/environments/environment';
 })
 export class PaymentLinkCreateComponent {
     form: FormGroup;
-    branches: any = [];
 
     constructor(
         private service: PaymentLinksService,
-        private commonService: CommonService,
-        private branchService: BranchesService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder
@@ -39,27 +30,7 @@ export class PaymentLinkCreateComponent {
         this.form = this.fb.group({
             name: ['', Validators.required],
             link: ['', Validators.required, this.urlAsyncValidator()],
-            branch: ['', Validators.required],
         });
-    }
-
-    ngOnInit(): void {
-        let params = {};
-        params['page'] = 0;
-        params['size'] = 30;
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.branchService.getAll(queryParams).subscribe({
-            next: (res: any) => {
-                this.branches = res?.data?.map((element) => {
-                    return { name: element.name, code: element._id };
-                });
-            },
-        });
-    }
-
-    get branch() {
-        return this.form.get('branch');
     }
 
     get name() {
