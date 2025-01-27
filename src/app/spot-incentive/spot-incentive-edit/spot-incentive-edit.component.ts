@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { MonthlyIncentiveService } from 'src/app/services/monthly-incentive/monthly-incentive.service';
+import { SpotIncentiveService } from 'src/app/services/spot-incentive/spot-incentive.service';
 
 @Component({
     selector: 'app-spot-incentive-edit',
@@ -16,7 +15,7 @@ export class SpotIncentiveEditComponent {
     id: string;
     loading = false;
     constructor(
-        private monthlyIncentiveService: MonthlyIncentiveService,
+        private spotIncentiveService: SpotIncentiveService,
         private toast: MessageService,
         private router: Router,
         private fb: FormBuilder,
@@ -31,7 +30,7 @@ export class SpotIncentiveEditComponent {
     ngOnInit(): void {
         this.route.paramMap.subscribe((params: ParamMap) => {
             this.id = params.get('id');
-            this.monthlyIncentiveService
+            this.spotIncentiveService
                 .findById(this.id)
                 .subscribe((res: any) => {
                     this.form.patchValue({
@@ -54,7 +53,7 @@ export class SpotIncentiveEditComponent {
         this.form.markAllAsTouched();
         if (this.form.valid) {
             this.loading = true;
-            this.monthlyIncentiveService
+            this.spotIncentiveService
                 .update(this.id, this.form.value)
                 .subscribe({
                     next: (res) => {
@@ -63,9 +62,9 @@ export class SpotIncentiveEditComponent {
                             key: 'tst',
                             severity: 'success',
                             summary: 'Success Message',
-                            detail: 'Monthly Incentive Updated successfully',
+                            detail: 'Spot Incentive Updated successfully',
                         });
-                        this.router.navigateByUrl('monthly-incentives');
+                        this.router.navigateByUrl('spot-incentives');
                     },
                     error: (err) => {
                         this.toast.add({
