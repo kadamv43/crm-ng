@@ -95,6 +95,28 @@ export class AppMenuComponent implements OnInit {
                     icon: 'pi pi-fw pi-briefcase',
                     items: [
                         {
+                            label: 'Incentive',
+                            icon: 'pi pi-fw pi-money-bill',
+                            items: [
+                                {
+                                    label: 'Spot Incentive',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['spot-incentives'],
+                                },
+                                {
+                                    label: 'Monthly Incentive',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['monthly-incentives'],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    icon: 'pi pi-fw pi-briefcase',
+                    items: [
+                        {
                             label: 'Leads Details',
                             icon: 'pi pi-fw pi-money-bill',
                             items: [

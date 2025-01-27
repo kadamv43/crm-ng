@@ -109,6 +109,22 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'spot-incentives',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import(
+                                    './spot-incentive/spot-incentive.module'
+                                ).then((m) => m.SpotIncentiveModule),
+                        },
+                        {
+                            path: 'monthly-incentives',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import(
+                                    './monthly-incentive/monthly-incentive.module'
+                                ).then((m) => m.MonthlyIncentiveModule),
+                        },
+                        {
                             path: 'admins',
                             canActivate: [AuthGuard],
                             loadChildren: () =>

@@ -1,0 +1,43 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Business</label>
+                        <span class="required">*</span>
+                        <input pInputText id="name" type="text" formControlName="business" />
+                        <small class="p-error block" *ngIf="
+                        business.invalid && (business.dirty || business.touched)
+                            ">
+                            business is required</small>
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Incentive</label>
+                        <span class="required">*</span>
+                        <input pInputText id="name" type="text" formControlName="incentive" />
+                        <small class="p-error block" *ngIf="
+                        incentive.invalid && (incentive.dirty || incentive.touched)
+                            ">
+                            incentive is required</small>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton [loading]="loading" pRipple class="primary" type="submit"
+                            label="Submit"></button>
+                        <button pButton pRipple [routerLink]="['/spot-incentives']" class="secondary ml-3" type="button"
+                            label="Back"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>
