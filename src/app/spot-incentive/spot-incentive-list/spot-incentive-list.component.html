@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid" *ngIf="role ==='admin'">
     <div class="col-12">
         <p-toolbar styleClass="mb-4">
             <ng-template pTemplate="left">
@@ -75,7 +75,7 @@
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th *ngIf="role ==='admin'" style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Action
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
@@ -98,7 +98,7 @@
                                 }}</span>
                         </td>
 
-                        <td class="text-center">
+                        <td *ngIf="role ==='admin'" class="text-center">
                             <p-toast></p-toast>
 
                             <i [routerLink]="['/spot-incentives', 'edit', customer._id]"
