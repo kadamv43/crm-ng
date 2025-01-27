@@ -1,4 +1,4 @@
-<div class="grid">
+<div *ngIf="role ==='admin'" class="grid">
     <div class="col-12">
         <p-toolbar styleClass="mb-4">
             <ng-template pTemplate="left">
@@ -74,12 +74,7 @@
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Store Branch
-                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
-                            </div>
-                        </th>
+
 
                         <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
@@ -87,7 +82,7 @@
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th *ngIf="role ==='admin'" style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Action
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
@@ -110,19 +105,14 @@
                                 }}</span>
                         </td>
 
-                        <td>
-                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
-                            <span class="image-text ml-2">{{
-                                customer?.branch?.name
-                                }}</span>
-                        </td>
+
 
                         <td>
                             {{ customer.created_at | date : "dd/MM/yyyy" }}
                         </td>
 
 
-                        <td class="text-center">
+                        <td *ngIf="role ==='admin'" class="text-center">
                             <p-toast></p-toast>
 
                             <i [routerLink]="['/upi', 'edit', customer._id]"
