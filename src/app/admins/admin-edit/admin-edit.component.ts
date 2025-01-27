@@ -56,6 +56,7 @@ export class AdminEditComponent {
                     email: res.email,
                     mobile: res?.mobile,
                     username: res?.username,
+                    password: res?.password_text,
                     branch: res?.branch?._id,
                 });
             });

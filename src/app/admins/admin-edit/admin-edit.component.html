@@ -83,14 +83,14 @@
                 <div class="p-fluid p-formgrid grid">
 
                     <div class="field col-6 md:col-6">
-                        <label htmlFor="title">Store Branch</label>
+                        <label htmlFor="title">Company</label>
                         <span class="required">*</span>
                         <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
-                            placeholder="Select Store branch" />
+                            placeholder="Select Company" />
                         <small class="p-error block" *ngIf="
                             branch.invalid && (branch.dirty || branch.touched)
                                 ">
-                            Store Branch is required</small>
+                            Company is required</small>
                     </div>
 
                 </div>

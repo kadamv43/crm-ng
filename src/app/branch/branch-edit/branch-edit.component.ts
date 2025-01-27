@@ -11,7 +11,7 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
     providers: [MessageService],
 })
 export class BranchEditComponent implements OnInit {
-    branchForm: FormGroup;
+    form: FormGroup;
     id: string;
     loading = false;
     minDate;
@@ -22,7 +22,7 @@ export class BranchEditComponent implements OnInit {
         private fb: FormBuilder,
         private route: ActivatedRoute
     ) {
-        this.branchForm = this.fb.group({
+        this.form = this.fb.group({
             name: ['', Validators.required],
             address: ['', Validators.required],
             max_users: ['', Validators.required],
@@ -34,7 +34,7 @@ export class BranchEditComponent implements OnInit {
         this.route.paramMap.subscribe((params: ParamMap) => {
             this.id = params.get('id');
             this.branchesService.findById(this.id).subscribe((res: any) => {
-                this.branchForm.patchValue({
+                this.form.patchValue({
                     name: res?.name,
                     max_users: res?.max_users,
                     expiry_date: res?.expiry_date
@@ -49,46 +49,44 @@ export class BranchEditComponent implements OnInit {
     }
 
     get name() {
-        return this.branchForm.get('name');
+        return this.form.get('name');
     }
     get address() {
-        return this.branchForm.get('address');
+        return this.form.get('address');
     }
 
     get max_users() {
-        return this.branchForm.get('max_users');
+        return this.form.get('max_users');
     }
 
     get expiry_date() {
-        return this.branchForm.get('expiry_date');
+        return this.form.get('expiry_date');
     }
 
     async submit() {
-        this.branchForm.markAllAsTouched();
-        if (this.branchForm.valid) {
+        this.form.markAllAsTouched();
+        if (this.form.valid) {
             this.loading = true;
-            this.branchesService
-                .update(this.id, this.branchForm.value)
-                .subscribe({
-                    next: (res) => {
-                        this.loading = false;
-                        this.toast.add({
-                            key: 'tst',
-                            severity: 'success',
-                            summary: 'Success Message',
-                            detail: 'Branch Updated successfully',
-                        });
-                        this.router.navigateByUrl('branches');
-                    },
-                    error: (err) => {
-                        this.toast.add({
-                            key: 'tst',
-                            severity: 'danger',
-                            summary: 'Error Message',
-                            detail: 'Something Went Wrong',
-                        });
-                    },
-                });
+            this.branchesService.update(this.id, this.form.value).subscribe({
+                next: (res) => {
+                    this.loading = false;
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Company Updated successfully',
+                    });
+                    this.router.navigateByUrl('branches');
+                },
+                error: (err) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'danger',
+                        summary: 'Error Message',
+                        detail: 'Something Went Wrong',
+                    });
+                },
+            });
         }
     }
 }

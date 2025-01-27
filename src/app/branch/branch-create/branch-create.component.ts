@@ -13,10 +13,7 @@ import { environment } from 'src/environments/environment';
     providers: [MessageService],
 })
 export class BranchCreateComponent implements OnInit {
-    branchForm: FormGroup;
-    imageBasePath = environment.uploadPath;
-    selectedFile: File | null = null;
-    imagePreview: string | ArrayBuffer | null = null;
+    form: FormGroup;
     minDate;
 
     constructor(
@@ -25,7 +22,7 @@ export class BranchCreateComponent implements OnInit {
         private router: Router,
         private fb: FormBuilder
     ) {
-        this.branchForm = this.fb.group({
+        this.form = this.fb.group({
             name: ['', Validators.required],
             address: ['', Validators.required],
             max_users: ['', Validators.required],
@@ -37,36 +34,34 @@ export class BranchCreateComponent implements OnInit {
     }
 
     get name() {
-        return this.branchForm.get('name');
+        return this.form.get('name');
     }
 
     get address() {
-        return this.branchForm.get('address');
+        return this.form.get('address');
     }
 
     get max_users() {
-        return this.branchForm.get('max_users');
+        return this.form.get('max_users');
     }
 
     get expiry_date() {
-        return this.branchForm.get('expiry_date');
+        return this.form.get('expiry_date');
     }
     async submit() {
-        this.branchForm.markAllAsTouched();
-        if (this.branchForm.valid) {
-            this.branchesService
-                .create(this.branchForm.value)
-                .subscribe((res) => {
-                    this.toast.add({
-                        key: 'tst',
-                        severity: 'success',
-                        summary: 'Success Message',
-                        detail: 'Branch created successfully',
-                    });
-                    setTimeout(() => {
-                        this.router.navigateByUrl('branches');
-                    }, 2000);
+        this.form.markAllAsTouched();
+        if (this.form.valid) {
+            this.branchesService.create(this.form.value).subscribe((res) => {
+                this.toast.add({
+                    key: 'tst',
+                    severity: 'success',
+                    summary: 'Success Message',
+                    detail: 'Company created successfully',
                 });
+                setTimeout(() => {
+                    this.router.navigateByUrl('branches');
+                }, 2000);
+            });
         }
     }
 }
