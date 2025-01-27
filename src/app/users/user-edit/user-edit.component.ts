@@ -25,7 +25,7 @@ export class UserEditComponent implements OnInit {
     id: string;
     branches: any = [];
     tlList: any = [];
-
+    showTlList = false;
     roles = [
         { name: 'Admin', code: 'admin' },
         { name: 'TeamLead', code: 'teamlead' },
@@ -51,14 +51,17 @@ export class UserEditComponent implements OnInit {
             password: [''],
             role: ['', Validators.required],
             target: ['', Validators.required],
-            branch: ['', Validators.required],
+            teamlead: [''],
         });
     }
     ngOnInit(): void {
         this.route.paramMap.subscribe((params: ParamMap) => {
             this.id = params.get('id');
+
             this.api.getUserById(this.id).subscribe((res: any) => {
-                console.log(res);
+                if (res?.role == 'employee' && res?.teamlead) {
+                    this.showTlList = true;
+                }
                 this.userForm.patchValue({
                     first_name: res.first_name,
                     last_name: res.last_name,
@@ -67,7 +70,8 @@ export class UserEditComponent implements OnInit {
                     role: res?.role,
                     username: res?.username,
                     target: res?.target,
-                    branch: res?.branch?._id,
+                    password: res?.password_text,
+                    teamlead: res?.role == 'employee' && res?.teamlead,
                 });
             });
         });
@@ -79,16 +83,6 @@ export class UserEditComponent implements OnInit {
         let params = {};
         params['page'] = 0;
         params['size'] = 30;
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.branchService.getAll(queryParams).subscribe({
-            next: (res: any) => {
-                this.branches = res?.data?.map((element) => {
-                    return { name: element.name, code: element._id };
-                });
-            },
-        });
-
         params['role'] = 'teamlead';
         let queryParams2 = this.commonService.getHttpParamsByJson(params);
         this.userService.getAll(queryParams2).subscribe({
@@ -98,10 +92,6 @@ export class UserEditComponent implements OnInit {
                 });
             },
         });
-    }
-
-    get branch() {
-        return this.userForm.get('branch');
     }
 
     get first_name() {
@@ -127,6 +117,10 @@ export class UserEditComponent implements OnInit {
 
     get role() {
         return this.userForm.get('role');
+    }
+
+    get teamlead() {
+        return this.userForm.get('teamlead');
     }
 
     get target() {

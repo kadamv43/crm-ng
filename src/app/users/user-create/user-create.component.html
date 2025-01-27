@@ -87,16 +87,7 @@
                            ">
                             Target is required</small>
                     </div>
-                    <div class="field col-6">
-                        <label htmlFor="title">Store Branch</label>
-                        <span class="required">*</span>
-                        <p-dropdown [options]="branches" optionLabel="name" optionValue="code" formControlName="branch"
-                            placeholder="Select Store branch" />
-                        <small class="p-error block" *ngIf="
-                            branch.invalid && (branch.dirty || branch.touched)
-                                ">
-                            Store Branch is required</small>
-                    </div>
+
                     <div class="field col-6">
                         <label htmlFor="lastname2">Role</label>
                         <p-dropdown (onChange)="onRoleChange()" [options]="roles" optionLabel="name" optionValue="code"
@@ -107,16 +98,7 @@
                            ">
                             role is required</small>
                     </div>
-                    <div *ngIf="showAdminList" class="field col-6">
-                        <label htmlFor="lastname2">Admin</label>
-                        <p-dropdown [options]="adminList" optionLabel="name" optionValue="code" formControlName="admin"
-                            placeholder="Select Admin" />
-                        <small class="p-error block" *ngIf="
-                        admin.invalid &&
-                               (admin.dirty || admin.touched) && admin.hasError('required')
-                           ">
-                            Admin is required</small>
-                    </div>
+
                     <div *ngIf="showTlList" class="field col-6">
                         <label htmlFor="lastname2">TL</label>
                         <p-dropdown [options]="tlList" optionLabel="name" optionValue="code" formControlName="teamlead"

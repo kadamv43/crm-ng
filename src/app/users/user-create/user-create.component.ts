@@ -21,17 +21,15 @@ import { UsersService } from 'src/app/services/users/users.service';
     styleUrl: './user-create.component.scss',
     providers: [MessageService],
 })
-export class UserCreateComponent implements OnInit {
+export class UserCreateComponent {
     userForm: FormGroup;
     branches: any = [];
     tlList: any = [];
-    adminList: any = [];
     showTlList = false;
-    showAdminList = false;
     selectedRole = '';
 
     roles = [
-        { name: 'Admin', code: 'admin' },
+        // { name: 'Admin', code: 'admin' },
         { name: 'TeamLead', code: 'teamlead' },
         { name: 'Employee', code: 'employee' },
     ];
@@ -54,42 +52,7 @@ export class UserCreateComponent implements OnInit {
             target: ['', [Validators.required]],
             password: ['', [Validators.required]],
             role: ['', [Validators.required]],
-            branch: ['', Validators.required],
             teamlead: [''],
-            admin: [''],
-        });
-    }
-    ngOnInit(): void {
-        this.getBranchList();
-    }
-
-    getBranchList() {
-        let params = {};
-        params['page'] = 0;
-        params['size'] = 30;
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.branchService.getAll(queryParams).subscribe({
-            next: (res: any) => {
-                this.branches = res?.data?.map((element) => {
-                    return { name: element.name, code: element._id };
-                });
-            },
-        });
-    }
-    getAdminList() {
-        let params = {};
-        params['page'] = 0;
-        params['size'] = 30;
-        params['role'] = 'admin';
-        params['branch'] = this.userForm.get('branch').value;
-        let queryParams2 = this.commonService.getHttpParamsByJson(params);
-        this.userService.getAll(queryParams2).subscribe({
-            next: (res: any) => {
-                this.adminList = res?.data?.map((element) => {
-                    return { name: element.username, code: element._id };
-                });
-            },
         });
     }
 
@@ -98,7 +61,7 @@ export class UserCreateComponent implements OnInit {
         params['page'] = 0;
         params['size'] = 30;
         params['role'] = 'teamlead';
-        params['branch'] = this.userForm.get('branch').value;
+        // params['branch'] = this.userForm.get('branch').value;
         let queryParams2 = this.commonService.getHttpParamsByJson(params);
         this.userService.getAll(queryParams2).subscribe({
             next: (res: any) => {
@@ -119,16 +82,8 @@ export class UserCreateComponent implements OnInit {
         return this.userForm.get('email');
     }
 
-    get branch() {
-        return this.userForm.get('branch');
-    }
-
     get teamlead() {
         return this.userForm.get('teamlead');
-    }
-
-    get admin() {
-        return this.userForm.get('admin');
     }
 
     get username() {
@@ -170,16 +125,13 @@ export class UserCreateComponent implements OnInit {
             this.userForm.get('admin')?.removeValidators([Validators.required]);
             this.userForm.get('admin')?.updateValueAndValidity();
             this.showTlList = true;
-            this.showAdminList = false;
         } else if (this.selectedRole == 'teamlead') {
-            this.getAdminList();
             this.userForm.get('admin')?.setValidators([Validators.required]);
             this.userForm.get('admin')?.updateValueAndValidity();
             this.userForm
                 .get('teamlead')
                 ?.removeValidators([Validators.required]);
             this.userForm.get('teamlead')?.updateValueAndValidity();
-            this.showAdminList = true;
             this.showTlList = false;
         } else {
             this.userForm
@@ -189,7 +141,6 @@ export class UserCreateComponent implements OnInit {
             this.userForm.get('admin')?.removeValidators([Validators.required]);
             this.userForm.get('admin')?.updateValueAndValidity();
             this.showTlList = false;
-            this.showAdminList = false;
         }
     }
     async submitUser() {

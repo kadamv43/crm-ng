@@ -135,7 +135,7 @@ export class AppMenuComponent implements OnInit {
                     ],
                 }
             );
-        } else if (this.role == 'employee') {
+        } else if (this.role == 'employee' || this.role == 'teamlead') {
             this.model.push(
                 {
                     label: '',
