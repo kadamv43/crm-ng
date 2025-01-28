@@ -197,17 +197,17 @@ export class AppMenuComponent implements OnInit {
                                 {
                                     label: 'Expected Payment',
                                     icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['payment-links'],
+                                    routerLink: ['leads', 'expected-payment'],
                                 },
                                 {
                                     label: 'Follow Up',
                                     icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['payment-links'],
+                                    routerLink: ['leads', 'follow-up'],
                                 },
                                 {
                                     label: 'My Leads',
                                     icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['payment-links'],
+                                    routerLink: ['leads', 'my-leads'],
                                 },
                             ],
                         },

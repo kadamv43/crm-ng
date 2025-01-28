@@ -7,13 +7,10 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { an } from '@fullcalendar/core/internal-common';
 import { MessageService } from 'primeng/api';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
 import { CommonService } from 'src/app/services/common/common.service';
-import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { environment } from 'src/environments/environment';
 
@@ -25,14 +22,12 @@ import { environment } from 'src/environments/environment';
 })
 export class LeadsCreateComponent implements OnInit {
     form: FormGroup;
-    imageBasePath = environment.uploadPath;
-    selectedFile: File | null = null;
     users: any = [];
     totalRecords = 0;
-    imagePreview: string | ArrayBuffer | null = null;
 
     constructor(
         private leadsService: LeadsService,
+        private userLeadsService: UserLeadsService,
         private userService: UsersService,
         private commonService: CommonService,
         private toast: MessageService,
@@ -41,7 +36,7 @@ export class LeadsCreateComponent implements OnInit {
     ) {
         this.form = this.fb.group({
             mobile: ['', [Validators.required]],
-            user: ['',Validators.required],
+            user: ['', Validators.required],
         });
     }
     ngOnInit(): void {
@@ -56,8 +51,6 @@ export class LeadsCreateComponent implements OnInit {
 
         params['page'] = page;
         params['size'] = size;
-        params['role'] = 'employee';
-
         let queryParams = this.commonService.getHttpParamsByJson(params);
 
         this.userService.getAll(queryParams).subscribe((data: any) => {
@@ -79,20 +72,10 @@ export class LeadsCreateComponent implements OnInit {
         return this.form.get('user');
     }
 
-    mobileNumberValidator(control: AbstractControl): ValidationErrors | null {
-        const mobilePattern = /^[0-9]{10}$/;
-        if (control.value == '') {
-            return null;
-        }
-        return mobilePattern.test(control.value)
-            ? null
-            : { invalidMobile: true };
-    }
-
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            this.leadsService.create(this.form.value).subscribe((res) => {
+            this.userLeadsService.create(this.form.value).subscribe((res) => {
                 this.toast.add({
                     key: 'tst',
                     severity: 'success',

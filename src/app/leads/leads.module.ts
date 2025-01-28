@@ -19,13 +19,19 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { EditorModule } from 'primeng/editor';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { MyLeadsComponent } from './my-leads/my-leads.component';
+import { FollowUpLeadsComponent } from './follow-up-leads/follow-up-leads.component';
+import { ExpectedPaymentComponent } from './expected-payment/expected-payment.component';
 
 @NgModule({
     declarations: [
         LeadsBulkCreateComponent,
         LeadsCreateComponent,
         LeadsListComponent,
+        MyLeadsComponent,
         LeadsEditComponent,
+        FollowUpLeadsComponent,
+        ExpectedPaymentComponent,
     ],
     imports: [
         ToolbarModule,

@@ -8,20 +8,26 @@ import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
 import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import * as FileSaver from 'file-saver';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
+import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
-    selector: 'app-hot-leads-list',
-    templateUrl: './hot-leads-list.component.html',
-    styleUrl: './hot-leads-list.component.scss',
+    selector: 'app-expected-payment',
+    templateUrl: './expected-payment.component.html',
+    styleUrl: './expected-payment.component.scss',
     providers: [MessageService, ConfirmationService, DialogService, DatePipe],
 })
-export class HotLeadsListComponent {
-    users: any = [];
+export class ExpectedPaymentComponent {
+    statusList = [
+        { name: 'CALLBACK', code: 'CALLBACK' },
+        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
+        { name: 'RINGING', code: 'RINGING' },
+        { name: 'SWITCHED OFF', code: 'SWITCHED_OFF' },
+        { name: 'DEAD', code: 'DEAD' },
+        { name: 'NOT REACHABLE', code: 'NOT_REACHABLE' },
+        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
+    ];
 
     bloodGroups = [
         { name: 'Rahul', code: 'Rahul' },
@@ -30,6 +36,7 @@ export class HotLeadsListComponent {
     display = false;
     selectedStatus = '';
     selectedDate = '';
+    selectedUser = '';
     searchText = '';
     selectedProducts: any[] = [];
 
@@ -49,10 +56,12 @@ export class HotLeadsListComponent {
 
     totalRecords = 0;
 
+    users: any = [];
+
     ref: DynamicDialogRef | undefined;
 
     constructor(
-        private hotLeadsService: HotLeadsService,
+        private leadsService: LeadsService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
@@ -71,6 +80,32 @@ export class HotLeadsListComponent {
 
     logSelection() {
         console.log(this.selectedProducts);
+    }
+
+    getUsers() {
+        const page = 0;
+        const size = 50;
+
+        let params = {};
+        if (this.searchText != '') {
+            params['q'] = this.searchText;
+        }
+
+        params['page'] = page;
+        params['size'] = size;
+        params['role'] = 'employee';
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+
+        this.userService.getAll(queryParams).subscribe((data: any) => {
+            this.users = data.data.map((element) => {
+                return {
+                    name: element?.first_name + ' ' + element?.last_name,
+                    code: element?._id,
+                };
+            });
+            this.totalRecords = data.total;
+        });
     }
 
     loadBLogs(event: any) {
@@ -104,36 +139,10 @@ export class HotLeadsListComponent {
         params['size'] = size;
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.hotLeadsService.getAll(queryParams).subscribe((data: any) => {
+        this.leadsService.getAll(queryParams).subscribe((data: any) => {
             this.appointments = data.data;
             this.totalRecords = data.total;
             this.loading = false;
-        });
-    }
-
-    getUsers() {
-        const page = 0;
-        const size = 50;
-
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        params['page'] = page;
-        params['size'] = size;
-        params['role'] = 'employee';
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-
-        this.userService.getAll(queryParams).subscribe((data: any) => {
-            this.users = data.data.map((element) => {
-                return {
-                    name: element?.first_name + ' ' + element?.last_name,
-                    code: element?._id,
-                };
-            });
-            this.totalRecords = data.total;
         });
     }
 
@@ -148,7 +157,7 @@ export class HotLeadsListComponent {
             message: 'Are you sure that you want to proceed?',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.hotLeadsService.delete(user._id).subscribe((res) => {
+                this.leadsService.delete(user._id).subscribe((res) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
@@ -199,12 +208,12 @@ export class HotLeadsListComponent {
         }
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.hotLeadsService.getAll(queryParams).subscribe((res) => {
+        this.leadsService.getAll(queryParams).subscribe((res) => {
             this.appointments = res;
         });
     }
     async updateStatus(id, status) {
-        this.hotLeadsService.update(id, { status }).subscribe((res) => {
+        this.leadsService.update(id, { status }).subscribe((res) => {
             this.messageService.add({
                 // key: 'tst',
                 severity: 'success',
