@@ -1,1 +1,75 @@
-<p>free-trial-form works!</p>
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="name">Mobile Number</label>
+                        <span class="required">*</span>
+                        <input readonly pInputText id="name" type="text" formControlName="mobile" />
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="name">Name</label>
+                        <span class="required"></span>
+                        <input pInputText id="name" type="text" formControlName="name" />
+                    </div>
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="name">City</label>
+                        <span class="required"></span>
+                        <input pInputText id="name" type="text" formControlName="city" />
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="lastname2">Free Trial Date</label>
+                        <span class="required">*</span>
+                        <p-calendar formControlName="free_trial_date" [showIcon]="true" [hourFormat]="12" inputId="icon"
+                            [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <small class="p-error block" *ngIf="
+                        free_trial_date.invalid &&
+                                (free_trial_date.dirty ||
+                                free_trial_date.touched)
+                            ">
+                            Free Trial Date is required</small>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <div *ngFor="let category of categories" class="ml-2"
+                            style="display: inline-flex; align-items: center;">
+                            <p-checkbox [inputId]="category.key" name="group" [value]="category.name"
+                                formControlName="options" />
+                            <label [for]="category.key" class="ml-2"> {{ category.name }} </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="name">Investment</label>
+                        <span class="required"></span>
+                        <input pInputText id="name" type="text" formControlName="investment" />
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="name">Remarks</label>
+                        <span class="required"></span>
+                        <input pInputText id="name" type="text" formControlName="remark" />
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple (click)="cancel()" class="secondary ml-3" type="button"
+                            label="Cancel"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

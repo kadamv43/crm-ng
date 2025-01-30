@@ -14,6 +14,9 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
+import { ExpectedPaymentComponent } from '../expected-payment/expected-payment.component';
+import { ExpectedPaymentFormComponent } from '../expected-payment-form/expected-payment-form.component';
 
 @Component({
     selector: 'app-follow-up-leads',
@@ -23,13 +26,10 @@ import { UsersService } from 'src/app/services/users/users.service';
 })
 export class FollowUpLeadsComponent {
     statusList = [
-        { name: 'CALLBACK', code: 'CALLBACK' },
-        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
         { name: 'RINGING', code: 'RINGING' },
-        { name: 'SWITCHED OFF', code: 'SWITCHED_OFF' },
-        { name: 'DEAD', code: 'DEAD' },
-        { name: 'NOT REACHABLE', code: 'NOT_REACHABLE' },
         { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
+        { name: 'EXPECTED PAYMENT', code: 'EXPECTED_PAYMENT' },
+        { name: 'DEAD', code: 'DEAD' },
     ];
 
     bloodGroups = [
@@ -64,7 +64,7 @@ export class FollowUpLeadsComponent {
     ref: DynamicDialogRef | undefined;
 
     constructor(
-        private leadsService: LeadsService,
+        private userLeadsService: UserLeadsService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
@@ -140,13 +140,16 @@ export class FollowUpLeadsComponent {
 
         params['page'] = page;
         params['size'] = size;
+        params['status'] = 'FREE_TRIAL';
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.leadsService.getAll(queryParams).subscribe((data: any) => {
+        this.userLeadsService.getMyLeads(queryParams).subscribe((data: any) => {
             this.appointments = data.data;
             this.totalRecords = data.total;
             this.loading = false;
         });
+
+        console.log('api called');
     }
 
     goTo(url) {
@@ -160,7 +163,7 @@ export class FollowUpLeadsComponent {
             message: 'Are you sure that you want to proceed?',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.leadsService.delete(user._id).subscribe((res) => {
+                this.userLeadsService.delete(user._id).subscribe((res) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
@@ -211,12 +214,12 @@ export class FollowUpLeadsComponent {
         }
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.leadsService.getAll(queryParams).subscribe((res) => {
+        this.userLeadsService.getAll(queryParams).subscribe((res) => {
             this.appointments = res;
         });
     }
     async updateStatus(id, status) {
-        this.leadsService.update(id, { status }).subscribe((res) => {
+        this.userLeadsService.update(id, { status }).subscribe((res) => {
             this.messageService.add({
                 // key: 'tst',
                 severity: 'success',
@@ -226,13 +229,39 @@ export class FollowUpLeadsComponent {
         });
     }
 
-    openDialog(id: string) {
-        this.ref = this.dialogService.open(FileUploadFormComponent, {
+    openDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(ExpectedPaymentFormComponent, {
             data: {
-                id,
+                customer,
             },
-            header: 'File Upload',
+            width: '50%',
+            header: 'Expected Payment Form',
         });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadBLogs(tableEvent);
+            }, 2000);
+        });
+    }
+    onStatusChange(customer, event, tableEvent) {
+        let value = event?.value;
+
+        if (value == 'EXPECTED_PAYMENT') {
+            this.openDialog(customer, tableEvent);
+        } else {
+            this.userLeadsService
+                .update(customer._id, {
+                    status: event.value,
+                })
+                .subscribe({
+                    next: (res) => {
+                        this.loadBLogs(tableEvent);
+                        console.log(res);
+                    },
+                });
+        }
     }
 
     exportExcel() {

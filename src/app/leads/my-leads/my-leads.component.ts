@@ -12,6 +12,7 @@ import * as FileSaver from 'file-saver';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
+import { FreeTrialFormComponent } from '../free-trial-form/free-trial-form.component';
 
 @Component({
     selector: 'app-my-leads',
@@ -120,6 +121,8 @@ export class MyLeadsComponent {
             this.totalRecords = data.total;
             this.loading = false;
         });
+
+        console.log('api called');
     }
 
     goTo(url) {
@@ -127,18 +130,22 @@ export class MyLeadsComponent {
     }
 
     onStatusChange(customer, event, tableEvent) {
-        this.userLeadService
-            .update(customer._id, {
-                status: event.value,
-            })
-            .subscribe({
-                next: (res) => {
-                    this.loadBLogs(tableEvent);
-                    console.log(res);
-                },
-            });
+        let value = event?.value;
 
-        // console.log(event.value);
+        if (value == 'FREE_TRIAL') {
+            this.openDialog(customer, tableEvent);
+        } else {
+            this.userLeadService
+                .update(customer._id, {
+                    status: event.value,
+                })
+                .subscribe({
+                    next: (res) => {
+                        this.loadBLogs(tableEvent);
+                        console.log(res);
+                    },
+                });
+        }
     }
 
     confirm2(event: Event, user) {
@@ -214,12 +221,20 @@ export class MyLeadsComponent {
         });
     }
 
-    openDialog(id: string) {
-        this.ref = this.dialogService.open(FileUploadFormComponent, {
+    openDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(FreeTrialFormComponent, {
             data: {
-                id,
+                customer,
             },
+            width: '50%',
             header: 'File Upload',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadBLogs(tableEvent);
+            }, 2000);
         });
     }
 

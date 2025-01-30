@@ -8,25 +8,17 @@ import {
     DynamicDialogConfig,
     DynamicDialogRef,
 } from 'primeng/dynamicdialog';
-import { BranchesService } from 'src/app/services/branches/branches.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
 @Component({
-    selector: 'app-free-trial-form',
-    templateUrl: './free-trial-form.component.html',
-    styleUrl: './free-trial-form.component.scss',
+    selector: 'app-expected-payment-form',
+    templateUrl: './expected-payment-form.component.html',
+    styleUrl: './expected-payment-form.component.scss',
 })
-export class FreeTrialFormComponent {
+export class ExpectedPaymentFormComponent {
     form: FormGroup;
     customer: any;
     minDate;
-
-    selectedCategories: any[] = [];
-
-    categories: any[] = [
-        { name: 'Metal', key: 'A' },
-        { name: 'Equity', key: 'M' },
-    ];
 
     constructor(
         private userLeadsService: UserLeadsService,
@@ -40,40 +32,20 @@ export class FreeTrialFormComponent {
         console.log(this.customer);
 
         this.form = this.fb.group({
-            mobile: [this.customer.mobile, Validators.required],
-            name: [this.customer.name],
-            city: [this.customer.city],
-            investment: [''],
-            remark: [''],
-            free_trial_date: ['', Validators.required],
-            options: [],
+            expected_payment: ['', Validators.required],
+            expected_payment_date: ['', Validators.required],
         });
     }
     ngOnInit(): void {
         this.minDate = new Date();
     }
 
-    get name() {
-        return this.form.get('name');
+    get expected_payment() {
+        return this.form.get('expected_payment');
     }
 
-    get mobile() {
-        return this.form.get('mobile');
-    }
-
-    get city() {
-        return this.form.get('city');
-    }
-
-    get investment() {
-        return this.form.get('investment');
-    }
-    get remark() {
-        return this.form.get('remark');
-    }
-
-    get free_trial_date() {
-        return this.form.get('free_trial_date');
+    get expected_payment_date() {
+        return this.form.get('expected_payment_date');
     }
 
     cancel() {
@@ -86,15 +58,15 @@ export class FreeTrialFormComponent {
             console.log(this.form.value);
             this.userLeadsService
                 .update(this.customer?._id, {
-                    status: 'FREE_TRIAL',
-                    free_trial: this.form.value,
+                    status: 'EXPECTED_PAYMENT',
+                    follow_up: this.form.value,
                 })
                 .subscribe((res) => {
                     this.toast.add({
                         key: 'tst',
                         severity: 'success',
                         summary: 'Success Message',
-                        detail: 'Free trial created successfully',
+                        detail: 'Expected Payment created successfully',
                     });
 
                     this.ref.close();

@@ -1,0 +1,48 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12">
+                        <label htmlFor="lastname2">Expected Payment Date</label>
+                        <span class="required">*</span>
+                        <p-calendar formControlName="expected_payment_date" [showIcon]="true" [hourFormat]="12"
+                            inputId="icon" [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <small class="p-error block" *ngIf="
+                        expected_payment_date.invalid &&
+                                (expected_payment_date.dirty ||
+                                expected_payment_date.touched)
+                            ">
+                            Expected Payment Date is required</small>
+                    </div>
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-12">
+                        <label htmlFor="name">Expected Payment Amount</label>
+                        <span class="required"></span>
+                        <input pInputText id="name" type="text" formControlName="expected_payment" />
+                        <small class="p-error block" *ngIf="
+                        expected_payment.invalid &&
+                                (expected_payment.dirty ||
+                                expected_payment.touched)
+                            ">
+                            Expected Payment is required</small>
+                    </div>
+
+                </div>
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple (click)="cancel()" class="secondary ml-3" type="button"
+                            label="Cancel"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

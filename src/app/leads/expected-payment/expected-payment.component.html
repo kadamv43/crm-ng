@@ -1,7 +1,7 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Expected Payment</h5>
+            <h5>Expected Payment List</h5>
             <p-table #dt1 [(selection)]="selectedProducts" [value]="appointments" dataKey="_id" [rowHover]="true"
                 [lazy]="true" paginatorPosition="bottom" [rows]="50" [rowsPerPageOptions]="[50,100,150,200]"
                 [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
@@ -14,13 +14,13 @@
                 <ng-template pTemplate="header">
                     <tr>
 
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Name
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
@@ -28,13 +28,13 @@
                         </th>
 
 
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 City
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Segment
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
@@ -49,6 +49,18 @@
                         <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Investment
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Expected Payment
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Expected Payment Date
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
@@ -72,7 +84,7 @@
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
-                                customer?.name
+                                customer?.free_trial?.name
                                 }}</span>
                         </td>
                         <td>
@@ -85,35 +97,50 @@
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
-                                customer?.city
+                                customer?.free_trial?.city
                                 }}</span>
                         </td>
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
-                                customer?.segment
+                                customer?.free_trial?.options
                                 }}</span>
                         </td>
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
-                                customer?.free_trial_date
+                                customer?.free_trial?.free_trial_date | date : "dd/MM/yyyy"
                                 }}</span>
                         </td>
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
-                                customer?.free_trial_date
+                                customer?.free_trial?.investment
                                 }}</span>
                         </td>
 
                         <td>
-                            {{ customer.created_at | date : "dd/MM/yyyy" }}
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.follow_up?.expected_payment
+                                }}</span>
+                        </td>
+
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.follow_up?.expected_payment_date | date : "dd/MM/yyyy"
+                                }}</span>
+                        </td>
+
+                        <td>
+                            {{ customer?.free_trial?.remark }}
                         </td>
 
                         <td class="text-center">
                             <p-toast></p-toast>
-                            <p-dropdown class="w-full" [options]="statusList" optionLabel="name" optionValue="code"
+                            <p-dropdown (onChange)="onStatusChange(customer,$event,dt1)" appendTo="body" class="w-full"
+                                [options]="statusList" optionLabel="name" optionValue="code"
                                 formControlName="blood_group" placeholder="" />
                         </td>
                     </tr>

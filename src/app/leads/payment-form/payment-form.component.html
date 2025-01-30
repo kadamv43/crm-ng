@@ -1,0 +1,93 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5></h5>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="name">Name</label>
+                        <span class="required"></span>
+                        <input readonly pInputText id="name" type="text" formControlName="name" />
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="name">Mobile Number</label>
+                        <span class="required">*</span>
+                        <input readonly pInputText id="name" type="text" formControlName="mobile" />
+                    </div>
+
+                </div>
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="name">City</label>
+                        <span class="required"></span>
+                        <input readonly pInputText id="name" type="text" formControlName="city" />
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="lastname2"> Payment Amount</label>
+                        <span class="required">*</span>
+                        <input pInputText id="name" type="text" formControlName="payment_amount" />
+                        <small class="p-error block" *ngIf="
+                        payment_amount.invalid &&
+                                (payment_amount.dirty ||
+                                payment_amount.touched)
+                            ">
+                            Payment Amount is required</small>
+                    </div>
+
+                </div>
+
+                <div class="p-fluid p-formgrid grid">
+                    <div class="field col-6">
+                        <label htmlFor="lastname2"> Payment Mode</label>
+                        <span class="required">*</span>
+                        <p-dropdown (onChange)="onPaymentModeChange($event)" [options]="payment_modes"
+                            optionLabel="name" optionValue="code" formControlName="payment_mode"
+                            placeholder="Select Company" />
+                        <small class="p-error block" *ngIf="
+                        payment_mode.invalid &&
+                                (payment_mode.dirty ||
+                                payment_mode.touched)
+                            ">
+                            Payment Mode is required</small>
+                    </div>
+                    <div class="field col-6" *ngIf="showPaymentOptions">
+                        <label htmlFor="lastname2"> Payment options</label>
+                        <span class="required">*</span>
+                        <p-dropdown [options]="payment_options" optionLabel="name" optionValue="code"
+                            formControlName="payment_details" placeholder="Select Company" />
+                        <small class="p-error block" *ngIf="
+                        payment_details.invalid &&
+                                (payment_details.dirty ||
+                                payment_details.touched)
+                            ">
+                            Payment Option is required</small>
+                    </div>
+                    <div class="field col-6">
+                        <label htmlFor="lastname2"> Payment Date</label>
+                        <span class="required">*</span>
+                        <p-calendar formControlName="payment_date" [showIcon]="true" [hourFormat]="12" inputId="icon"
+                            [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <small class="p-error block" *ngIf="
+                        payment_date.invalid &&
+                                (payment_date.dirty ||
+                                payment_date.touched)
+                            ">
+                            Payment Date is required</small>
+                    </div>
+                </div>
+
+
+
+                <div class="grid">
+                    <div class="col-12">
+                        <button pButton pRipple class="primary" type="submit" label="Submit"></button>
+                        <button pButton pRipple (click)="cancel()" class="secondary ml-3" type="button"
+                            label="Cancel"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<p-toast key="tst"></p-toast>

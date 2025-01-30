@@ -22,6 +22,9 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MyLeadsComponent } from './my-leads/my-leads.component';
 import { FollowUpLeadsComponent } from './follow-up-leads/follow-up-leads.component';
 import { ExpectedPaymentComponent } from './expected-payment/expected-payment.component';
+import { FreeTrialFormComponent } from './free-trial-form/free-trial-form.component';
+import { ExpectedPaymentFormComponent } from './expected-payment-form/expected-payment-form.component';
+import { PaymentFormComponent } from './payment-form/payment-form.component';
 
 @NgModule({
     declarations: [
@@ -32,6 +35,9 @@ import { ExpectedPaymentComponent } from './expected-payment/expected-payment.co
         LeadsEditComponent,
         FollowUpLeadsComponent,
         ExpectedPaymentComponent,
+        FreeTrialFormComponent,
+        ExpectedPaymentFormComponent,
+        PaymentFormComponent,
     ],
     imports: [
         ToolbarModule,
