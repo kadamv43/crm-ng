@@ -14,6 +14,12 @@ export class SpotIncentiveEditComponent {
     form: FormGroup;
     id: string;
     loading = false;
+
+    roles = [
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
+
     constructor(
         private spotIncentiveService: SpotIncentiveService,
         private toast: MessageService,
@@ -22,8 +28,15 @@ export class SpotIncentiveEditComponent {
         private route: ActivatedRoute
     ) {
         this.form = this.fb.group({
-            business: ['', Validators.required],
-            incentive: ['', Validators.required],
+            business: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
+            role: ['', Validators.required],
+            incentive: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
         });
     }
 
@@ -35,6 +48,7 @@ export class SpotIncentiveEditComponent {
                 .subscribe((res: any) => {
                     this.form.patchValue({
                         business: res?.business,
+                        role: res?.role,
                         incentive: res?.incentive,
                     });
                 });
@@ -47,6 +61,10 @@ export class SpotIncentiveEditComponent {
 
     get incentive() {
         return this.form.get('incentive');
+    }
+
+    get role() {
+        return this.form.get('role');
     }
 
     async submit() {

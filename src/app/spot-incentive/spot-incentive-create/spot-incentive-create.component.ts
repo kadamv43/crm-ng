@@ -12,6 +12,10 @@ import { environment } from 'src/environments/environment';
     providers: [MessageService],
 })
 export class SpotIncentiveCreateComponent {
+    roles = [
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
     form: FormGroup;
     constructor(
         private spotIncentiveService: SpotIncentiveService,
@@ -20,8 +24,15 @@ export class SpotIncentiveCreateComponent {
         private fb: FormBuilder
     ) {
         this.form = this.fb.group({
-            business: ['', Validators.required],
-            incentive: ['', Validators.required],
+            business: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
+            role: ['', Validators.required],
+            incentive: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
         });
     }
 
@@ -31,6 +42,10 @@ export class SpotIncentiveCreateComponent {
 
     get incentive() {
         return this.form.get('incentive');
+    }
+
+    get role() {
+        return this.form.get('role');
     }
 
     async submit() {

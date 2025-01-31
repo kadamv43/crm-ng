@@ -2,10 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
 import { MonthlyIncentiveService } from 'src/app/services/monthly-incentive/monthly-incentive.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-monthly-incentive-create',
@@ -15,10 +12,11 @@ import { environment } from 'src/environments/environment';
 })
 export class MonthlyIncentiveCreateComponent {
     form: FormGroup;
-    imageBasePath = environment.uploadPath;
-    selectedFile: File | null = null;
-    imagePreview: string | ArrayBuffer | null = null;
     minDate;
+    roles = [
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
 
     constructor(
         private monthlyIncentiveService: MonthlyIncentiveService,
@@ -27,8 +25,15 @@ export class MonthlyIncentiveCreateComponent {
         private fb: FormBuilder
     ) {
         this.form = this.fb.group({
-            business: ['', Validators.required],
-            incentive: ['', Validators.required],
+            business: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
+            role: ['', Validators.required],
+            incentive: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
         });
     }
 
@@ -38,6 +43,10 @@ export class MonthlyIncentiveCreateComponent {
 
     get incentive() {
         return this.form.get('incentive');
+    }
+
+    get role() {
+        return this.form.get('role');
     }
 
     async submit() {

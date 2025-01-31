@@ -15,6 +15,10 @@ export class MonthlyIncentiveEditComponent {
     form: FormGroup;
     id: string;
     loading = false;
+    roles = [
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
     constructor(
         private monthlyIncentiveService: MonthlyIncentiveService,
         private toast: MessageService,
@@ -23,8 +27,15 @@ export class MonthlyIncentiveEditComponent {
         private route: ActivatedRoute
     ) {
         this.form = this.fb.group({
-            business: ['', Validators.required],
-            incentive: ['', Validators.required],
+            business: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
+            role: ['', Validators.required],
+            incentive: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
         });
     }
 
@@ -48,6 +59,10 @@ export class MonthlyIncentiveEditComponent {
 
     get incentive() {
         return this.form.get('incentive');
+    }
+
+    get role() {
+        return this.form.get('role');
     }
 
     async submit() {

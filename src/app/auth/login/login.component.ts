@@ -71,6 +71,15 @@ export class LoginComponent {
                 },
                 (err) => {
                     this.loading = false;
+
+                    if (err.status == 403) {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: err?.error?.message,
+                        });
+                    }
+
                     if (err.status == 401) {
                         this.messageService.add({
                             severity: 'error',

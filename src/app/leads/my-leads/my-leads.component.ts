@@ -13,6 +13,7 @@ import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 import { FreeTrialFormComponent } from '../free-trial-form/free-trial-form.component';
+import { CallbackFormComponent } from '../callback-form/callback-form.component';
 
 @Component({
     selector: 'app-my-leads',
@@ -22,6 +23,7 @@ import { FreeTrialFormComponent } from '../free-trial-form/free-trial-form.compo
 })
 export class MyLeadsComponent {
     statusList = [
+        // { name: 'SELECT OPTION', value: '' }, // Blank option
         { name: 'CALLBACK', code: 'CALLBACK' },
         { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
         { name: 'RINGING', code: 'RINGING' },
@@ -36,7 +38,7 @@ export class MyLeadsComponent {
         { name: 'Sham', code: 'Sham' },
     ];
     display = false;
-    selectedStatus = '';
+    selectedStatus = null;
     selectedDate = '';
     selectedUser = '';
     searchText = '';
@@ -134,6 +136,8 @@ export class MyLeadsComponent {
 
         if (value == 'FREE_TRIAL') {
             this.openDialog(customer, tableEvent);
+        } else if (value == 'CALLBACK') {
+            this.openCallBackDialog(customer, tableEvent);
         } else {
             this.userLeadService
                 .update(customer._id, {
@@ -228,6 +232,23 @@ export class MyLeadsComponent {
             },
             width: '50%',
             header: 'File Upload',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadBLogs(tableEvent);
+            }, 2000);
+        });
+    }
+
+    openCallBackDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(CallbackFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'CallBack Form',
         });
 
         this.ref.onClose.subscribe((result) => {

@@ -15,6 +15,14 @@ export class BranchEditComponent implements OnInit {
     id: string;
     loading = false;
     minDate;
+    statusList: any = [
+        {
+            name: 'Active',
+            code: 'Active',
+        },
+        { name: 'Inactive', code: 'Inactive' },
+    ];
+
     constructor(
         private branchesService: BranchesService,
         private toast: MessageService,
@@ -26,6 +34,7 @@ export class BranchEditComponent implements OnInit {
             name: ['', Validators.required],
             address: ['', Validators.required],
             max_users: ['', Validators.required],
+            status: ['', Validators.required],
             expiry_date: ['', Validators.required],
         });
     }
@@ -37,6 +46,7 @@ export class BranchEditComponent implements OnInit {
                 this.form.patchValue({
                     name: res?.name,
                     max_users: res?.max_users,
+                    status: res?.status,
                     expiry_date: res?.expiry_date
                         ? new Date(res.expiry_date)
                         : null,
@@ -57,6 +67,10 @@ export class BranchEditComponent implements OnInit {
 
     get max_users() {
         return this.form.get('max_users');
+    }
+
+    get status() {
+        return this.form.get('status');
     }
 
     get expiry_date() {

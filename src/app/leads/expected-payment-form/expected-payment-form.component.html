@@ -7,8 +7,9 @@
                     <div class="field col-12">
                         <label htmlFor="lastname2">Expected Payment Date</label>
                         <span class="required">*</span>
-                        <p-calendar formControlName="expected_payment_date" [showIcon]="true" [hourFormat]="12"
-                            inputId="icon" [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <p-calendar appendTo="body" formControlName="expected_payment_date" [showIcon]="true"
+                            [hourFormat]="12" inputId="icon" [showTime]="false" dateFormat="dd/mm/yy"
+                            [minDate]="minDate"></p-calendar>
                         <small class="p-error block" *ngIf="
                         expected_payment_date.invalid &&
                                 (expected_payment_date.dirty ||

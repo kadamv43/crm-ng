@@ -149,16 +149,26 @@ export class UserCreateComponent {
         user.password_text = user.password;
 
         if (this.userForm.valid) {
-            this.api.createUser(user).subscribe((res: any) => {
-                this.toast.add({
-                    key: 'tst',
-                    severity: 'success',
-                    summary: 'Success Message',
-                    detail: 'Employee added successfully',
-                });
-                setTimeout(() => {
-                    this.router.navigateByUrl('users');
-                }, 2000);
+            this.api.createUser(user).subscribe({
+                next: (res: any) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Employee added successfully',
+                    });
+                    setTimeout(() => {
+                        this.router.navigateByUrl('users');
+                    }, 2000);
+                },
+                error: (error) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'error ',
+                        summary: 'Error Message',
+                        detail: error?.error?.message,
+                    });
+                },
             });
         }
     }

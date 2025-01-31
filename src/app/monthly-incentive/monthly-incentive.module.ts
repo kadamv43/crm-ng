@@ -10,9 +10,11 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 @NgModule({
     declarations: [
@@ -28,7 +30,10 @@ import { ToastModule } from 'primeng/toast';
         ReactiveFormsModule,
         PanelModule,
         ToastModule,
+        FormsModule,
+        DropdownModule,
         CommonModule,
+        ConfirmPopupModule,
         MonthlyIncentiveRoutingModule,
     ],
 })

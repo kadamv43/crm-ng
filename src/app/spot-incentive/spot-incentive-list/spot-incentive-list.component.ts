@@ -18,7 +18,7 @@ import { SpotIncentiveService } from 'src/app/services/spot-incentive/spot-incen
 })
 export class SpotIncentiveListComponent {
     display = false;
-    selectedStatus = '';
+    selectedRole = '';
     selectedDate = '';
     searchText = '';
 
@@ -37,6 +37,12 @@ export class SpotIncentiveListComponent {
     minDate;
 
     totalRecords = 0;
+
+    roles = [
+        { name: 'All', code: '' },
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
 
     ref: DynamicDialogRef | undefined;
 
@@ -68,8 +74,8 @@ export class SpotIncentiveListComponent {
             params['q'] = this.searchText;
         }
 
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
+        if (this.selectedRole != '') {
+            params['role'] = this.selectedRole;
         }
 
         if (this.selectedDate != '') {
@@ -127,38 +133,8 @@ export class SpotIncentiveListComponent {
         });
     }
 
-    async clear(event) {
-        this.selectedStatus = '';
-        this.selectedDate = '';
-        this.searchText = '';
-        this.loadBLogs(event);
-    }
-
-    filter() {
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
-        }
-
-        if (this.selectedDate != '') {
-            params['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
-            params['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
-        }
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.spotIncentiveService.getAll(queryParams).subscribe((res) => {
-            this.appointments = res;
-        });
+    filter(ev) {
+        this.loadBLogs(ev);
     }
     async updateStatus(id, status) {
         this.spotIncentiveService.update(id, { status }).subscribe((res) => {

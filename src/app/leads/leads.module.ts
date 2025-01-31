@@ -25,6 +25,7 @@ import { ExpectedPaymentComponent } from './expected-payment/expected-payment.co
 import { FreeTrialFormComponent } from './free-trial-form/free-trial-form.component';
 import { ExpectedPaymentFormComponent } from './expected-payment-form/expected-payment-form.component';
 import { PaymentFormComponent } from './payment-form/payment-form.component';
+import { CallbackFormComponent } from './callback-form/callback-form.component';
 
 @NgModule({
     declarations: [
@@ -38,6 +39,7 @@ import { PaymentFormComponent } from './payment-form/payment-form.component';
         FreeTrialFormComponent,
         ExpectedPaymentFormComponent,
         PaymentFormComponent,
+        CallbackFormComponent,
     ],
     imports: [
         ToolbarModule,

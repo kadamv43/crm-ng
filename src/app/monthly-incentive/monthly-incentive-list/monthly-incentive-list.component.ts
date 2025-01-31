@@ -21,7 +21,7 @@ import { MonthlyIncentiveService } from 'src/app/services/monthly-incentive/mont
 })
 export class MonthlyIncentiveListComponent {
     display = false;
-    selectedStatus = '';
+    selectedRole = '';
     selectedDate = '';
     searchText = '';
 
@@ -39,6 +39,11 @@ export class MonthlyIncentiveListComponent {
 
     minDate;
 
+    roles = [
+        { name: 'All', code: '' },
+        { name: 'TeamLead', code: 'teamlead' },
+        { name: 'Employee', code: 'employee' },
+    ];
     totalRecords = 0;
 
     ref: DynamicDialogRef | undefined;
@@ -71,8 +76,8 @@ export class MonthlyIncentiveListComponent {
             params['q'] = this.searchText;
         }
 
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
+        if (this.selectedRole != '') {
+            params['role'] = this.selectedRole;
         }
 
         if (this.selectedDate != '') {
@@ -134,38 +139,8 @@ export class MonthlyIncentiveListComponent {
         });
     }
 
-    async clear(event) {
-        this.selectedStatus = '';
-        this.selectedDate = '';
-        this.searchText = '';
-        this.loadBLogs(event);
-    }
-
-    filter() {
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
-        }
-
-        if (this.selectedDate != '') {
-            params['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
-            params['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
-        }
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.monthlyIncentiveService.getAll(queryParams).subscribe((res) => {
-            this.appointments = res;
-        });
+    filter(ev) {
+        this.loadBLogs(ev);
     }
     async updateStatus(id, status) {
         this.monthlyIncentiveService.update(id, { status }).subscribe((res) => {

@@ -63,8 +63,9 @@
 
                         <td>
                             <p-toast></p-toast>
-                            <p-dropdown (onChange)="onStatusChange(customer,$event,dt1)" appendTo="body" class="w-full"
-                                [options]="statusList" optionLabel="name" optionValue="code" placeholder="" />
+                            <p-dropdown [(ngModel)]="selectedStatus" (onChange)="onStatusChange(customer,$event,dt1)"
+                                appendTo="body" class="w-full" [options]="statusList" optionLabel="name"
+                                optionValue="code" placeholder="Select Action" />
                         </td>
                     </tr>
                 </ng-template>

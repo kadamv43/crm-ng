@@ -15,6 +15,13 @@ import { environment } from 'src/environments/environment';
 export class BranchCreateComponent implements OnInit {
     form: FormGroup;
     minDate;
+    statusList: any = [
+        {
+            name: 'Active',
+            code: 'Active',
+        },
+        { name: 'Inactive', code: 'Inactive' },
+    ];
 
     constructor(
         private branchesService: BranchesService,
@@ -26,6 +33,7 @@ export class BranchCreateComponent implements OnInit {
             name: ['', Validators.required],
             address: ['', Validators.required],
             max_users: ['', Validators.required],
+            status: ['', Validators.required],
             expiry_date: ['', Validators.required],
         });
     }
@@ -39,6 +47,10 @@ export class BranchCreateComponent implements OnInit {
 
     get address() {
         return this.form.get('address');
+    }
+
+    get status() {
+        return this.form.get('status');
     }
 
     get max_users() {

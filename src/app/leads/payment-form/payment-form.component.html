@@ -42,7 +42,7 @@
                         <span class="required">*</span>
                         <p-dropdown (onChange)="onPaymentModeChange($event)" [options]="payment_modes"
                             optionLabel="name" optionValue="code" formControlName="payment_mode"
-                            placeholder="Select Company" />
+                            placeholder="Select Payment Mode" />
                         <small class="p-error block" *ngIf="
                         payment_mode.invalid &&
                                 (payment_mode.dirty ||
@@ -53,8 +53,8 @@
                     <div class="field col-6" *ngIf="showPaymentOptions">
                         <label htmlFor="lastname2"> Payment options</label>
                         <span class="required">*</span>
-                        <p-dropdown [options]="payment_options" optionLabel="name" optionValue="code"
-                            formControlName="payment_details" placeholder="Select Company" />
+                        <p-dropdown appendTo="body" [options]="payment_options" optionLabel="name" optionValue="code"
+                            formControlName="payment_details" placeholder="Select Payment options" />
                         <small class="p-error block" *ngIf="
                         payment_details.invalid &&
                                 (payment_details.dirty ||
@@ -65,8 +65,8 @@
                     <div class="field col-6">
                         <label htmlFor="lastname2"> Payment Date</label>
                         <span class="required">*</span>
-                        <p-calendar formControlName="payment_date" [showIcon]="true" [hourFormat]="12" inputId="icon"
-                            [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
+                        <p-calendar appendTo="body" formControlName="payment_date" [showIcon]="true" [hourFormat]="12"
+                            inputId="icon" [showTime]="false" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
                         <small class="p-error block" *ngIf="
                         payment_date.invalid &&
                                 (payment_date.dirty ||
