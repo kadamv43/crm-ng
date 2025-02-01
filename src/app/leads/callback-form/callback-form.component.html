@@ -25,8 +25,7 @@
                         <label htmlFor="lastname2">CallBack Date</label>
                         <span class="required">*</span>
                         <p-calendar appendTo="body" formControlName="callback_date" [showIcon]="true" [hourFormat]="12"
-                            inputId="icon" [showTime]="false" [showTime]="true" [hourFormat]="12" dateFormat="dd/mm/yy"
-                            [minDate]="minDate"></p-calendar>
+                            inputId="icon" [showTime]="true" dateFormat="dd/mm/yy" [minDate]="minDate"></p-calendar>
                         <small class="p-error block" *ngIf="
                         callback_date.invalid &&
                                 (callback_date.dirty ||

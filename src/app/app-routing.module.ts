@@ -125,6 +125,14 @@ import { AuthGuard } from './auth.guard';
                                 ).then((m) => m.MonthlyIncentiveModule),
                         },
                         {
+                            path: 'day-offer',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./day-offer/day-offer.module').then(
+                                    (m) => m.DayOfferModule
+                                ),
+                        },
+                        {
                             path: 'admins',
                             canActivate: [AuthGuard],
                             loadChildren: () =>

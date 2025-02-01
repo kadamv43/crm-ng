@@ -108,6 +108,11 @@ export class AppMenuComponent implements OnInit {
                                     icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['monthly-incentives'],
                                 },
+                                {
+                                    label: 'Day Offer',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['day-offer'],
+                                },
                             ],
                         },
                     ],
@@ -181,6 +186,11 @@ export class AppMenuComponent implements OnInit {
                                     label: 'Monthly Incentive',
                                     icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['monthly-incentives'],
+                                },
+                                {
+                                    label: 'Day Offer',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['day-offer'],
                                 },
                             ],
                         },
