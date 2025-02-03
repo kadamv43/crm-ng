@@ -63,9 +63,13 @@
 
                         <td>
                             <p-toast></p-toast>
-                            <p-dropdown [(ngModel)]="selectedStatus" (onChange)="onStatusChange(customer,$event,dt1)"
+                            <!-- <button pButton (click)="showDialog()">open</button> -->
+
+                            <p-dropdown [(ngModel)]="selectedStatus" (onChange)="showDialog(customer,$event,dt1)"
                                 appendTo="body" class="w-full" [options]="statusList" optionLabel="name"
                                 optionValue="code" placeholder="Select Action" />
+                            <p-confirmPopup appendTo="body" key="confirm2"></p-confirmPopup>
+
                         </td>
                     </tr>
                 </ng-template>
@@ -84,4 +88,14 @@
     </div>
 </div>
 
+
+
+<p-button label="Show" />
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    <span class="p-text-secondary block mb-5">Update Lead Status as {{selectedStatusName?.name}}.</span>
+    <div class="flex justify-content-end gap-2">
+        <button pButton label="Yes" class="primary" (click)="changeStatus()"></button>
+        <button pButton label="No" [ngClass]="'secondary'" (click)="visible = false"></button>
+    </div>
+</p-dialog>
 <p-toast key="tst"></p-toast>

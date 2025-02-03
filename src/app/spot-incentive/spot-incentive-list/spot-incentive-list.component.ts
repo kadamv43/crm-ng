@@ -9,6 +9,8 @@ import { DatePipe } from '@angular/common';
 import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
 import * as FileSaver from 'file-saver';
 import { SpotIncentiveService } from 'src/app/services/spot-incentive/spot-incentive.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BranchesService } from 'src/app/services/branches/branches.service';
 
 @Component({
     selector: 'app-spot-incentive-list',
@@ -45,6 +47,7 @@ export class SpotIncentiveListComponent {
     ];
 
     ref: DynamicDialogRef | undefined;
+    form: FormGroup;
 
     constructor(
         private spotIncentiveService: SpotIncentiveService,
@@ -53,13 +56,35 @@ export class SpotIncentiveListComponent {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
+        private branchService: BranchesService,
         private commonService: CommonService,
         private dialogService: DialogService,
-        private datePipe: DatePipe
-    ) {}
+        private datePipe: DatePipe,
+        private fb: FormBuilder,
+        private toast: MessageService
+    ) {
+        this.form = this.fb.group({
+            spot_incentive_base_business: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')], // Allows only numbers
+            ],
+        });
+    }
 
     ngOnInit() {
         this.role = this.authService.getRole();
+        this.branchService.getMyBranchDetails().subscribe({
+            next: (res: any) => {
+                this.form.patchValue({
+                    spot_incentive_base_business:
+                        res?.spot_incentive_base_business,
+                });
+            },
+        });
+    }
+
+    get spot_incentive_base_business() {
+        return this.form.get('spot_incentive_base_business');
     }
 
     loadBLogs(event: any) {
@@ -131,6 +156,22 @@ export class SpotIncentiveListComponent {
                 });
             },
         });
+    }
+
+    saveBase() {
+        this.form.markAllAsTouched();
+        if (this.form.valid) {
+            this.branchService.updateBase(this.form.value).subscribe({
+                next: (res) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Spot Incentive bases saved successfully',
+                    });
+                },
+            });
+        }
     }
 
     filter(ev) {

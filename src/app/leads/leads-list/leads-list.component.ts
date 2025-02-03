@@ -14,6 +14,7 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
 @Component({
     selector: 'app-leads-list',
@@ -67,10 +68,12 @@ export class LeadsListComponent {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
+        private userLeadService: UserLeadsService,
         private userService: UsersService,
         private commonService: CommonService,
         private dialogService: DialogService,
-        private datePipe: DatePipe
+        private datePipe: DatePipe,
+        private toast: MessageService
     ) {}
 
     ngOnInit() {
@@ -186,6 +189,25 @@ export class LeadsListComponent {
         this.loadBLogs(event);
     }
 
+    assignLeads(event) {
+        this.userLeadService
+            .createBulk({
+                user: this.selectedUser,
+                leads: this.selectedProducts,
+            })
+            .subscribe({
+                next: (res) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Leads Assigned Successfully',
+                    });
+
+                    this.loadBLogs(event);
+                },
+            });
+    }
     filter() {
         let params = {};
         if (this.searchText != '') {

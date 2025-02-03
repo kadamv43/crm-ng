@@ -22,6 +22,7 @@ import { CallbackFormComponent } from '../callback-form/callback-form.component'
     providers: [MessageService, ConfirmationService, DialogService, DatePipe],
 })
 export class MyLeadsComponent {
+    visible = false;
     statusList = [
         // { name: 'SELECT OPTION', value: '' }, // Blank option
         { name: 'CALLBACK', code: 'CALLBACK' },
@@ -41,6 +42,7 @@ export class MyLeadsComponent {
     selectedStatus = null;
     selectedDate = '';
     selectedUser = '';
+    tableEvent;
     searchText = '';
     selectedProducts: any[] = [];
 
@@ -51,6 +53,8 @@ export class MyLeadsComponent {
     loading: boolean = false;
 
     appointments: any = [];
+
+    selectedStatusName;
 
     role = '';
 
@@ -84,6 +88,17 @@ export class MyLeadsComponent {
 
     logSelection() {
         console.log(this.selectedProducts);
+    }
+
+    showDialog(customer, event, tableEvent) {
+        this.selectedUser = customer;
+        this.tableEvent = tableEvent;
+        this.selectedStatus = event.value;
+
+        this.selectedStatusName = this.statusList.find((item) => {
+            return item?.code == this.selectedStatus;
+        });
+        this.visible = true;
     }
 
     loadBLogs(event: any) {
@@ -131,9 +146,12 @@ export class MyLeadsComponent {
         this.router.navigateByUrl(url);
     }
 
-    onStatusChange(customer, event, tableEvent) {
-        let value = event?.value;
+    changeStatus() {
+        let value = this.selectedStatus;
 
+        let customer: any = this.selectedUser;
+        let tableEvent = this.tableEvent;
+        this.visible = false;
         if (value == 'FREE_TRIAL') {
             this.openDialog(customer, tableEvent);
         } else if (value == 'CALLBACK') {
@@ -141,7 +159,7 @@ export class MyLeadsComponent {
         } else {
             this.userLeadService
                 .update(customer._id, {
-                    status: event.value,
+                    status: value,
                 })
                 .subscribe({
                     next: (res) => {
@@ -150,6 +168,39 @@ export class MyLeadsComponent {
                     },
                 });
         }
+    }
+
+    confirm(event: Event) {
+        console.log('ss');
+        this.confirmationService.confirm({
+            target: event.currentTarget || new EventTarget(),
+            key: 'confirm1',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Confirmed',
+                    detail: 'You have accepted',
+                    life: 3000,
+                });
+            },
+            reject: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
+                    life: 3000,
+                });
+            },
+        });
     }
 
     confirm2(event: Event, user) {

@@ -5,8 +5,8 @@ import { HttpParams } from '@angular/common/http';
 @Injectable({
     providedIn: 'root',
 })
-export class BranchesService {
-    baseUrl = 'branches';
+export class DashboardService {
+    baseUrl = 'dashboard';
     constructor(private httpService: HttpService) {}
 
     create(user) {
@@ -14,14 +14,34 @@ export class BranchesService {
         return this.httpService.postWithFormData(url, user);
     }
 
+    getTarget(params) {
+        const url = this.baseUrl + '/target-details';
+        return this.httpService.get(url, params);
+    }
+
+    getFreeTrial(params) {
+        const url = this.baseUrl + '/free-trial';
+        return this.httpService.get(url, params);
+    }
+
+    getPaymentDone(params) {
+        const url = this.baseUrl + '/payments-done';
+        return this.httpService.get(url, params);
+    }
+
+    getPaymentDetails() {
+        const url = this.baseUrl + '/payment-details';
+        return this.httpService.get(url);
+    }
+
     update(id: string, user) {
         const url = `${this.baseUrl}/${id}`;
         return this.httpService.patchWithFormData(url, user);
     }
 
-    updateBase(user) {
-        const url = `${this.baseUrl}/update-spot-incentive-base`;
-        return this.httpService.patch(url, user);
+    importExcel(user) {
+        const url = `${this.baseUrl}/import-excel`;
+        return this.httpService.postWithFormData(url, user);
     }
 
     getAll(params) {
@@ -31,11 +51,6 @@ export class BranchesService {
 
     findById(id: string) {
         const url = `${this.baseUrl}/${id}`;
-        return this.httpService.get(url);
-    }
-
-    getMyBranchDetails() {
-        const url = `${this.baseUrl}/my-branch`;
         return this.httpService.get(url);
     }
 

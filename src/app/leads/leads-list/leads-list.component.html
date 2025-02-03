@@ -17,8 +17,8 @@
             <ng-template pTemplate="right">
                 <p-dropdown [filter]="true" filterBy="name" [(ngModel)]="selectedUser" [options]="users"
                     optionLabel="name" class="mr-3" optionValue="code" placeholder="Select Employee" />
-                <button [disabled]="selectedProducts.length == 0 " pButton pRipple label="Assign" icon="pi pi-upload"
-                    class="p-button-help primary"></button>
+                <button (click)="assignLeads(dt1)" [disabled]="selectedProducts.length == 0 " pButton pRipple
+                    label="Assign" icon="pi pi-upload" class="p-button-help primary"></button>
             </ng-template>
         </p-toolbar>
     </div>

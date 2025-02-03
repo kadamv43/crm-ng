@@ -14,6 +14,11 @@ export class UserLeadsService {
         return this.httpService.postWithFormData(url, user);
     }
 
+    createBulk(user) {
+        const url = this.baseUrl + '/bulk';
+        return this.httpService.post(url, user);
+    }
+
     update(id: string, user) {
         const url = `${this.baseUrl}/${id}`;
         return this.httpService.patchWithFormData(url, user);

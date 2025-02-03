@@ -1,84 +1,356 @@
 <div class="grid">
+    <div class="col-12">
+        <p-toolbar *ngIf="role!='employee'" styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <p-dropdown *ngIf="role=='superadmin'" (onChange)="onChangeCompany($event)" [filter]="true"
+                    filterBy="name" [(ngModel)]="selectedCompany" [options]="companies" optionLabel="name" class="mr-3"
+                    optionValue="code" placeholder="Select company" />
+                <p-dropdown *ngIf="role=='superadmin' && showAdmin" (onChange)="onChangeAdmin($event)" [filter]="true"
+                    filterBy="name" [(ngModel)]="selectedAdmin" [options]="admins" optionLabel="name" class="mr-3"
+                    optionValue="code" placeholder="Select Admin" />
+                <p-dropdown *ngIf="role=='superadmin' || role=='admin'" (onChange)="onChangeTL($event)" [filter]="true"
+                    filterBy="name" [(ngModel)]="selectedTL" [options]="tlList" optionLabel="name" class="mr-3"
+                    optionValue="code" placeholder="Select TL" />
+                <p-dropdown [filter]="true" (onChange)="onChangeFilter($event)" filterBy="name"
+                    [(ngModel)]="selectedEmployee" [options]="employees" optionLabel="name" class="mr-3"
+                    optionValue="code" placeholder="Select Employee" />
+            </ng-template>
+
+            <ng-template pTemplate="right">
+                <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload> -->
+                <!-- <button pButton pRipple label="Export" icon="pi pi-download" class="p-button-help secondary"
+                    (click)="exportExcel()"></button> -->
+            </ng-template>
+        </p-toolbar>
+    </div>
+</div>
+<div class="grid">
     <div class="col-6">
         <div class="card mb-0">
             <div class="grid">
                 <div class="col-8">
-
+                    <p-chart type="pie" [data]="data" [options]="options" />
                 </div>
                 <div class="col-4">
                     <div class="grid">
                         <div class="col-12">
                             <h5>Total Target</h5>
-                            <label>50000</label>
+                            <label>{{targetData?.total}}</label>
                         </div>
                         <div class="col-12">
                             <h5>Achieved Target</h5>
-                            <label>50000</label>
+                            <label>{{targetData?.achieved}}</label>
                         </div>
                         <div class="col-12">
                             <h5>Pending Target</h5>
-                            <label>50000</label>
+                            <label>{{targetData?.pending}}</label>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-3">
+    <div class="col-6">
         <div class="card mb-0">
             <div class="grid">
                 <div class="grid">
                     <div class="col-12">
                         <h5>Today's Free Trial</h5>
-                        <label>3</label>
+                        <label>{{free_trial?.total}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-5">
+            <div class="grid">
+                <div class="grid">
+                    <div class="col-12">
+                        <h5>Total Payment Done</h5>
+                        <label>{{paymentData?.total_payment_done}}</label>
+                    </div>
+                    <div class="col-12">
+                        <h5>Todays Expected Payment</h5>
+                        <label>{{paymentData?.expected_payment}}</label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-3">
-        <div class="card mb-0">
-            <div class="grid">
-                <div class="grid">
-                    <div class="col-12">
-                        <h5>Total Target</h5>
-                        <label>50000</label>
-                    </div>
-                    <div class="col-12">
-                        <h5>Achieved Target</h5>
-                        <label>50000</label>
-                    </div>
-                    <div class="col-12">
-                        <h5>Pending Target</h5>
-                        <label>50000</label>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 
 <div class="grid">
-    <div class="col-8">
+    <div class="col-6">
         <div class="card mb-0">
             <p-table></p-table>
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-6">
         <div class="card mb-0">
-            <p-table></p-table>
+            <h5>Incentive List</h5>
+            <p-table #dt1 [value]="appointments" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
+                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
+                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+                    'name',
+                    'country.name',
+                    'representative.name',
+                    'status'
+                ]" responsiveLayout="scroll">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Username
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Target Achieved
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Incentive
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer>
+                    <tr>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.account_holder
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.account_number
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.bank_name
+                                }}</span>
+                        </td>
+
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8">No banks found.</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="loadingbody">
+                    <tr>
+                        <td colspan="8">Loading banks data. Please wait.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
 </div>
 <div class="grid">
-    <div class="col-6">
+    <div class="col-12">
+
         <div class="card mb-0">
-            <p-table></p-table>
+            <h5>Current Month Paid List</h5>
+            <p-table #dt1 [value]="payments_done?.data" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
+                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
+                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+                    'name',
+                    'country.name',
+                    'representative.name',
+                    'status'
+                ]" responsiveLayout="scroll">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Username
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Mobile
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Amount
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Payment Mode
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Account Detail
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+
+
+                        <th *ngIf="role ==='admin'" style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Payment Date
+                                <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer>
+                    <tr>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.user?.username
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.user?.mobile
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.payment?.payment_amount
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.payment?.payment_mode
+                                }}</span>
+                        </td>
+                        <td *ngIf="customer?.payment?.payment_mode == 'UPI'">
+                            {{ customer?.payment?.payment_details?.upi_id + ' '+
+                            customer?.payment?.payment_details?.upi_number}}
+                        </td>
+
+
+                        <td class="text-center">
+                            {{
+                            customer?.payment?.payment_date | date:'dd-MM-Y'
+                            }}
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8">No banks found.</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="loadingbody">
+                    <tr>
+                        <td colspan="8">Loading banks data. Please wait.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
-    <div class="col-6">
+</div>
+<div class="grid">
+    <div class="col-12">
         <div class="card mb-0">
-            <p-table></p-table>
+            <h5>Today's Free Trial Client</h5>
+            <p-table #dt1 [value]="free_trial?.data" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
+                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
+                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+                    'name',
+                    'country.name',
+                    'representative.name',
+                    'status'
+                ]" responsiveLayout="scroll">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Username
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Mobile
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Segment
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Investment
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer>
+                    <tr>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.user?.username
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.user?.mobile
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.free_trial?.options
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.free_trial?.investment
+                                }}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8">No banks found.</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="loadingbody">
+                    <tr>
+                        <td colspan="8">Loading banks data. Please wait.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
 </div>

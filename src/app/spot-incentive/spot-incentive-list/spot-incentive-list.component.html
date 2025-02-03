@@ -9,19 +9,13 @@
                 </div>
             </ng-template>
 
-            <!-- <ng-template pTemplate="right">
-                <button
-                    pButton
-                    pRipple
-                    label="Export"
-                    icon="pi pi-upload"
-                    class="p-button-help secondary"
-                    (click)="exportExcel()"
-                ></button>
-            </ng-template> -->
+            <ng-template pTemplate="right">
+
+            </ng-template>
         </p-toolbar>
     </div>
 </div>
+
 
 <div class="grid">
     <div class="col-12">
@@ -38,11 +32,39 @@
                 <ng-template pTemplate="caption">
                     <div class="grid">
                         <div class="col-3">
+                            <label>Role</label>
                             <p-dropdown [options]="roles" optionLabel="name" optionValue="code"
                                 placeholder="Select Role" autoWidth="false" (onChange)="filter(dt1)"
                                 [(ngModel)]="selectedRole" [style]="{ width: '100%' }" />
                         </div>
+                        <div [formGroup]="form" class="col-3">
+                            <!-- <div class="p-fluid p-formgrid grid"> -->
+                            <!-- <div class="col-12 md:col-6"> -->
+                            <span>Spot Incentive Base</span>
+                            <input class="w-full" pInputText id="name" type="text"
+                                formControlName="spot_incentive_base_business" placeholder="Spot Incentive Base" />
+                            <small class="p-error block" *ngIf="
+                    spot_incentive_base_business.invalid && (spot_incentive_base_business.dirty || spot_incentive_base_business.touched) && spot_incentive_base_business.hasError('required')
+                            ">
+                                value is required</small>
+                            <small class="p-error block" *ngIf="
+                    spot_incentive_base_business.invalid && (spot_incentive_base_business.dirty || spot_incentive_base_business.touched) && spot_incentive_base_business.hasError('pattern')
+                                ">
+
+                                business is invalid</small>
+                            <!-- </div> -->
+                            <!-- </div> -->
+
+
+                        </div>
+                        <div class="col-2">
+                            <button pButton pRipple label="Save" class="mt-3 p-button-help primary"
+                                (click)="saveBase()"></button>
+                        </div>
+
+
                     </div>
+
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>

@@ -10,6 +10,8 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { PendingInvoiceComponent } from './pending-invoice/pending-invoice.component';
+import { ToolbarModule } from 'primeng/toolbar';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
     imports: [
@@ -18,14 +20,14 @@ import { PendingInvoiceComponent } from './pending-invoice/pending-invoice.compo
         ChartModule,
         MenuModule,
         TableModule,
+        ToolbarModule,
         StyleClassModule,
         PanelMenuModule,
+        DropdownModule,
+        ChartModule,
         ButtonModule,
-        DashboardsRoutingModule
+        DashboardsRoutingModule,
     ],
-    declarations: [
-        PendingInvoiceComponent,
-        DashboardComponent
-    ]
+    declarations: [PendingInvoiceComponent, DashboardComponent],
 })
-export class DashboardModule { }
+export class DashboardModule {}

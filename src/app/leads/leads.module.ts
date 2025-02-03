@@ -26,6 +26,9 @@ import { FreeTrialFormComponent } from './free-trial-form/free-trial-form.compon
 import { ExpectedPaymentFormComponent } from './expected-payment-form/expected-payment-form.component';
 import { PaymentFormComponent } from './payment-form/payment-form.component';
 import { CallbackFormComponent } from './callback-form/callback-form.component';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
     declarations: [
@@ -56,6 +59,9 @@ import { CallbackFormComponent } from './callback-form/callback-form.component';
         ToastModule,
         EditorModule,
         CommonModule,
+        DialogModule,
+        ConfirmPopupModule,
+        // ConfirmationService,
         InputTextareaModule,
         LeadsRoutingModule,
     ],

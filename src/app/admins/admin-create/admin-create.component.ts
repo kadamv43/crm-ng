@@ -107,16 +107,26 @@ export class AdminCreateComponent {
         user.password_text = user.password;
 
         if (this.userForm.valid) {
-            this.api.createUser(user).subscribe((res: any) => {
-                this.toast.add({
-                    key: 'tst',
-                    severity: 'success',
-                    summary: 'Success Message',
-                    detail: 'Admin added successfully',
-                });
-                setTimeout(() => {
-                    this.router.navigateByUrl('admins');
-                }, 2000);
+            this.api.createUser(user).subscribe({
+                next: (res: any) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Admin added successfully',
+                    });
+                    setTimeout(() => {
+                        this.router.navigateByUrl('admins');
+                    }, 2000);
+                },
+                error: (err) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'error',
+                        summary: 'Error Message',
+                        detail: err?.error?.message,
+                    });
+                },
             });
         }
     }

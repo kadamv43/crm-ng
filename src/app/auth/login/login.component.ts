@@ -54,6 +54,11 @@ export class LoginComponent {
                         .subscribe(async (res: any) => {
                             localStorage.setItem('mobile', res?.mobile);
                             localStorage.setItem('role', res.role);
+                            localStorage.setItem('userId', res?.userId);
+                            localStorage.setItem(
+                                'branch',
+                                JSON.stringify(res?.branch)
+                            );
                             this.apiService.getAppConfig().subscribe({
                                 next: (res) => {
                                     localStorage.setItem(
