@@ -106,6 +106,7 @@ export class DashboardComponent implements OnInit {
             this.getCompanies();
         } else {
             this.getDashBoard();
+            this.getTlList();
         }
 
         if (this.role == 'teamlead') {
