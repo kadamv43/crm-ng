@@ -71,8 +71,13 @@ export class UserEditComponent implements OnInit {
                     username: res?.username,
                     target: res?.target,
                     password: res?.password_text,
-                    teamlead: res?.role == 'employee' && res?.teamlead,
                 });
+
+                if (res?.role == 'employee' && res?.teamlead) {
+                    this.userForm.patchValue({
+                        teamlead: res?.teamlead,
+                    });
+                }
             });
         });
 
@@ -141,6 +146,9 @@ export class UserEditComponent implements OnInit {
         this.userForm.markAllAsTouched();
         let user = this.userForm.value;
         user.password_text = user.password;
+        if (user.teamlead == '') {
+            delete user.teamlead;
+        }
 
         if (this.userForm.valid) {
             this.api.updateUser(this.id, user).subscribe((res) => {

@@ -45,9 +45,9 @@ export class PaymentFormComponent {
         console.log(this.customer);
 
         this.form = this.fb.group({
-            name: [this.customer.name],
-            mobile: [this.customer.mobile],
-            city: [this.customer.city],
+            name: [this.customer.free_trial?.name],
+            mobile: [this.customer.free_trial?.mobile],
+            city: [this.customer.free_trial?.city],
             payment_amount: ['', Validators.required],
             payment_mode: ['', Validators.required],
             payment_details: [''],

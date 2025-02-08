@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { dA } from '@fullcalendar/core/internal-common';
 import { options } from '@fullcalendar/core/preact';
 import { MessageService } from 'primeng/api';
 import {
@@ -80,7 +81,6 @@ export class FreeTrialFormComponent {
         this.ref.close();
     }
     async submit() {
-        // let data = this.form.value;
         this.form.markAllAsTouched();
         if (this.form.valid) {
             console.log(this.form.value);

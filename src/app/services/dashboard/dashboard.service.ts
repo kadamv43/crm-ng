@@ -24,8 +24,23 @@ export class DashboardService {
         return this.httpService.get(url, params);
     }
 
-    getPaymentDone(params) {
-        const url = this.baseUrl + '/payments-done';
+    getTodaysPaymentDone(params) {
+        const url = this.baseUrl + '/todays-payments-done';
+        return this.httpService.get(url, params);
+    }
+
+    getSmartView(params) {
+        const url = this.baseUrl + '/smart-view';
+        return this.httpService.get(url, params);
+    }
+
+    getTodaysExpectedPayment(params) {
+        const url = this.baseUrl + '/todays-expected-payment';
+        return this.httpService.get(url, params);
+    }
+
+    getCurrentMonthPaymentDone(params) {
+        const url = this.baseUrl + '/current-month-payments-done';
         return this.httpService.get(url, params);
     }
 

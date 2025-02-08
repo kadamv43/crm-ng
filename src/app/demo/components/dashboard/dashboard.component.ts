@@ -25,6 +25,7 @@ interface PaymentData {
 interface CommonApiResponse {
     total: number;
     data: [];
+    totalAmount?: 0;
 }
 
 @Component({
@@ -52,7 +53,8 @@ export class DashboardComponent implements OnInit {
         data: [],
     };
 
-    payments_done: CommonApiResponse = {
+    payments_done: any;
+    expected_payment: CommonApiResponse = {
         total: 0,
         data: [],
     };
@@ -75,6 +77,7 @@ export class DashboardComponent implements OnInit {
     showTlList = false;
     selectedEmployee = '';
     subscription!: Subscription;
+    smartView;
 
     constructor(
         public layoutService: LayoutService,
@@ -90,56 +93,59 @@ export class DashboardComponent implements OnInit {
     ngOnInit() {
         this.role = localStorage.getItem('role');
         const branchData = localStorage.getItem('branch');
-        this.loggedInUserBranch = branchData ? JSON.parse(branchData) : null;
+        try {
+            this.loggedInUserBranch = branchData
+                ? JSON.parse(branchData)
+                : null;
+        } catch (error) {
+            // console.error('Error parsing branchData:', error);
+            this.loggedInUserBranch = null;
+        }
 
-        this.getTargetData();
+        if (this.role == 'superadmin') {
+            this.getCompanies();
+        } else {
+            this.getDashBoard();
+        }
 
-        this.getCompanies();
-        // this.getAdmins();
-        this.getFreeTrialData();
-        this.getPaymementData();
-
-        if (this.role == 'admin') {
-            this.getTlList();
-            this.getFreeTrialData();
-            this.getPaymentsDoneData();
+        if (this.role == 'teamlead') {
+            this.getEmployeesByTL();
         }
     }
 
     onChangeCompany(event) {
         this.selectedCompany = event.value;
-        this.showAdmin = true;
-        this.getAdmins(event.value);
+        this.getTlList();
+        this.getDashBoard();
     }
 
     onChangeFilter(event) {
         this.selectedEmployee = event.value;
+
         this.getDashBoard();
     }
 
     getDashBoard() {
-        let userId = this.selectedEmployee;
-        this.getTargetDataByUserId(userId);
-        this.getFreeTrialDataByUserId(userId);
-        this.getPaymentDoneDataByUserId(userId);
-        this.getIncenticeList();
-        this.getCurrentMonthPaidList();
+        this.getSmartView();
+        this.getTargetData();
+        this.getFreeTrialData();
+        this.getTodaysPaymentDone();
+        this.getTodaysExpectedPayment();
+        this.getCurrentMonthPaymentDone();
     }
 
-    getTargetDataByUserId(userId) {}
-    getFreeTrialDataByUserId(userId) {}
-    getPaymentDoneDataByUserId(userId) {}
-    getCurrentMonthPaidList() {}
-    getIncenticeList() {}
     onChangeAdmin(event) {
-        // this.selectedAdmin = event.value;
+        this.selectedEmployee = event.value;
         this.showTlList = true;
         this.getTlList();
+        this.getDashBoard();
     }
 
     onChangeTL(event) {
         // this.selectedAdmin = event.value;
         this.showTlList = true;
+        this.selectedEmployee = event?.value;
+        this.getDashBoard();
         this.getEmployees(this.selectedCompany, event.value);
     }
 
@@ -153,13 +159,16 @@ export class DashboardComponent implements OnInit {
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
+        } else {
+            params['user'] = localStorage.getItem('userId');
         }
+
         this.dashboardService.getFreeTrial(params).subscribe((res: any) => {
             this.free_trial = res;
         });
     }
 
-    getPaymentsDoneData() {
+    getTodaysPaymentDone() {
         let params = {
             page: 0,
             size: 100,
@@ -170,11 +179,80 @@ export class DashboardComponent implements OnInit {
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
         }
-        this.dashboardService.getPaymentDone(params).subscribe((res: any) => {
-            this.payments_done = res;
+        if (this.role == 'employee') {
+            params['user'] = localStorage.getItem('userId');
+        }
+        this.dashboardService
+            .getTodaysPaymentDone(params)
+            .subscribe((res: any) => {
+                this.payments_done = res;
+            });
+    }
+
+    getSmartView() {
+        let params = {
+            page: 0,
+            size: 100,
+        };
+        if (this.loggedInUserBranch) {
+            params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
+        }
+        if (this.selectedEmployee) {
+            params['user'] = this.selectedEmployee;
+        } else {
+            params['user'] = localStorage.getItem('userId');
+        }
+
+        this.dashboardService.getSmartView(params).subscribe((res: any) => {
+            this.smartView = res;
         });
     }
 
+    getCurrentMonthPaymentDone() {
+        let params = {
+            page: 0,
+            size: 100,
+        };
+        if (this.loggedInUserBranch) {
+            params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
+        }
+        if (this.selectedEmployee) {
+            params['user'] = this.selectedEmployee;
+        } else {
+            params['user'] = localStorage.getItem('userId');
+        }
+        this.dashboardService
+            .getCurrentMonthPaymentDone(params)
+            .subscribe((res: any) => {
+                this.payments_done = res;
+            });
+    }
+
+    getTodaysExpectedPayment() {
+        let params = {
+            page: 0,
+            size: 100,
+        };
+        if (this.loggedInUserBranch) {
+            params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
+        }
+        if (this.selectedEmployee) {
+            params['user'] = this.selectedEmployee;
+        } else if (this.role == 'employee' || this.role == 'teamlead') {
+            params['user'] = localStorage.getItem('userId');
+        }
+        this.dashboardService
+            .getTodaysExpectedPayment(params)
+            .subscribe((res: any) => {
+                this.expected_payment = res;
+            });
+    }
     getTargetData() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
@@ -196,6 +274,8 @@ export class DashboardComponent implements OnInit {
         };
         if (this.loggedInUserBranch) {
             params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -240,6 +320,12 @@ export class DashboardComponent implements OnInit {
                 this.companies = res.data.map((item) => {
                     return { name: item?.name, code: item?._id };
                 });
+
+                if (this.role === 'superadmin' && this.companies?.length > 0) {
+                    this.selectedCompany = this.companies[0].code; // Set first option by default
+                    this.getDashBoard();
+                    this.getTlList();
+                }
             },
         });
     }
@@ -286,6 +372,8 @@ export class DashboardComponent implements OnInit {
 
         if (this.role == 'admin') {
             params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
         }
 
         this.userService.getAll(params).subscribe({
@@ -297,14 +385,22 @@ export class DashboardComponent implements OnInit {
         });
     }
 
-    getPaymementData() {
-        this.dashboardService
-            .getPaymentDetails()
-            .subscribe((res: PaymentData) => {
-                this.paymentData = res;
-            });
-    }
+    getEmployeesByTL() {
+        let params = {
+            teamlead: localStorage.getItem('userId'),
+            role: 'employee',
+        };
 
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+
+        this.userService.searchBy(queryParams).subscribe({
+            next: (res: any) => {
+                this.employees = res.map((item) => {
+                    return { name: item?.username, code: item?._id };
+                });
+            },
+        });
+    }
     loadBLogs(event: any) {
         // this.loading = true;
 

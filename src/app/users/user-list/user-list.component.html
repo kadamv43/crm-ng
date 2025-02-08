@@ -59,6 +59,12 @@
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th style="min-width: 9rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Target
+                                <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
+                            </div>
+                        </th>
                         <th style="min-width: 10rem">
                             <div class="flex justify-content-between align-items-center">
                                 Email
@@ -101,6 +107,9 @@
                         </td>
                         <td>
                             {{ customer.username }}
+                        </td>
+                        <td>
+                            {{ customer?.target }}
                         </td>
                         <td>
                             {{ customer.email }}
