@@ -13,6 +13,7 @@ import * as FileSaver from 'file-saver';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { UserHotLeadsService } from 'src/app/services/user-hot-leads/user-hot-leads.service';
 
 @Component({
     selector: 'app-hot-leads-list',
@@ -41,6 +42,8 @@ export class HotLeadsListComponent {
 
     appointments: any = [];
 
+    selectedUser = '';
+
     role = '';
 
     doctors = [];
@@ -53,11 +56,13 @@ export class HotLeadsListComponent {
 
     constructor(
         private hotLeadsService: HotLeadsService,
+        private userHotLeadsService: UserHotLeadsService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
+        private toast: MessageService,
         private userService: UsersService,
         private commonService: CommonService,
         private dialogService: DialogService,
@@ -175,6 +180,26 @@ export class HotLeadsListComponent {
         this.selectedDate = '';
         this.searchText = '';
         this.loadBLogs(event);
+    }
+
+    assignLeads(event) {
+        this.userHotLeadsService
+            .createBulk({
+                user: this.selectedUser,
+                leads: this.selectedProducts,
+            })
+            .subscribe({
+                next: (res) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Leads Assigned Successfully',
+                    });
+
+                    this.loadBLogs(event);
+                },
+            });
     }
 
     filter() {

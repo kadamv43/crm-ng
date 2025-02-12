@@ -5,8 +5,8 @@ import { HttpParams } from '@angular/common/http';
 @Injectable({
     providedIn: 'root',
 })
-export class UserLeadsService {
-    baseUrl = 'user-leads';
+export class UserHotLeadsService {
+    baseUrl = 'user-hot-leads';
     constructor(private httpService: HttpService) {}
 
     create(user) {

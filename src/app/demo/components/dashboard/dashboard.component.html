@@ -107,6 +107,12 @@
                         </th>
                         <th style="min-width: 5rem">
                             <div class="flex justify-content-between align-items-center">
+                                Total Dialed
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 5rem">
+                            <div class="flex justify-content-between align-items-center">
                                 FRESH
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
@@ -178,6 +184,12 @@
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
                                 customer?.status?.total
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.status?.total - customer?.status?.fresh
                                 }}</span>
                         </td>
                         <td>
@@ -381,7 +393,7 @@
 
 
 
-                        <th *ngIf="role ==='admin'" style="min-width: 8rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Payment Date
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
@@ -423,6 +435,13 @@
                             {{ customer?.payment_details?.account_holder + ' '+
                             customer?.payment_details?.account_number+ ' ' +
                             customer?.payment_details?.bank_name
+
+                            }}
+                        </td>
+
+                        <td *ngIf="customer?.payment_mode == 'LINK'">
+                            {{ customer?.payment_details?.name + ' '+
+                            customer?.payment_details?.link
 
                             }}
                         </td>

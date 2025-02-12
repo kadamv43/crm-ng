@@ -13,7 +13,6 @@ import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { TableModule } from 'primeng/table';
 
-
 @NgModule({
     declarations: [LoginComponent],
     imports: [
@@ -28,7 +27,7 @@ import { TableModule } from 'primeng/table';
         DialogModule,
         MessageModule,
         MessagesModule,
-        TableModule
+        TableModule,
     ],
 })
 export class AuthModule {}

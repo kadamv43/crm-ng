@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { dA } from '@fullcalendar/core/internal-common';
 import { options } from '@fullcalendar/core/preact';
@@ -25,8 +25,12 @@ export class FreeTrialFormComponent {
     selectedCategories: any[] = [];
 
     categories: any[] = [
-        { name: 'Metal', key: 'A' },
-        { name: 'Equity', key: 'M' },
+        { name: 'Stock options', key: 'Stock options' },
+        { name: 'Index option', key: 'Index option' },
+        { name: 'Stock future', key: 'Stock future' },
+        { name: 'Stock cash', key: 'Stock cash' },
+        { name: 'Crypto', key: 'Crypto' },
+        { name: 'Forex', key: 'Forex' },
     ];
 
     constructor(
@@ -47,7 +51,7 @@ export class FreeTrialFormComponent {
             investment: [''],
             remark: [''],
             free_trial_date: ['', Validators.required],
-            options: [],
+            options: this.fb.array([]), // FormArray to store multiple selections
         });
     }
     ngOnInit(): void {
@@ -77,17 +81,40 @@ export class FreeTrialFormComponent {
         return this.form.get('free_trial_date');
     }
 
+    onCheckboxChange(event: any, categoryName: string) {
+        const optionsArray = this.form.get('options') as FormArray;
+
+        if (event.checked) {
+            optionsArray.push(this.fb.control(categoryName)); // ✅ Add when checked
+        } else {
+            const index = optionsArray.controls.findIndex(
+                (ctrl) => ctrl.value === categoryName
+            );
+            if (index !== -1) {
+                optionsArray.removeAt(index); // ✅ Remove when unchecked
+            }
+        }
+
+        console.log('Updated FormArray:', optionsArray.value);
+    }
+
+    getSelectedOptions() {
+        return (this.form.get('options') as FormArray).value.join(', ');
+    }
+
     cancel() {
         this.ref.close();
     }
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            console.log(this.form.value);
+            let data = this.form.value;
+            data['options'] = this.getSelectedOptions();
+            console.log(data);
             this.userLeadsService
                 .update(this.customer?._id, {
                     status: 'FREE_TRIAL',
-                    free_trial: this.form.value,
+                    free_trial: data,
                 })
                 .subscribe((res) => {
                     this.toast.add({

@@ -180,6 +180,22 @@ import { AuthGuard } from './auth.guard';
                                     (m) => m.BannersModule
                                 ),
                         },
+                        {
+                            path: 'reports',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./reports/reports.module').then(
+                                    (m) => m.ReportsModule
+                                ),
+                        },
+                        {
+                            path: 'change-password',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import(
+                                    './change-password/change-password.module'
+                                ).then((m) => m.ChangePasswordModule),
+                        },
                     ],
                 },
                 {

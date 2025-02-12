@@ -80,11 +80,12 @@ export class LeadsCreateComponent implements OnInit {
                     key: 'tst',
                     severity: 'success',
                     summary: 'Success Message',
-                    detail: 'Lead created successfully',
+                    detail: 'Leads Assigned successfully',
                 });
-                setTimeout(() => {
-                    this.router.navigateByUrl('leads');
-                }, 2000);
+                this.form.reset();
+                // setTimeout(() => {
+                //     this.router.navigateByUrl('leads');
+                // }, 2000);
             });
         }
     }

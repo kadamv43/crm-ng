@@ -44,6 +44,8 @@ export class MyLeadsComponent {
     selectedUser = '';
     tableEvent;
     searchText = '';
+
+    // loading = false;
     selectedProducts: any[] = [];
 
     isExpanded: boolean = false;
@@ -93,10 +95,10 @@ export class MyLeadsComponent {
     showDialog(customer, event, tableEvent) {
         this.selectedUser = customer;
         this.tableEvent = tableEvent;
-        this.selectedStatus = event.value;
+        customer.selectedStatus = event.value;
 
         this.selectedStatusName = this.statusList.find((item) => {
-            return item?.code == this.selectedStatus;
+            return item?.code == customer.selectedStatus;
         });
         this.visible = true;
     }
@@ -134,7 +136,10 @@ export class MyLeadsComponent {
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
         this.userLeadService.getMyLeads(queryParams).subscribe((data: any) => {
-            this.appointments = data.data;
+            this.appointments = data.data.map((item) => {
+                return { ...item, selectedStatus: '' };
+            });
+
             this.totalRecords = data.total;
             this.loading = false;
         });
@@ -147,9 +152,8 @@ export class MyLeadsComponent {
     }
 
     changeStatus() {
-        let value = this.selectedStatus;
-
         let customer: any = this.selectedUser;
+        let value = customer.selectedStatus;
         let tableEvent = this.tableEvent;
         this.visible = false;
         if (value == 'FREE_TRIAL') {
@@ -282,7 +286,7 @@ export class MyLeadsComponent {
                 customer,
             },
             width: '50%',
-            header: 'File Upload',
+            header: 'Free Trial Form',
         });
 
         this.ref.onClose.subscribe((result) => {
@@ -310,6 +314,11 @@ export class MyLeadsComponent {
         });
     }
 
+    refresh(event) {
+        this.loading = true;
+        console.log(event);
+        this.loadBLogs(event);
+    }
     exportExcel() {
         const doctors = this.appointments.map((item) => {
             return {

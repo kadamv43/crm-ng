@@ -10,6 +10,7 @@ import {
     DynamicDialogRef,
 } from 'primeng/dynamicdialog';
 import { BanksService } from 'src/app/services/banks/banks.service';
+import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 import { UpiService } from 'src/app/services/upi/upi.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
@@ -27,6 +28,7 @@ export class PaymentFormComponent {
     payment_modes = [
         { name: 'UPI', code: 'UPI' },
         { name: 'BANK', code: 'BANK' },
+        { name: 'LINK', code: 'LINK' },
     ];
 
     payment_options = [];
@@ -39,6 +41,7 @@ export class PaymentFormComponent {
         public config: DynamicDialogConfig,
         public ref: DynamicDialogRef,
         public upiSerice: UpiService,
+        public paymentLinksService: PaymentLinksService,
         public bankService: BanksService
     ) {
         this.customer = config.data.customer;
@@ -50,7 +53,7 @@ export class PaymentFormComponent {
             city: [this.customer.free_trial?.city],
             payment_amount: ['', Validators.required],
             payment_mode: ['', Validators.required],
-            payment_details: [''],
+            payment_details: ['', Validators.required],
             payment_date: ['', Validators.required],
         });
     }
@@ -92,8 +95,10 @@ export class PaymentFormComponent {
 
         if (value == 'UPI') {
             this.getUpiList();
-        } else {
+        } else if (value == 'BANK') {
             this.getBankList();
+        } else {
+            this.getPaymentLinkList();
         }
     }
 
@@ -127,6 +132,22 @@ export class PaymentFormComponent {
                             item.bank_name +
                             ' ' +
                             item.account_number,
+                        code: item,
+                    };
+                });
+            },
+        });
+    }
+
+    getPaymentLinkList() {
+        let params = {};
+        params['page'] = 0;
+        params['size'] = 50;
+        this.paymentLinksService.getAll(params).subscribe({
+            next: (res: any) => {
+                this.payment_options = res?.data.map((item: any) => {
+                    return {
+                        name: item?.name + ' ' + item.link,
                         code: item,
                     };
                 });

@@ -126,7 +126,12 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-money-bill',
                             items: [
                                 {
-                                    label: 'Leads',
+                                    label: 'Add Lead',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['leads', 'create'],
+                                },
+                                {
+                                    label: 'Add Bulk Lead',
                                     icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['leads'],
                                 },
@@ -139,6 +144,16 @@ export class AppMenuComponent implements OnInit {
                         },
                     ],
                 }
+                // {
+                //     label: '',
+                //     items: [
+                //         {
+                //             label: 'Reports',
+                //             icon: 'pi pi-fw pi-file-word',
+                //             routerLink: ['reports'],
+                //         },
+                //     ],
+                // }
             );
         } else if (this.role == 'employee' || this.role == 'teamlead') {
             this.model.push(
@@ -223,6 +238,16 @@ export class AppMenuComponent implements OnInit {
                         },
                     ],
                 }
+                // {
+                //     label: '',
+                //     items: [
+                //         {
+                //             label: 'Reports',
+                //             icon: 'pi pi-fw pi-file-check',
+                //             routerLink: ['reports'],
+                //         },
+                //     ],
+                // }
             );
         }
     }

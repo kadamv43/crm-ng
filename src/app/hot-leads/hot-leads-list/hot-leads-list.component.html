@@ -15,9 +15,10 @@
             </ng-template>
 
             <ng-template pTemplate="right">
-                <p-dropdown [options]="users" optionLabel="name" class="mr-3" optionValue="code" formControlName="user"
-                    placeholder="Select Employee" />
-                <button pButton pRipple label="Assign" icon="pi pi-upload" class="p-button-help primary"></button>
+                <p-dropdown [filter]="true" filterBy="name" [(ngModel)]="selectedUser" [options]="users"
+                    optionLabel="name" class="mr-3" optionValue="code" placeholder="Select Employee" />
+                <button (click)="assignLeads(dt1)" [disabled]="selectedProducts.length == 0 " pButton pRipple
+                    label="Assign" icon="pi pi-upload" class="p-button-help primary"></button>
             </ng-template>
         </p-toolbar>
     </div>

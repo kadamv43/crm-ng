@@ -40,12 +40,14 @@
                     <div class="col-12">
                         <div *ngFor="let category of categories" class="ml-2"
                             style="display: inline-flex; align-items: center;">
-                            <p-checkbox [inputId]="category.key" name="group" [value]="category.name"
-                                formControlName="options" />
-                            <label [for]="category.key" class="ml-2"> {{ category.name }} </label>
+                            <p-checkbox [inputId]="category.key" name="group" [binary]="true"
+                                (onChange)="onCheckboxChange($event, category.name)" />
+                            <label [for]="category.key" class="ml-2">{{ category.name }}</label>
                         </div>
                     </div>
                 </div>
+
+                <p>Selected: {{ getSelectedOptions() }}</p>
 
 
                 <div class="p-fluid p-formgrid grid">

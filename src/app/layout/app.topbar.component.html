@@ -36,7 +36,7 @@
     <p-overlayPanel #op>
         <div class="overlay flex flex-column gap-3 w-10rem">
             <ul class="">
-                <li class="cursor-pointer"><a>Profile</a></li>
+                <li [routerLink]="'/change-password'" class="cursor-pointer"><a>Change Password</a></li>
                 <li class="cursor-pointer" (click)="logout()"><a>Logout</a></li>
             </ul>
         </div>

@@ -91,6 +91,11 @@ export class ApiService {
         return this.httpService.get(url);
     }
 
+    changePassword(params) {
+        const url = 'users/change-password/';
+        return this.httpService.post(url, params);
+    }
+
     resetPassword(id: string, params) {
         const url = 'auth/reset-password/' + id;
         return this.httpService.post(url, params);

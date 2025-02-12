@@ -29,6 +29,7 @@ export class FollowUpLeadsComponent {
         { name: 'RINGING', code: 'RINGING' },
         { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
         { name: 'EXPECTED PAYMENT', code: 'EXPECTED_PAYMENT' },
+        { name: 'LOSS', code: 'LOSS' },
         { name: 'DEAD', code: 'DEAD' },
     ];
 
@@ -50,6 +51,8 @@ export class FollowUpLeadsComponent {
     loading: boolean = false;
 
     appointments: any = [];
+    lastWeekFreetrials = [];
+    totalFreeTrial = 0;
 
     role = '';
 
@@ -143,6 +146,13 @@ export class FollowUpLeadsComponent {
         params['status'] = 'FREE_TRIAL';
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
+        this.userLeadsService
+            .getLastWeekFreeTrial(queryParams)
+            .subscribe((data: any) => {
+                this.lastWeekFreetrials = data.data;
+                this.totalFreeTrial = data.total;
+                this.loading = false;
+            });
         this.userLeadsService.getMyLeads(queryParams).subscribe((data: any) => {
             this.appointments = data.data;
             this.totalRecords = data.total;
@@ -150,6 +160,12 @@ export class FollowUpLeadsComponent {
         });
 
         console.log('api called');
+    }
+
+    refresh(event) {
+        this.loading = true;
+        console.log(event);
+        this.loadBLogs(event);
     }
 
     goTo(url) {

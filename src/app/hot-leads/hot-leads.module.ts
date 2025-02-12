@@ -11,7 +11,7 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { ButtonModule } from 'primeng/button';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -39,6 +39,7 @@ import { CheckboxModule } from 'primeng/checkbox';
         MultiSelectModule,
         ToastModule,
         EditorModule,
+        FormsModule,
         CommonModule,
         HotLeadsRoutingModule,
     ],
