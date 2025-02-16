@@ -51,7 +51,10 @@ export class PaymentFormComponent {
             name: [this.customer.free_trial?.name],
             mobile: [this.customer.free_trial?.mobile],
             city: [this.customer.free_trial?.city],
-            payment_amount: ['', Validators.required],
+            payment_amount: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')],
+            ],
             payment_mode: ['', Validators.required],
             payment_details: ['', Validators.required],
             payment_date: ['', Validators.required],

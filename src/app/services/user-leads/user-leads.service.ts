@@ -44,6 +44,11 @@ export class UserLeadsService {
         return this.httpService.get(url, params);
     }
 
+    getMyFollowUp(params) {
+        const url = `${this.baseUrl}/my-follow-up`;
+        return this.httpService.get(url, params);
+    }
+
     getLastWeekFreeTrial(params) {
         const url = `${this.baseUrl}/last-week-free-trials`;
         return this.httpService.get(url, params);

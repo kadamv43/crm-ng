@@ -48,7 +48,7 @@ export class FreeTrialFormComponent {
             mobile: [this.customer.mobile, Validators.required],
             name: [this.customer.name],
             city: [this.customer.city],
-            investment: [''],
+            investment: ['', [Validators.pattern('^[0-9]*$')]],
             remark: [''],
             free_trial_date: ['', Validators.required],
             options: this.fb.array([]), // FormArray to store multiple selections

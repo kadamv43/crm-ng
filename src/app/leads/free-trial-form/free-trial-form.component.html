@@ -55,6 +55,12 @@
                         <label htmlFor="name">Investment</label>
                         <span class="required"></span>
                         <input pInputText id="name" type="text" formControlName="investment" />
+                        <small class="p-error block" *ngIf="
+                        investment.invalid &&
+                                (investment.dirty ||
+                                investment.touched)
+                            ">
+                            Invalid Amount</small>
                     </div>
                     <div class="field col-6">
                         <label htmlFor="name">Remarks</label>

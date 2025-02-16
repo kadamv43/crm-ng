@@ -53,7 +53,11 @@ export class DashboardComponent implements OnInit {
         data: [],
     };
 
-    payments_done: any;
+    payments_done;
+    todays_payments_done: CommonApiResponse = {
+        total: 0,
+        data: [],
+    };
     expected_payment: CommonApiResponse = {
         total: 0,
         data: [],
@@ -122,7 +126,6 @@ export class DashboardComponent implements OnInit {
 
     onChangeFilter(event) {
         this.selectedEmployee = event.value;
-
         this.getDashBoard();
     }
 
@@ -186,7 +189,7 @@ export class DashboardComponent implements OnInit {
         this.dashboardService
             .getTodaysPaymentDone(params)
             .subscribe((res: any) => {
-                this.payments_done = res;
+                this.todays_payments_done = res;
             });
     }
 

@@ -28,8 +28,17 @@
                         expected_payment.invalid &&
                                 (expected_payment.dirty ||
                                 expected_payment.touched)
+                                && expected_payment.hasError('required')
                             ">
                             Expected Payment is required</small>
+                        <small class="p-error block" *ngIf="
+                            expected_payment.invalid &&
+                                    (expected_payment.dirty ||
+                                    expected_payment.touched)
+
+                                    && expected_payment.hasError('pattern')
+                                ">
+                            Expected Payment is invalid</small>
                     </div>
 
                 </div>

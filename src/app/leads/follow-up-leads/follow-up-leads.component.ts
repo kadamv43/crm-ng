@@ -17,6 +17,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 import { ExpectedPaymentComponent } from '../expected-payment/expected-payment.component';
 import { ExpectedPaymentFormComponent } from '../expected-payment-form/expected-payment-form.component';
+import { CallbackFormComponent } from '../callback-form/callback-form.component';
 
 @Component({
     selector: 'app-follow-up-leads',
@@ -53,7 +54,10 @@ export class FollowUpLeadsComponent {
     appointments: any = [];
     lastWeekFreetrials = [];
     totalFreeTrial = 0;
+    visible = false;
+    tableEvent;
 
+    selectedStatusName;
     role = '';
 
     doctors = [];
@@ -153,13 +157,68 @@ export class FollowUpLeadsComponent {
                 this.totalFreeTrial = data.total;
                 this.loading = false;
             });
-        this.userLeadsService.getMyLeads(queryParams).subscribe((data: any) => {
-            this.appointments = data.data;
-            this.totalRecords = data.total;
-            this.loading = false;
-        });
+        this.userLeadsService
+            .getMyFollowUp(queryParams)
+            .subscribe((data: any) => {
+                this.appointments = data.data;
+                this.totalRecords = data.total;
+                this.loading = false;
+            });
 
         console.log('api called');
+    }
+
+    showDialog(customer, event, tableEvent) {
+        this.selectedUser = customer;
+        this.tableEvent = tableEvent;
+        customer.selectedStatus = event.value;
+
+        this.selectedStatusName = this.statusList.find((item) => {
+            return item?.code == customer.selectedStatus;
+        });
+        this.visible = true;
+    }
+
+    changeStatus() {
+        let customer: any = this.selectedUser;
+        let value = customer.selectedStatus;
+        let tableEvent = this.tableEvent;
+        this.visible = false;
+        if (value == 'FREE_TRIAL') {
+            this.openDialog(customer, tableEvent);
+        } else if (value == 'CALLBACK') {
+            this.openCallBackDialog(customer, tableEvent);
+        } else if (value == 'EXPECTED_PAYMENT') {
+            this.openDialog(customer, tableEvent);
+        } else {
+            this.userLeadsService
+                .update(customer._id, {
+                    status: value,
+                })
+                .subscribe({
+                    next: (res) => {
+                        this.loadBLogs(tableEvent);
+                        console.log(res);
+                    },
+                });
+        }
+    }
+
+    openCallBackDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(CallbackFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'CallBack Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadBLogs(tableEvent);
+            }, 2000);
+        });
     }
 
     refresh(event) {

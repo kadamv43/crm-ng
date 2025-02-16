@@ -32,7 +32,10 @@ export class ExpectedPaymentFormComponent {
         console.log(this.customer);
 
         this.form = this.fb.group({
-            expected_payment: ['', Validators.required],
+            expected_payment: [
+                '',
+                [Validators.required, Validators.pattern('^[0-9]*$')],
+            ],
             expected_payment_date: ['', Validators.required],
         });
     }
