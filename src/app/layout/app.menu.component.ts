@@ -49,6 +49,16 @@ export class AppMenuComponent implements OnInit {
                             routerLink: ['branches'],
                         },
                     ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
+                            label: 'Reports',
+                            icon: 'pi pi-fw pi-file-word',
+                            routerLink: ['reports'],
+                        },
+                    ],
                 }
             );
         } else if (this.role == 'admin') {
@@ -143,17 +153,17 @@ export class AppMenuComponent implements OnInit {
                             ],
                         },
                     ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
+                            label: 'Reports',
+                            icon: 'pi pi-fw pi-file-word',
+                            routerLink: ['reports'],
+                        },
+                    ],
                 }
-                // {
-                //     label: '',
-                //     items: [
-                //         {
-                //             label: 'Reports',
-                //             icon: 'pi pi-fw pi-file-word',
-                //             routerLink: ['reports'],
-                //         },
-                //     ],
-                // }
             );
         } else if (this.role == 'employee' || this.role == 'teamlead') {
             this.model.push(
@@ -237,17 +247,17 @@ export class AppMenuComponent implements OnInit {
                             ],
                         },
                     ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
+                            label: 'Reports',
+                            icon: 'pi pi-fw pi-file-word',
+                            routerLink: ['reports'],
+                        },
+                    ],
                 }
-                // {
-                //     label: '',
-                //     items: [
-                //         {
-                //             label: 'Reports',
-                //             icon: 'pi pi-fw pi-file-check',
-                //             routerLink: ['reports'],
-                //         },
-                //     ],
-                // }
             );
         }
     }

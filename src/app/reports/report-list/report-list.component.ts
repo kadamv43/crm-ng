@@ -9,6 +9,9 @@ import { DatePipe } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UploadReportsComponent } from 'src/app/appointments/upload-reports/upload-reports.component';
+import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
+import { UsersService } from 'src/app/services/users/users.service';
+import { BranchesService } from 'src/app/services/branches/branches.service';
 
 @Component({
     selector: 'app-report-list',
@@ -21,10 +24,16 @@ export class ReportListComponent {
 
     statusList = [
         { name: 'Select Status', code: null },
-        { name: 'Created', code: 'Created' },
-        { name: 'Ongoing', code: 'Ongoing' },
-        { name: 'Completed', code: 'Completed' },
-        { name: 'Cancelled', code: 'Cancelled' },
+        { name: 'FRESH', code: 'FRESH' },
+        { name: 'CALL BACK', code: 'CALLBACK' },
+        { name: 'RINGING', code: 'RINGING' },
+        { name: 'SWITCH OFF', code: 'SWITCHED_OFF' },
+        { name: 'DEAD', code: 'DEAD' },
+        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
+        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
+        { name: 'PAYMENT DONE', code: 'PAYMENT_DONE' },
+        { name: 'EXPECTED PAYMENT', code: 'EXPECTED_PAYMENT' },
+        { name: 'LOSS', code: 'LOSS' },
     ];
 
     display = false;
@@ -52,16 +61,28 @@ export class ReportListComponent {
 
     totalRecords = 0;
 
+    showTlList = false;
+
     ref: DynamicDialogRef | undefined;
 
     queryParams = {};
 
+    loggedInUserBranch;
+    selectedEmployee = '';
+    selectedCompany = '';
+    employees = [];
+    admins = [];
+    companies = [];
+    tlList = [];
     constructor(
         private appointmentService: AppointmentService,
+        private dashboardService: DashboardService,
         private authService: AuthService,
         private commonService: CommonService,
         private dialogService: DialogService,
         private datePipe: DatePipe,
+        private branchService: BranchesService,
+        private userService: UsersService,
         private route: ActivatedRoute,
         private router: Router
     ) {
@@ -75,9 +96,10 @@ export class ReportListComponent {
             });
     }
 
-    onStatusChange(value: string) {
-        this.selectedStatus = value;
-        this.queryParams['status'] = value;
+    onStatusChange(event: any) {
+        console.log('ss');
+        this.selectedStatus = event.value;
+        this.queryParams['status'] = event.value;
         let data = { first: 0, rows: 10 };
         this.loadAppointments(data);
     }
@@ -86,17 +108,11 @@ export class ReportListComponent {
         this.selectedDate = value;
 
         if (this.selectedDate[0]) {
-            this.queryParams['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
+            this.queryParams['from'] = this.convertToUTC(this.selectedDate[0]);
         }
 
         if (this.selectedDate[1]) {
-            this.queryParams['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
+            this.queryParams['to'] = this.convertToUTC(this.selectedDate[1]);
         }
 
         let data = { first: 0, rows: 10 };
@@ -110,20 +126,24 @@ export class ReportListComponent {
         this.selectedDate = [yesterday, today];
 
         if (this.selectedDate[0]) {
-            this.queryParams['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
+            this.queryParams['from'] = this.convertToUTC(this.selectedDate[0]);
         }
 
         if (this.selectedDate[1]) {
-            this.queryParams['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
+            this.queryParams['to'] = this.convertToUTC(this.selectedDate[1]);
         }
     }
 
+    onChangeFilter(event, dt) {
+        this.selectedEmployee = event.value;
+        this.loadAppointments(dt);
+    }
+
+    onChangeCompany(event, dt) {
+        this.selectedCompany = event.value;
+        this.getTlList();
+        this.loadAppointments(dt);
+    }
     ngOnInit() {
         this.route.queryParams.subscribe((data) => {
             this.selectTodaysDate();
@@ -141,6 +161,131 @@ export class ReportListComponent {
             this.queryParams = { ...data };
         });
         this.role = this.authService.getRole();
+
+        const branchData = localStorage.getItem('branch');
+        try {
+            this.loggedInUserBranch = branchData
+                ? JSON.parse(branchData)
+                : null;
+        } catch (error) {
+            // console.error('Error parsing branchData:', error);
+            this.loggedInUserBranch = null;
+        }
+
+        if (this.role == 'superadmin') {
+            this.getCompanies();
+        } else {
+            // this.loadAppointments();
+            this.getTlList();
+        }
+
+        if (this.role == 'teamlead') {
+            this.getEmployeesByTL();
+        }
+    }
+
+    onChangeTL(event, dt) {
+        // this.selectedAdmin = event.value;
+        this.showTlList = true;
+        this.selectedEmployee = event?.value;
+        this.loadAppointments(dt);
+        this.getEmployees(this.selectedCompany, event.value);
+    }
+
+    getEmployeesByTL() {
+        let params = {
+            teamlead: localStorage.getItem('userId'),
+            role: 'employee',
+        };
+
+        let queryParams = this.commonService.getHttpParamsByJson(params);
+
+        this.userService.searchBy(queryParams).subscribe({
+            next: (res: any) => {
+                this.employees = res.map((item) => {
+                    return { name: item?.username, code: item?._id };
+                });
+            },
+        });
+    }
+    getCompanies() {
+        let params = {
+            page: 0,
+            size: 100,
+        };
+        this.branchService.getAll(params).subscribe({
+            next: (res: any) => {
+                this.companies = res.data.map((item) => {
+                    return { name: item?.name, code: item?._id };
+                });
+
+                if (this.role === 'superadmin' && this.companies?.length > 0) {
+                    this.selectedCompany = this.companies[0].code; // Set first option by default
+                    // this.getDashBoard();
+                    this.getTlList();
+                }
+            },
+        });
+    }
+
+    getAdmins(branch) {
+        let params = {
+            page: 0,
+            role: 'admin',
+            size: 100,
+            branch,
+        };
+        this.userService.getAll(params).subscribe({
+            next: (res: any) => {
+                this.admins = res.data.map((item) => {
+                    return { name: item?.username, code: item?._id };
+                });
+            },
+        });
+    }
+
+    getEmployees(branch, tl) {
+        let params = {
+            page: 0,
+            role: 'employee',
+            size: 100,
+            branch,
+            teamlead: tl,
+        };
+        this.userService.getAll(params).subscribe({
+            next: (res: any) => {
+                this.employees = res.data.map((item) => {
+                    return { name: item?.username, code: item?._id };
+                });
+            },
+        });
+    }
+
+    getTlList() {
+        let params = {
+            page: 0,
+            size: 100,
+            role: 'teamlead',
+        };
+
+        if (this.role == 'admin') {
+            params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
+        }
+
+        this.userService.getAll(params).subscribe({
+            next: (res: any) => {
+                this.tlList = res.data.map((item) => {
+                    return { name: item?.username, code: item?._id };
+                });
+            },
+        });
+    }
+
+    convertToUTC(date: string): string {
+        const localDate = new Date(date);
+        return localDate.toISOString(); // This converts it to UTC in ISO format
     }
 
     loadAppointments(event: any) {
@@ -160,24 +305,29 @@ export class ReportListComponent {
         }
 
         if (this.selectedDate && this.selectedDate[0]) {
-            params['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
+            params['from'] = this.convertToUTC(this.selectedDate[0]);
         }
 
         if (this.selectedDate && this.selectedDate[1]) {
-            params['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
+            params['to'] = this.convertToUTC(this.selectedDate[1]);
+        }
+
+        if (this.loggedInUserBranch) {
+            params['branch'] = this.loggedInUserBranch?._id;
+        } else {
+            params['branch'] = this.selectedCompany;
+        }
+        if (this.selectedEmployee) {
+            params['user'] = this.selectedEmployee;
+        } else {
+            params['user'] = localStorage.getItem('userId');
         }
 
         params['page'] = page;
         params['size'] = size;
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.appointmentService.getAll(queryParams).subscribe((data: any) => {
+        this.dashboardService.getReports(queryParams).subscribe((data: any) => {
             this.appointments = data.data;
             this.totalRecords = data.total;
             this.loading = false;

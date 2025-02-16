@@ -109,6 +109,13 @@ export class FreeTrialFormComponent {
         this.form.markAllAsTouched();
         if (this.form.valid) {
             let data = this.form.value;
+            data['free_trial_date'] = new Date(
+                Date.UTC(
+                    this.free_trial_date.value.getFullYear(),
+                    this.free_trial_date.value.getMonth(),
+                    this.free_trial_date.value.getDate()
+                )
+            );
             data['options'] = this.getSelectedOptions();
             console.log(data);
             this.userLeadsService

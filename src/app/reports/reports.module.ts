@@ -16,6 +16,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { MessageModule } from 'primeng/message';
 import { MessagesModule } from 'primeng/messages';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [ReportListComponent],
@@ -29,6 +30,7 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
         ToastModule,
         CalendarModule,
         InputTextModule,
+        FormsModule,
         PanelModule,
         ConfirmPopupModule,
         MessageModule,

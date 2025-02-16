@@ -34,6 +34,11 @@ export class DashboardService {
         return this.httpService.get(url, params);
     }
 
+    getReports(params) {
+        const url = this.baseUrl + '/reports';
+        return this.httpService.get(url, params);
+    }
+
     getTodaysExpectedPayment(params) {
         const url = this.baseUrl + '/todays-expected-payment';
         return this.httpService.get(url, params);
