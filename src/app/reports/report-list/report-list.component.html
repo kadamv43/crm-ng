@@ -68,30 +68,30 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
-                                Username.
+                                Username
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
                         <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
-                                Mobile.
+                                Mobile
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Name
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 City
                             </div>
                         </th>
-                        <th style="min-width: 8rem">
+                        <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 status
                             </div>
@@ -102,7 +102,67 @@
                                 <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Free Trial Investment
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Free Trial Date
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Free Trial Remark
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Free Trial Options
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
 
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Expected Payment
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Expected Payment Date
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Paid Amount
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Payment Mode
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Payment Details
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Payment Date
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-customer>
@@ -125,6 +185,51 @@
                             {{ customer.created_at | date:'dd-MM-Y' }}
                         </td>
 
+
+                        <td>
+                            {{ customer.free_trial?.investment}}
+                        </td>
+                        <td>
+                            {{ customer.free_trial?.free_trial_date | date:'dd-MM-Y'}}
+                        </td>
+                        <td>
+                            {{ customer.free_trial?.remark}}
+                        </td>
+                        <td>
+                            {{ customer.free_trial?.options}}
+                        </td>
+                        <td>
+                            {{ customer.follow_up?.expected_payment}}
+                        </td>
+                        <td>
+                            {{ customer.follow_up?.expected_payment_date | date:'dd-MM-Y'}}
+                        </td>
+                        <td>
+                            {{ customer.payment?.payment_amount}}
+                        </td>
+                        <td>
+                            {{ customer.payment?.payment_mode}}
+                        </td>
+                        <td *ngIf="customer.payment?.payment_mode == 'LINK'">
+                            {{ customer.payment?.payment_details?.name}} <br>
+                            {{ customer.payment?.payment_details?.link}}
+                        </td>
+                        <td *ngIf="customer.payment?.payment_mode == 'BANK'">
+                            {{ customer.payment?.payment_details?.account_holder}} <br>
+                            {{ customer.payment?.payment_details?.account_number}} <br>
+                            {{ customer.payment?.payment_details?.bank_name}} <br>
+                            {{ customer.payment?.payment_details?.ifsc_code}}
+                        </td>
+                        <td *ngIf="customer.payment?.payment_mode == 'UPI'">
+                            {{ customer.payment?.payment_details?.upi_id}} <br>
+                            {{ customer.payment?.payment_details?.upi_number}}
+                        </td>
+                        <td *ngIf="!customer.payment">
+
+                        </td>
+                        <td>
+                            {{ customer.payment?.payment_date | date:'dd-MM-Y'}}
+                        </td>
 
                     </tr>
                 </ng-template>
