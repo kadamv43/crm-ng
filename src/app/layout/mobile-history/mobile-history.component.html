@@ -1,0 +1,116 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <!-- <i (click)="refresh(dt1)" class="pi pi-refresh p-2 primary border-round"></i> -->
+            <!-- <h5>M</h5> -->
+            <p-table #dt1 [loading]="loading" [(selection)]="selectedProducts" [value]="appointments" dataKey="_id"
+                [rowHover]="true" [lazy]="true" paginatorPosition="bottom" [rows]="50"
+                [rowsPerPageOptions]="[50,100,150,200]" [totalRecords]="totalRecords" styleClass="p-datatable-gridlines"
+                [paginator]="true" (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+                    'name',
+                    'country.name',
+                    'representative.name',
+                    'status'
+                ]" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Mobile
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Used By
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 12rem">
+                            <div class="flex justify-content-between align-items-center">
+                                City
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Assigned By
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Created Date
+                                <!-- <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter> -->
+                            </div>
+                        </th>
+
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Action
+                                <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
+                            </div>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer>
+                    <tr [pSelectableRow]="customer">
+
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.mobile
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.name
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.city
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.assigned_by
+                                }}</span>
+                        </td>
+
+                        <td>
+                            {{ customer.created_at | date : "dd/MM/yyyy" }}
+                        </td>
+
+                        <td>
+                            <p-toast></p-toast>
+                            <!-- <button pButton (click)="showDialog()">open</button> -->
+
+                            <p-dropdown [(ngModel)]="customer.selectedStatus"
+                                (onChange)="showDialog(customer,$event,dt1)" appendTo="body" class="w-full"
+                                [options]="statusList" optionLabel="name" optionValue="code"
+                                placeholder="Select Action" />
+                            <p-confirmPopup appendTo="body" key="confirm2"></p-confirmPopup>
+
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8">No Leads found.</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="loadingbody">
+                    <tr>
+                        <td colspan="8">Loading Leads data. Please wait.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

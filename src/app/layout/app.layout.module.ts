@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InputTextModule } from 'primeng/inputtext';
@@ -24,6 +24,8 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { UpdateModalComponent } from './update-modal/update-modal.component';
+import { MobileHistoryComponent } from './mobile-history/mobile-history.component';
+import { TableModule } from 'primeng/table';
 
 @NgModule({
     declarations: [
@@ -35,6 +37,7 @@ import { UpdateModalComponent } from './update-modal/update-modal.component';
         AppLayoutComponent,
         NotepadComponent,
         UpdateModalComponent,
+        MobileHistoryComponent,
     ],
     imports: [
         BrowserModule,
@@ -54,6 +57,8 @@ import { UpdateModalComponent } from './update-modal/update-modal.component';
         EditorModule,
         ProgressBarModule,
         ButtonModule,
+        ReactiveFormsModule,
+        TableModule,
     ],
     exports: [AppLayoutComponent],
 })

@@ -9,7 +9,14 @@
         <i class="pi pi-bars"></i>
     </button>
 
-    <!-- <button pButton (click)="openNotepad()" type="button" class="primary ml-2">Notepad</button> -->
+    <div class="mx-auto">
+        <form [formGroup]="mobileForm" (ngSubmit)="searchHistroy()">
+            <input pInputText class="mx-2" id="firstname" formControlName="mobile" maxlength="10" type="text" />
+            <button pButton type="submit" class="primary">Search</button>
+        </form>
+
+    </div>
+
     <!-- <button pButton (click)="checkForUpdates()" type="button" class="primary" >Check For Update</button> -->
 
     <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"

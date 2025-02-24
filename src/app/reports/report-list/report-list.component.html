@@ -2,35 +2,34 @@
     <div class="col-12">
         <p-toolbar styleClass="mb-4">
             <ng-template pTemplate="left">
-                <div class="flex flex-column gap-2">
+                <div *ngIf="role=='superadmin'" class="flex flex-column gap-2">
                     <label for="company" class="control-label">Company</label>
-                    <p-dropdown *ngIf="role=='superadmin'" (onChange)="onChangeCompany($event, dt1)" [filter]="true"
-                        filterBy="name" [(ngModel)]="selectedCompany" [options]="companies" optionLabel="name"
-                        class="mr-3" optionValue="code" placeholder="Select company" id="company"></p-dropdown>
+                    <p-dropdown (onChange)="onChangeCompany($event, dt1)" [filter]="true" filterBy="name"
+                        [(ngModel)]="selectedCompany" [options]="companies" optionLabel="name" class="mr-3"
+                        optionValue="code" placeholder="Select company" id="company"></p-dropdown>
                 </div>
 
                 <!-- <p-dropdown *ngIf="role=='superadmin' && showAdmin" (onChange)="onChangeAdmin($event)" [filter]="true"
                     filterBy="name" [(ngModel)]="selectedAdmin" [options]="admins" optionLabel="name" class="mr-3"
                     optionValue="code" placeholder="Select Admin" /> -->
-                <div class="flex flex-column gap-2">
+                <div *ngIf="role=='superadmin' || role=='admin'" class="flex flex-column gap-2">
                     <label for="TeamLead" class="control-label">TeamLead</label>
-                    <p-dropdown *ngIf="role=='superadmin' || role=='admin'" (onChange)="onChangeTL($event,dt1)"
-                        [filter]="true" filterBy="name" [(ngModel)]="selectedTL" [options]="tlList" optionLabel="name"
-                        class="mr-3" optionValue="code" placeholder="Select TL" />
+                    <p-dropdown (onChange)="onChangeTL($event,dt1)" [filter]="true" filterBy="name"
+                        [(ngModel)]="selectedTL" [options]="tlList" optionLabel="name" class="mr-3" optionValue="code"
+                        placeholder="Select TL" />
                 </div>
-                <div class="flex flex-column gap-2">
+                <div *ngIf="role=='superadmin' || role=='admin' || role=='teamlead'" class="flex flex-column gap-2">
                     <label for="Employee" class="control-label">Employee</label>
-                    <p-dropdown *ngIf="role=='superadmin' || role=='admin' || role=='teamlead'" [filter]="true"
-                        (onChange)="onChangeFilter($event,dt1)" filterBy="name" [(ngModel)]="selectedEmployee"
-                        [options]="employees" optionLabel="name" class="mr-3" optionValue="code"
-                        placeholder="Select Employee" />
+                    <p-dropdown [filter]="true" (onChange)="onChangeFilter($event,dt1)" filterBy="name"
+                        [(ngModel)]="selectedEmployee" [options]="employees" optionLabel="name" class="mr-3"
+                        optionValue="code" placeholder="Select Employee" />
                 </div>
             </ng-template>
 
-            <ng-template pTemplate="right">
+            <!-- <ng-template pTemplate="right">
                 <button pButton pRipple label="Export" icon="pi pi-download" class="p-button-help secondary"
                     (click)="exportExcel()"></button>
-            </ng-template>
+            </ng-template> -->
         </p-toolbar>
     </div>
 </div>

@@ -484,26 +484,44 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Username
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Name
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                City
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Segment
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Remark
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
 
-                        <th style="min-width: 12rem">
+                        <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
                                 Investment
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
@@ -528,7 +546,25 @@
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
+                                customer?.free_trial?.name
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.free_trial?.city
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
                                 customer?.free_trial?.options
+                                }}</span>
+                        </td>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.free_trial?.remark
                                 }}</span>
                         </td>
                         <td>
