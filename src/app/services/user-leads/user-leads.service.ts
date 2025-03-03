@@ -44,6 +44,11 @@ export class UserLeadsService {
         return this.httpService.get(url, params);
     }
 
+    getMyHotLeads(params) {
+        const url = `${this.baseUrl}/my-hot-leads`;
+        return this.httpService.get(url, params);
+    }
+
     getLeadHistory(params) {
         const url = `${this.baseUrl}/get-lead-history`;
         return this.httpService.get(url, params);

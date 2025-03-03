@@ -45,17 +45,44 @@ export class FreeTrialFormComponent {
         console.log(this.customer);
 
         this.form = this.fb.group({
-            mobile: [this.customer.mobile, Validators.required],
-            name: [this.customer.name],
-            city: [this.customer.city],
-            investment: ['', [Validators.pattern('^[0-9]*$')]],
-            remark: [''],
-            free_trial_date: ['', Validators.required],
+            mobile: [
+                this.customer?.mobile ?? this.customer?.free_trial?.mobile,
+                Validators.required,
+            ],
+            name: [this.customer?.name ?? this.customer?.free_trial?.name],
+            city: [this.customer?.free_trial?.city],
+            investment: [
+                this.customer?.free_trial?.investment,
+                [Validators.pattern('^[0-9]*$')],
+            ],
+            remark: [this.customer?.free_trial?.remark],
+            free_trial_date: [
+                this.customer?.free_trial?.free_trial_date
+                    ? new Date(this.customer?.free_trial?.free_trial_date) // Convert string to Date
+                    : null,
+                Validators.required,
+            ],
             options: this.fb.array([]), // FormArray to store multiple selections
         });
     }
     ngOnInit(): void {
         this.minDate = new Date();
+        this.setSelectedOptions();
+    }
+
+    // Helper function to get the FormControl for each category
+    getFormControlForCategory(categoryName: string) {
+        const optionsArray = this.form.get('options') as FormArray;
+        return optionsArray.controls.find(
+            (control) => control.value === categoryName
+        );
+    }
+
+    isSelected(categoryName: string): boolean {
+        const optionsArray = this.form.get('options') as FormArray;
+        return optionsArray.controls.some(
+            (control) => control.value === categoryName
+        );
     }
 
     get name() {
@@ -81,21 +108,33 @@ export class FreeTrialFormComponent {
         return this.form.get('free_trial_date');
     }
 
+    // Inside your component class
+    get options() {
+        return this.form.get('options') as FormArray;
+    }
+
+    setSelectedOptions() {
+        const options = this.customer?.free_trial?.options?.split(',') || [];
+        const optionsFormArray = this.form.get('options') as FormArray;
+
+        // Add the selected options to the form array
+        options.forEach((option) => {
+            optionsFormArray.push(this.fb.control(option.trim()));
+        });
+    }
+
     onCheckboxChange(event: any, categoryName: string) {
         const optionsArray = this.form.get('options') as FormArray;
-
-        if (event.checked) {
-            optionsArray.push(this.fb.control(categoryName)); // ✅ Add when checked
+        if (event.target.checked) {
+            optionsArray.push(this.fb.control(categoryName)); // Add to form array
         } else {
             const index = optionsArray.controls.findIndex(
-                (ctrl) => ctrl.value === categoryName
+                (control) => control.value === categoryName
             );
             if (index !== -1) {
-                optionsArray.removeAt(index); // ✅ Remove when unchecked
+                optionsArray.removeAt(index); // Remove from form array
             }
         }
-
-        console.log('Updated FormArray:', optionsArray.value);
     }
 
     getSelectedOptions() {

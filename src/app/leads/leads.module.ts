@@ -29,6 +29,7 @@ import { CallbackFormComponent } from './callback-form/callback-form.component';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
+import { MyHotLeadsComponent } from './my-hot-leads/my-hot-leads.component';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import { DialogModule } from 'primeng/dialog';
         ExpectedPaymentFormComponent,
         PaymentFormComponent,
         CallbackFormComponent,
+        MyHotLeadsComponent,
     ],
     imports: [
         ToolbarModule,

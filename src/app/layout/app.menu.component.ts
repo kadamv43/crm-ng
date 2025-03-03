@@ -244,6 +244,11 @@ export class AppMenuComponent implements OnInit {
                                     icon: 'pi pi-fw pi-money-bill',
                                     routerLink: ['leads', 'my-leads'],
                                 },
+                                {
+                                    label: 'My Hot Leads',
+                                    icon: 'pi pi-fw pi-money-bill',
+                                    routerLink: ['leads', 'my-hot-leads'],
+                                },
                             ],
                         },
                     ],

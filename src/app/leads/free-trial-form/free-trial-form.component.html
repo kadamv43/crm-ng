@@ -35,13 +35,16 @@
                             Free Trial Date is required</small>
                     </div>
                 </div>
-
                 <div class="grid">
                     <div class="col-12">
                         <div *ngFor="let category of categories" class="ml-2"
                             style="display: inline-flex; align-items: center;">
-                            <p-checkbox [inputId]="category.key" name="group" [binary]="true"
-                                (onChange)="onCheckboxChange($event, category.name)" />
+
+                            <!-- Standard HTML checkbox -->
+                            <input type="checkbox" [id]="category.key" [value]="category.name"
+                                [checked]="isSelected(category.name)"
+                                (change)="onCheckboxChange($event, category.name)" />
+
                             <label [for]="category.key" class="ml-2">{{ category.name }}</label>
                         </div>
                     </div>

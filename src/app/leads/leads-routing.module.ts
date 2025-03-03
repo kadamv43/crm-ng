@@ -7,6 +7,7 @@ import { LeadsBulkCreateComponent } from './leads-bulk-create/leads-bulk-create.
 import { MyLeadsComponent } from './my-leads/my-leads.component';
 import { ExpectedPaymentComponent } from './expected-payment/expected-payment.component';
 import { FollowUpLeadsComponent } from './follow-up-leads/follow-up-leads.component';
+import { MyHotLeadsComponent } from './my-hot-leads/my-hot-leads.component';
 
 const routes: Routes = [
     { path: '', component: LeadsListComponent },
@@ -14,6 +15,7 @@ const routes: Routes = [
     { path: 'create', component: LeadsCreateComponent },
     { path: 'create/bulk', component: LeadsBulkCreateComponent },
     { path: 'my-leads', component: MyLeadsComponent },
+    { path: 'my-hot-leads', component: MyHotLeadsComponent },
     { path: 'follow-up', component: FollowUpLeadsComponent },
     { path: 'expected-payment', component: ExpectedPaymentComponent },
 ];

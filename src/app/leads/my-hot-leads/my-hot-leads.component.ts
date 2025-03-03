@@ -8,31 +8,30 @@ import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
 import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import * as FileSaver from 'file-saver';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
-import { ExpectedPaymentComponent } from '../expected-payment/expected-payment.component';
-import { ExpectedPaymentFormComponent } from '../expected-payment-form/expected-payment-form.component';
-import { CallbackFormComponent } from '../callback-form/callback-form.component';
 import { FreeTrialFormComponent } from '../free-trial-form/free-trial-form.component';
+import { CallbackFormComponent } from '../callback-form/callback-form.component';
 
 @Component({
-    selector: 'app-follow-up-leads',
-    templateUrl: './follow-up-leads.component.html',
-    styleUrl: './follow-up-leads.component.scss',
+    selector: 'app-my-hot-leads',
+    templateUrl: './my-hot-leads.component.html',
+    styleUrl: './my-hot-leads.component.scss',
     providers: [MessageService, ConfirmationService, DialogService, DatePipe],
 })
-export class FollowUpLeadsComponent {
+export class MyHotLeadsComponent {
+    visible = false;
     statusList = [
+        // { name: 'SELECT OPTION', value: '' }, // Blank option
+        { name: 'CALLBACK', code: 'CALLBACK' },
+        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
         { name: 'RINGING', code: 'RINGING' },
-        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
-        { name: 'EXPECTED PAYMENT', code: 'EXPECTED_PAYMENT' },
-        { name: 'LOSS', code: 'LOSS' },
+        { name: 'SWITCHED OFF', code: 'SWITCHED_OFF' },
         { name: 'DEAD', code: 'DEAD' },
+        { name: 'NOT REACHABLE', code: 'NOT_REACHABLE' },
+        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
     ];
 
     bloodGroups = [
@@ -40,10 +39,13 @@ export class FollowUpLeadsComponent {
         { name: 'Sham', code: 'Sham' },
     ];
     display = false;
-    selectedStatus = '';
+    selectedStatus = null;
     selectedDate = '';
     selectedUser = '';
+    tableEvent;
     searchText = '';
+
+    // loading = false;
     selectedProducts: any[] = [];
 
     isExpanded: boolean = false;
@@ -53,12 +55,9 @@ export class FollowUpLeadsComponent {
     loading: boolean = false;
 
     appointments: any = [];
-    lastWeekFreetrials = [];
-    totalFreeTrial = 0;
-    visible = false;
-    tableEvent;
 
     selectedStatusName;
+
     role = '';
 
     doctors = [];
@@ -72,7 +71,8 @@ export class FollowUpLeadsComponent {
     ref: DynamicDialogRef | undefined;
 
     constructor(
-        private userLeadsService: UserLeadsService,
+        private leadsService: LeadsService,
+        private userLeadService: UserLeadsService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
@@ -86,37 +86,21 @@ export class FollowUpLeadsComponent {
 
     ngOnInit() {
         this.role = this.authService.getRole();
-        this.getUsers();
     }
 
     logSelection() {
         console.log(this.selectedProducts);
     }
 
-    getUsers() {
-        const page = 0;
-        const size = 50;
+    showDialog(customer, event, tableEvent) {
+        this.selectedUser = customer;
+        this.tableEvent = tableEvent;
+        customer.selectedStatus = event.value;
 
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        params['page'] = page;
-        params['size'] = size;
-        params['role'] = 'employee';
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-
-        this.userService.getAll(queryParams).subscribe((data: any) => {
-            this.users = data.data.map((element) => {
-                return {
-                    name: element?.first_name + ' ' + element?.last_name,
-                    code: element?._id,
-                };
-            });
-            this.totalRecords = data.total;
+        this.selectedStatusName = this.statusList.find((item) => {
+            return item?.code == customer.selectedStatus;
         });
+        this.visible = true;
     }
 
     loadBLogs(event: any) {
@@ -148,20 +132,16 @@ export class FollowUpLeadsComponent {
 
         params['page'] = page;
         params['size'] = size;
-        params['status'] = 'FREE_TRIAL';
+        params['status'] = 'FRESH';
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.userLeadsService
-            .getLastWeekFreeTrial(queryParams)
+        this.userLeadService
+            .getMyHotLeads(queryParams)
             .subscribe((data: any) => {
-                this.lastWeekFreetrials = data.data;
-                this.totalFreeTrial = data.total;
-                this.loading = false;
-            });
-        this.userLeadsService
-            .getMyFollowUp(queryParams)
-            .subscribe((data: any) => {
-                this.appointments = data.data;
+                this.appointments = data.data.map((item) => {
+                    return { ...item, selectedStatus: '' };
+                });
+
                 this.totalRecords = data.total;
                 this.loading = false;
             });
@@ -169,15 +149,8 @@ export class FollowUpLeadsComponent {
         console.log('api called');
     }
 
-    showDialog(customer, event, tableEvent) {
-        this.selectedUser = customer;
-        this.tableEvent = tableEvent;
-        customer.selectedStatus = event.value;
-
-        this.selectedStatusName = this.statusList.find((item) => {
-            return item?.code == customer.selectedStatus;
-        });
-        this.visible = true;
+    goTo(url) {
+        this.router.navigateByUrl(url);
     }
 
     changeStatus() {
@@ -189,10 +162,8 @@ export class FollowUpLeadsComponent {
             this.openDialog(customer, tableEvent);
         } else if (value == 'CALLBACK') {
             this.openCallBackDialog(customer, tableEvent);
-        } else if (value == 'EXPECTED_PAYMENT') {
-            this.openDialog(customer, tableEvent);
         } else {
-            this.userLeadsService
+            this.userLeadService
                 .update(customer._id, {
                     status: value,
                 })
@@ -205,46 +176,37 @@ export class FollowUpLeadsComponent {
         }
     }
 
-    openCallBackDialog(customer: any, tableEvent) {
-        this.ref = this.dialogService.open(CallbackFormComponent, {
-            data: {
-                customer,
+    confirm(event: Event) {
+        console.log('ss');
+        this.confirmationService.confirm({
+            target: event.currentTarget || new EventTarget(),
+            key: 'confirm1',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Confirmed',
+                    detail: 'You have accepted',
+                    life: 3000,
+                });
             },
-            width: '50%',
-            header: 'CallBack Form',
-        });
-
-        this.ref.onClose.subscribe((result) => {
-            console.log('closed');
-            setTimeout(() => {
-                this.loadBLogs(tableEvent);
-            }, 2000);
-        });
-    }
-
-    refresh(event) {
-        this.loading = true;
-        console.log(event);
-        this.loadBLogs(event);
-    }
-
-    editFreeTrial(customer: any, te: any) {
-        this.ref = this.dialogService.open(FreeTrialFormComponent, {
-            data: {
-                customer,
+            reject: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
+                    life: 3000,
+                });
             },
-            width: '50%',
-            header: 'Free Trial Form',
         });
-
-        this.tableEvent = te;
-        this.ref.onClose.subscribe((result: any) => {
-            this.refresh(this.tableEvent);
-        });
-    }
-
-    goTo(url) {
-        this.router.navigateByUrl(url);
     }
 
     confirm2(event: Event, user) {
@@ -254,7 +216,7 @@ export class FollowUpLeadsComponent {
             message: 'Are you sure that you want to proceed?',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.userLeadsService.delete(user._id).subscribe((res) => {
+                this.leadsService.delete(user._id).subscribe((res) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Deleted',
@@ -305,12 +267,12 @@ export class FollowUpLeadsComponent {
         }
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.userLeadsService.getAll(queryParams).subscribe((res) => {
+        this.leadsService.getAll(queryParams).subscribe((res) => {
             this.appointments = res;
         });
     }
     async updateStatus(id, status) {
-        this.userLeadsService.update(id, { status }).subscribe((res) => {
+        this.leadsService.update(id, { status }).subscribe((res) => {
             this.messageService.add({
                 // key: 'tst',
                 severity: 'success',
@@ -321,12 +283,12 @@ export class FollowUpLeadsComponent {
     }
 
     openDialog(customer: any, tableEvent) {
-        this.ref = this.dialogService.open(ExpectedPaymentFormComponent, {
+        this.ref = this.dialogService.open(FreeTrialFormComponent, {
             data: {
                 customer,
             },
             width: '50%',
-            header: 'Expected Payment Form',
+            header: 'Free Trial Form',
         });
 
         this.ref.onClose.subscribe((result) => {
@@ -336,25 +298,29 @@ export class FollowUpLeadsComponent {
             }, 2000);
         });
     }
-    onStatusChange(customer, event, tableEvent) {
-        let value = event?.value;
 
-        if (value == 'EXPECTED_PAYMENT') {
-            this.openDialog(customer, tableEvent);
-        } else {
-            this.userLeadsService
-                .update(customer._id, {
-                    status: event.value,
-                })
-                .subscribe({
-                    next: (res) => {
-                        this.loadBLogs(tableEvent);
-                        console.log(res);
-                    },
-                });
-        }
+    openCallBackDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(CallbackFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'CallBack Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadBLogs(tableEvent);
+            }, 2000);
+        });
     }
 
+    refresh(event) {
+        this.loading = true;
+        console.log(event);
+        this.loadBLogs(event);
+    }
     exportExcel() {
         const doctors = this.appointments.map((item) => {
             return {

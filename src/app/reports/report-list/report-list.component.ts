@@ -12,6 +12,9 @@ import { UploadReportsComponent } from 'src/app/appointments/upload-reports/uplo
 import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
+import { ExpectedPaymentFormComponent } from 'src/app/leads/expected-payment-form/expected-payment-form.component';
+import { CallbackFormComponent } from 'src/app/leads/callback-form/callback-form.component';
 
 @Component({
     selector: 'app-report-list',
@@ -58,6 +61,7 @@ export class ReportListComponent {
     role = '';
 
     minDate;
+    selectedUser;
 
     totalRecords = 0;
 
@@ -67,6 +71,10 @@ export class ReportListComponent {
 
     queryParams = {};
 
+    tableEvent;
+
+    selectedStatusName;
+
     loggedInUserBranch;
     selectedEmployee = '';
     selectedCompany = '';
@@ -74,6 +82,7 @@ export class ReportListComponent {
     admins = [];
     companies = [];
     tlList = [];
+    visible;
     constructor(
         private appointmentService: AppointmentService,
         private dashboardService: DashboardService,
@@ -83,6 +92,7 @@ export class ReportListComponent {
         private datePipe: DatePipe,
         private branchService: BranchesService,
         private userService: UsersService,
+        private userLeadService: UserLeadsService,
         private route: ActivatedRoute,
         private router: Router
     ) {
@@ -192,6 +202,43 @@ export class ReportListComponent {
         this.getEmployees(this.selectedCompany, event.value);
     }
 
+    showDialog(customer, event, tableEvent) {
+        this.selectedUser = customer;
+        console.log(this.selectedUser);
+        this.tableEvent = tableEvent;
+        customer.selectedStatus = event.value;
+
+        this.selectedStatusName = this.statusList.find((item) => {
+            return item?.code == customer.selectedStatus;
+        });
+        this.visible = true;
+    }
+
+    changeStatus() {
+        let customer: any = this.selectedUser;
+        let value = customer.selectedStatus;
+        let tableEvent = this.tableEvent;
+        this.visible = false;
+        if (value == 'FREE_TRIAL') {
+            this.openDialog(customer, tableEvent);
+        } else if (value == 'CALLBACK') {
+            this.openCallBackDialog(customer, tableEvent);
+        } else if (value == 'EXPECTED_PAYMENT') {
+            this.openDialog(customer, tableEvent);
+        } else {
+            this.userLeadService
+                .update(customer._id, {
+                    status: value,
+                })
+                .subscribe({
+                    next: (res) => {
+                        this.loadAppointments(tableEvent);
+                        console.log(res);
+                    },
+                });
+        }
+    }
+
     getEmployeesByTL() {
         let params = {
             teamlead: localStorage.getItem('userId'),
@@ -288,6 +335,23 @@ export class ReportListComponent {
         return localDate.toISOString(); // This converts it to UTC in ISO format
     }
 
+    openCallBackDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(CallbackFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'CallBack Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadAppointments(tableEvent);
+            }, 2000);
+        });
+    }
+
     loadAppointments(event: any) {
         this.loading = true;
 
@@ -345,15 +409,20 @@ export class ReportListComponent {
         this.loadAppointments(data);
     }
 
-    openDialog(id: string) {
-        this.ref = this.dialogService.open(UploadReportsComponent, {
+    openDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(ExpectedPaymentFormComponent, {
             data: {
-                id,
-                fileNameInput: false,
-                fileTypes: '.png,.jpg,.jpeg,.JPEG,.pdf',
-                fileUploadUrl: 'appointments/upload-files/' + id,
+                customer,
             },
-            header: 'File Upload',
+            width: '50%',
+            header: 'Expected Payment Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadAppointments(tableEvent);
+            }, 2000);
         });
     }
 

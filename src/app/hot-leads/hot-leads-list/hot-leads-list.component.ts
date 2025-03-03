@@ -14,6 +14,7 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { UserHotLeadsService } from 'src/app/services/user-hot-leads/user-hot-leads.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
 @Component({
     selector: 'app-hot-leads-list',
@@ -57,6 +58,7 @@ export class HotLeadsListComponent {
     constructor(
         private hotLeadsService: HotLeadsService,
         private userHotLeadsService: UserHotLeadsService,
+        private userLeadService: UserLeadsService,
         private router: Router,
         private authService: AuthService,
         private messageService: MessageService,
@@ -110,7 +112,9 @@ export class HotLeadsListComponent {
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
         this.hotLeadsService.getAll(queryParams).subscribe((data: any) => {
-            this.appointments = data.data;
+            this.appointments = data.data.map((item) => {
+                return { ...item, is_hot_lead: true };
+            });
             this.totalRecords = data.total;
             this.loading = false;
         });
@@ -183,7 +187,7 @@ export class HotLeadsListComponent {
     }
 
     assignLeads(event) {
-        this.userHotLeadsService
+        this.userLeadService
             .createBulk({
                 user: this.selectedUser,
                 leads: this.selectedProducts,
