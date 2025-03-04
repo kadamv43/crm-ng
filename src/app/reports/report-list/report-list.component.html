@@ -50,6 +50,11 @@
                 <ng-template pTemplate="caption">
                     <div class="grid">
                         <div class="col-3">
+                            <p-dropdown [options]="leadTypes" optionLabel="name" optionValue="code"
+                                placeholder="Select Lead Type" autoWidth="false" (onChange)="onLeadTypeChange($event)"
+                                [(ngModel)]="selectedType" [style]="{ width: '100%' }" />
+                        </div>
+                        <div class="col-3">
                             <p-dropdown [options]="statusList" optionLabel="name" optionValue="code"
                                 placeholder="Select Status" autoWidth="false" (onChange)="onStatusChange($event)"
                                 [(ngModel)]="selectedStatus" [style]="{ width: '100%' }" />
@@ -68,6 +73,12 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
+                        <th style="min-width: 7rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Lead Type
+                                <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
+                            </div>
+                        </th>
                         <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Username
@@ -172,6 +183,8 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-customer>
                     <tr>
+                        <td *ngIf="customer?.is_hot_lead"> <label style="color: red;">Hot Lead</label></td>
+                        <td *ngIf="!customer?.is_hot_lead"> <label style="color: green;">Normal Lead</label></td>
                         <td>{{ customer.userDetails.username }}</td>
                         <td>
                             {{ customer.mobile }}

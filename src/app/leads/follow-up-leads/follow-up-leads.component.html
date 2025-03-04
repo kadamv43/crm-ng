@@ -226,7 +226,7 @@
                 <ng-template pTemplate="body" let-customer>
                     <tr [pSelectableRow]="customer">
                         <td>
-                            <i class="fa fa-pencil"></i>
+                            <i (click)="editFreeTrial(customer,dt1)" class="pi pi-pencil"></i>
                         </td>
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->

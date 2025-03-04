@@ -25,6 +25,12 @@ import { CallbackFormComponent } from 'src/app/leads/callback-form/callback-form
 export class ReportListComponent {
     private searchSubject: Subject<string> = new Subject();
 
+    leadTypes = [
+        { name: 'Select Lead Type', code: null },
+        { name: 'Normal Lead', code: 'normal_lead' },
+        { name: 'Hot Lead', code: 'hot_lead' },
+    ];
+
     statusList = [
         { name: 'Select Status', code: null },
         { name: 'FRESH', code: 'FRESH' },
@@ -41,6 +47,7 @@ export class ReportListComponent {
 
     display = false;
     selectedStatus = '';
+    selectedType = '';
     selectedDate = [];
     searchText = '';
 
@@ -104,6 +111,14 @@ export class ReportListComponent {
                 let data = { first: 0, rows: 10 };
                 this.loadAppointments(data);
             });
+    }
+
+    onLeadTypeChange(event: any) {
+        console.log('ss');
+        this.selectedType = event.value;
+        this.queryParams['lead_type'] = event.value;
+        let data = { first: 0, rows: 10 };
+        this.loadAppointments(data);
     }
 
     onStatusChange(event: any) {
@@ -385,6 +400,10 @@ export class ReportListComponent {
             params['user'] = this.selectedEmployee;
         } else {
             params['user'] = localStorage.getItem('userId');
+        }
+
+        if (this.selectedType) {
+            params['lead_type'] = this.selectedType;
         }
 
         params['page'] = page;
