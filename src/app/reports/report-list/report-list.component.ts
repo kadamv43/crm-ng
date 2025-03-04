@@ -45,6 +45,19 @@ export class ReportListComponent {
         { name: 'LOSS', code: 'LOSS' },
     ];
 
+    statusList2 = [
+        { name: 'Select Status', code: null },
+        { name: 'CALL BACK', code: 'CALLBACK' },
+        { name: 'RINGING', code: 'RINGING' },
+        { name: 'SWITCH OFF', code: 'SWITCHED_OFF' },
+        { name: 'DEAD', code: 'DEAD' },
+        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
+        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
+        { name: 'PAYMENT DONE', code: 'PAYMENT_DONE' },
+        { name: 'EXPECTED PAYMENT', code: 'EXPECTED_PAYMENT' },
+        { name: 'LOSS', code: 'LOSS' },
+    ];
+
     display = false;
     selectedStatus = '';
     selectedType = '';

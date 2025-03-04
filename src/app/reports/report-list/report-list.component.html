@@ -203,7 +203,7 @@
                             <p-toast></p-toast>
                             <p-dropdown [(ngModel)]="customer.selectedStatus"
                                 (onChange)="showDialog(customer,$event,dt1)" appendTo="body" class="w-full"
-                                [options]="statusList" optionLabel="name" optionValue="code"
+                                [options]="statusList2" optionLabel="name" optionValue="code"
                                 placeholder="Select Action" />
                             <p-confirmPopup appendTo="body" key="confirm2"></p-confirmPopup>
                         </td>
