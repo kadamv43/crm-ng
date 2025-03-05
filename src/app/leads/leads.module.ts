@@ -30,6 +30,8 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { MyHotLeadsComponent } from './my-hot-leads/my-hot-leads.component';
+import { AssignedHotLeadsComponent } from './assigned-hot-leads/assigned-hot-leads.component';
+import { AssignedLeadsComponent } from './assigned-leads/assigned-leads.component';
 
 @NgModule({
     declarations: [
@@ -45,6 +47,8 @@ import { MyHotLeadsComponent } from './my-hot-leads/my-hot-leads.component';
         PaymentFormComponent,
         CallbackFormComponent,
         MyHotLeadsComponent,
+        AssignedHotLeadsComponent,
+        AssignedLeadsComponent,
     ],
     imports: [
         ToolbarModule,

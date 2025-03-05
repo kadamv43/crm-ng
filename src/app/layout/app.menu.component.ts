@@ -132,23 +132,40 @@ export class AppMenuComponent implements OnInit {
                     icon: 'pi pi-fw pi-briefcase',
                     items: [
                         {
-                            label: 'Leads Details',
-                            icon: 'pi pi-fw pi-money-bill',
+                            label: 'Leads',
+                            icon: 'pi pi-fw pi-megaphone',
                             items: [
                                 {
-                                    label: 'Add Lead',
-                                    icon: 'pi pi-fw pi-money-bill',
-                                    routerLink: ['leads', 'create'],
-                                },
-                                {
-                                    label: 'Add Bulk Lead',
-                                    icon: 'pi pi-fw pi-money-bill',
+                                    label: 'Leads',
+                                    icon: 'pi pi-fw pi-megaphone',
                                     routerLink: ['leads'],
                                 },
                                 {
+                                    label: 'Assigned Leads',
+                                    icon: 'pi pi-fw pi-megaphone',
+                                    routerLink: ['leads', 'assigned-leads'],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    icon: 'pi pi-fw pi-briefcase',
+                    items: [
+                        {
+                            label: 'Hot leads',
+                            icon: 'pi pi-fw pi-bolt',
+                            items: [
+                                {
                                     label: 'Hot Leads',
-                                    icon: 'pi pi-fw pi-money-bill',
+                                    icon: 'pi pi-fw pi-bolt',
                                     routerLink: ['hot-leads'],
+                                },
+                                {
+                                    label: 'Assigned Leads',
+                                    icon: 'pi pi-fw pi-bolt',
+                                    routerLink: ['leads', 'assigned-hot-leads'],
                                 },
                             ],
                         },

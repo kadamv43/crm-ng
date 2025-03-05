@@ -19,6 +19,11 @@ export class UserLeadsService {
         return this.httpService.post(url, user);
     }
 
+    deleteBulk(user) {
+        const url = this.baseUrl + '/delete-bulk';
+        return this.httpService.post(url, user);
+    }
+
     update(id: string, user) {
         const url = `${this.baseUrl}/${id}`;
         return this.httpService.patchWithFormData(url, user);

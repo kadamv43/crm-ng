@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { InvoicesService } from 'src/app/services/invoices/invoices.service';
@@ -10,6 +10,7 @@ import { CommonService } from 'src/app/services/common/common.service';
 import { BanksService } from 'src/app/services/banks/banks.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
 interface TargetData {
     achieved: number;
@@ -30,7 +31,7 @@ interface CommonApiResponse {
 
 @Component({
     templateUrl: './dashboard.component.html',
-    providers: [DialogService],
+    providers: [DialogService, MessageService],
 })
 export class DashboardComponent implements OnInit {
     items!: MenuItem[];
@@ -83,15 +84,25 @@ export class DashboardComponent implements OnInit {
     subscription!: Subscription;
     smartView;
 
+    isEditing = false;
+    selectedOption: string = '';
+    EmailOptions = [
+        { label: 'Not Done', value: 'Not Done' },
+        { label: 'Email Sent', value: 'Email Sent' },
+        { label: 'Email Received', value: 'Email Received' },
+    ];
+
     constructor(
         public layoutService: LayoutService,
         private invoiceService: InvoicesService,
+        private userLeadService: UserLeadsService,
         private userService: UsersService,
         private commonService: CommonService,
         private branchService: BranchesService,
         private banksService: BanksService,
         private dashboardService: DashboardService,
-        public dialogService: DialogService
+        public dialogService: DialogService,
+        private toast: MessageService
     ) {}
 
     ngOnInit() {
@@ -214,6 +225,26 @@ export class DashboardComponent implements OnInit {
         });
     }
 
+    onOptionSelect(customer) {
+        this.isEditing = false;
+        console.log(customer);
+        this.userLeadService
+            .update(customer?._id, {
+                // status: 'EXPECTED_PAYMENT',
+                payment: { email_status: customer?.email_status },
+            })
+            .subscribe((res) => {
+                this.toast.add({
+                    key: 'tst',
+                    severity: 'success',
+                    summary: 'Success Message',
+                    detail: 'Payment Email Status Updated ',
+                });
+
+                this.ref.close();
+            });
+    }
+
     getCurrentMonthPaymentDone() {
         let params = {
             page: 0,
@@ -234,6 +265,10 @@ export class DashboardComponent implements OnInit {
             .subscribe((res: any) => {
                 this.payments_done = res;
             });
+    }
+
+    updateEmailStatus(customer) {
+        console.log(customer);
     }
 
     getTodaysExpectedPayment() {

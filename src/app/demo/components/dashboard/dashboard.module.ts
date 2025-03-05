@@ -12,6 +12,7 @@ import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { PendingInvoiceComponent } from './pending-invoice/pending-invoice.component';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
 
 @NgModule({
     imports: [
@@ -26,6 +27,7 @@ import { DropdownModule } from 'primeng/dropdown';
         DropdownModule,
         ChartModule,
         ButtonModule,
+        ToastModule,
         DashboardsRoutingModule,
     ],
     declarations: [PendingInvoiceComponent, DashboardComponent],

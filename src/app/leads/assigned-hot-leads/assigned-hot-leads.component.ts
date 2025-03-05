@@ -17,12 +17,12 @@ import { UserHotLeadsService } from 'src/app/services/user-hot-leads/user-hot-le
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
 @Component({
-    selector: 'app-hot-leads-list',
-    templateUrl: './hot-leads-list.component.html',
-    styleUrl: './hot-leads-list.component.scss',
+    selector: 'app-assigned-hot-leads',
+    templateUrl: './assigned-hot-leads.component.html',
+    styleUrl: './assigned-hot-leads.component.scss',
     providers: [MessageService, ConfirmationService, DialogService, DatePipe],
 })
-export class HotLeadsListComponent {
+export class AssignedHotLeadsComponent {
     users: any = [];
 
     bloodGroups = [
