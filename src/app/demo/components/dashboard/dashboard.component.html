@@ -349,6 +349,12 @@
                     <tr>
                         <th style="min-width: 8rem">
                             <div class="flex justify-content-between align-items-center">
+                                Customer Name
+                                <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
+                            </div>
+                        </th>
+                        <th style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
                                 Username
                                 <!-- <p-columnFilter type="text" field="country.name" display="menu" placeholder="Search by country"></p-columnFilter> -->
                             </div>
@@ -395,10 +401,22 @@
                                 <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th *ngIf="role == 'employee' || role == 'teamlead' " style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Action
+                                <!-- <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter> -->
+                            </div>
+                        </th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-customer>
                     <tr>
+                        <td>
+                            <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
+                            <span class="image-text ml-2">{{
+                                customer?.name
+                                }}</span>
+                        </td>
                         <td>
                             <!-- <img src="assets/demo/images/flag/flag_placeholder.png" [class]="'flag flag-' + customer.country.code" width="30"> -->
                             <span class="image-text ml-2">{{
@@ -450,16 +468,19 @@
                         </td>
                         <td>
                             <p-card>
-                                <div class="cursor-pointer" (click)="isEditing = true" *ngIf="!isEditing">
+                                <!-- <div class="cursor-pointer" (click)="isEditing = true" *ngIf="!isEditing">
                                     {{ customer.email_status || EmailOptions[0]['label'] }}
-                                </div>
+                                </div> -->
 
-                                <p-dropdown appendTo="body" *ngIf="isEditing" [options]="EmailOptions"
-                                    [(ngModel)]="customer.email_status" (onChange)="onOptionSelect(customer)"
-                                    autoWidth="false">
+                                <p-dropdown appendTo="body" [options]="EmailOptions" [(ngModel)]="customer.email_status"
+                                    (onChange)="onOptionSelect(customer)" autoWidth="false">
                                 </p-dropdown>
                             </p-card>
 
+                        </td>
+                        <td *ngIf="role == 'employee' || role == 'teamlead' ">
+                            <button (click)="investMore(customer)" type="button" pbutton class="p-button primary">Invest
+                                More</button>
                         </td>
                     </tr>
                 </ng-template>

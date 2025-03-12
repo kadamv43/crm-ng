@@ -18,6 +18,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { EditorModule } from 'primeng/editor';
 import { CheckboxModule } from 'primeng/checkbox';
+import { AssignedHotLeadsComponent } from './assigned-hot-leads/assigned-hot-leads.component';
 
 @NgModule({
     declarations: [
@@ -25,6 +26,7 @@ import { CheckboxModule } from 'primeng/checkbox';
         HotLeadsCreateComponent,
         HotLeadsEditComponent,
         HotLeadsListComponent,
+        AssignedHotLeadsComponent,
     ],
     imports: [
         ToolbarModule,

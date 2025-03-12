@@ -136,7 +136,12 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-megaphone',
                             items: [
                                 {
-                                    label: 'Leads',
+                                    label: 'Add Lead',
+                                    icon: 'pi pi-fw pi-megaphone',
+                                    routerLink: ['leads', 'create'],
+                                },
+                                {
+                                    label: 'Add Bulk Leads',
                                     icon: 'pi pi-fw pi-megaphone',
                                     routerLink: ['leads'],
                                 },
@@ -165,7 +170,10 @@ export class AppMenuComponent implements OnInit {
                                 {
                                     label: 'Assigned Leads',
                                     icon: 'pi pi-fw pi-bolt',
-                                    routerLink: ['leads', 'assigned-hot-leads'],
+                                    routerLink: [
+                                        'hot-leads',
+                                        'assigned-hot-leads',
+                                    ],
                                 },
                             ],
                         },

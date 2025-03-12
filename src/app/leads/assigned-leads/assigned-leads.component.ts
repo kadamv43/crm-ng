@@ -111,13 +111,13 @@ export class AssignedLeadsComponent {
         params['size'] = size;
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.hotLeadsService.getAll(queryParams).subscribe((data: any) => {
-            this.appointments = data.data.map((item) => {
-                return { ...item, is_hot_lead: true };
+        this.userLeadService
+            .getAssignedLeads(queryParams)
+            .subscribe((data: any) => {
+                this.appointments = data.data;
+                this.totalRecords = data.total;
+                this.loading = false;
             });
-            this.totalRecords = data.total;
-            this.loading = false;
-        });
     }
 
     getUsers() {
@@ -186,7 +186,7 @@ export class AssignedLeadsComponent {
         this.loadBLogs(event);
     }
 
-    deleteLeads() {
+    deleteLeads(tableEvent) {
         this.userLeadService
             .deleteBulk({
                 user: this.selectedUser,
@@ -198,10 +198,10 @@ export class AssignedLeadsComponent {
                         key: 'tst',
                         severity: 'success',
                         summary: 'Success Message',
-                        detail: 'Leads Assigned Successfully',
+                        detail: 'Leads Deleted Successfully',
                     });
 
-                    this.loadBLogs(event);
+                    this.loadBLogs(tableEvent);
                 },
             });
     }

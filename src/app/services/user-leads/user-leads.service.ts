@@ -54,6 +54,21 @@ export class UserLeadsService {
         return this.httpService.get(url, params);
     }
 
+    getAssignedHotLeads(params) {
+        const url = `${this.baseUrl}/assigned-hot-leads`;
+        return this.httpService.get(url, params);
+    }
+
+    getAssignedLeads(params) {
+        const url = `${this.baseUrl}/assigned-leads`;
+        return this.httpService.get(url, params);
+    }
+
+    deleteUserLeads(params) {
+        const url = `${this.baseUrl}/delete-bulk`;
+        return this.httpService.get(url, params);
+    }
+
     getLeadHistory(params) {
         const url = `${this.baseUrl}/get-lead-history`;
         return this.httpService.get(url, params);

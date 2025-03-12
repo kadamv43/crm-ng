@@ -11,6 +11,7 @@ import { BanksService } from 'src/app/services/banks/banks.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
+import { PaymentFormComponent } from 'src/app/leads/payment-form/payment-form.component';
 
 interface TargetData {
     achieved: number;
@@ -90,6 +91,7 @@ export class DashboardComponent implements OnInit {
         { label: 'Not Done', value: 'Not Done' },
         { label: 'Email Sent', value: 'Email Sent' },
         { label: 'Email Received', value: 'Email Received' },
+        { label: 'Call Recording', value: 'Call Recording' },
     ];
 
     constructor(
@@ -243,6 +245,29 @@ export class DashboardComponent implements OnInit {
 
                 this.ref.close();
             });
+    }
+
+    investMore(customer: any) {
+        console.log(customer);
+        this.ref = this.dialogService.open(PaymentFormComponent, {
+            data: {
+                customer: {
+                    payment_details: customer.payment_details,
+                    free_trial: {
+                        name: customer?.name,
+                        mobile: customer?.mobile,
+                        city: customer?.city,
+                    },
+                },
+            },
+            width: '50%',
+            header: 'Payment Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            this.getCurrentMonthPaymentDone();
+        });
     }
 
     getCurrentMonthPaymentDone() {

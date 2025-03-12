@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { br } from '@fullcalendar/core/internal-common';
 import { options } from '@fullcalendar/core/preact';
 import { run } from 'node:test';
 import { MessageService } from 'primeng/api';
@@ -162,25 +163,54 @@ export class PaymentFormComponent {
         this.ref.close();
     }
     async submit() {
-        // let data = this.form.value;
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            console.log(this.form.value);
-            this.userLeadsService
-                .update(this.customer?._id, {
-                    status: 'PAYMENT_DONE',
-                    payment: this.form.value,
-                })
-                .subscribe((res) => {
-                    this.toast.add({
-                        key: 'tst',
-                        severity: 'success',
-                        summary: 'Success Message',
-                        detail: 'Payment done successfully',
-                    });
+            if (this.customer?.payment_details) {
+                console.log('dsd');
 
-                    this.ref.close();
-                });
+                const user = localStorage.getItem('userId');
+                const branch = JSON.parse(localStorage.getItem('branch'));
+                this.userLeadsService
+                    .createBulk({
+                        user: user,
+                        leads: [
+                            {
+                                mobile: this.mobile.value,
+                                user: user,
+                                branch: branch?._id,
+                                status: 'PAYMENT_DONE',
+                                payment: this.form.value,
+                            },
+                        ],
+                    })
+                    .subscribe((res) => {
+                        this.toast.add({
+                            key: 'tst',
+                            severity: 'success',
+                            summary: 'Success Message',
+                            detail: 'Payment done successfully',
+                        });
+
+                        this.ref.close();
+                    });
+            } else {
+                console.log('vkl');
+                this.userLeadsService
+                    .update(this.customer?._id, {
+                        status: 'PAYMENT_DONE',
+                        payment: this.form.value,
+                    })
+                    .subscribe((res) => {
+                        this.toast.add({
+                            key: 'tst',
+                            severity: 'success',
+                            summary: 'Success Message',
+                            detail: 'Payment done successfully',
+                        });
+
+                        this.ref.close();
+                    });
+            }
         }
     }
 }
