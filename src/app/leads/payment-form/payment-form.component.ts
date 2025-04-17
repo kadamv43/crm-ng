@@ -62,7 +62,8 @@ export class PaymentFormComponent {
         });
     }
     ngOnInit(): void {
-        this.minDate = new Date();
+        const today = new Date();
+        this.minDate = new Date(today.setDate(today.getDate() - 5));
     }
 
     get name() {

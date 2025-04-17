@@ -66,6 +66,7 @@ export class DashboardComponent implements OnInit {
     };
     appointments: any;
     totalRecords = 0;
+    currentMonthPaidtotalRecords = 0;
     loading = false;
     pendingInvoiceCount = 0;
     pendingInvoices = [];
@@ -84,6 +85,7 @@ export class DashboardComponent implements OnInit {
     selectedEmployee = '';
     subscription!: Subscription;
     smartView;
+    smartViewRecords = 0;
 
     isEditing = false;
     selectedOption: string = '';
@@ -143,12 +145,12 @@ export class DashboardComponent implements OnInit {
     }
 
     getDashBoard() {
-        this.getSmartView();
+        // this.getSmartView();
         this.getTargetData();
         this.getFreeTrialData();
         this.getTodaysPaymentDone();
         this.getTodaysExpectedPayment();
-        this.getCurrentMonthPaymentDone();
+        // this.getCurrentMonthPaymentDone();
     }
 
     onChangeAdmin(event) {
@@ -206,11 +208,15 @@ export class DashboardComponent implements OnInit {
             });
     }
 
-    getSmartView() {
-        let params = {
-            page: 0,
-            size: 100,
-        };
+    getSmartView(event) {
+        const page = event.first / event.rows;
+        const size = event.rows;
+
+        let params = {};
+
+        params['page'] = page;
+        params['size'] = size;
+
         if (this.loggedInUserBranch) {
             params['branch'] = this.loggedInUserBranch?._id;
         } else {
@@ -223,7 +229,8 @@ export class DashboardComponent implements OnInit {
         }
 
         this.dashboardService.getSmartView(params).subscribe((res: any) => {
-            this.smartView = res;
+            this.smartView = res.result;
+            this.smartViewRecords = res.total;
         });
     }
 
@@ -247,7 +254,7 @@ export class DashboardComponent implements OnInit {
             });
     }
 
-    investMore(customer: any) {
+    investMore(customer: any, event) {
         console.log(customer);
         this.ref = this.dialogService.open(PaymentFormComponent, {
             data: {
@@ -266,15 +273,19 @@ export class DashboardComponent implements OnInit {
 
         this.ref.onClose.subscribe((result) => {
             console.log('closed');
-            this.getCurrentMonthPaymentDone();
+            this.getCurrentMonthPaymentDone(event);
         });
     }
 
-    getCurrentMonthPaymentDone() {
-        let params = {
-            page: 0,
-            size: 100,
-        };
+    getCurrentMonthPaymentDone(event) {
+        const page = event.first / event.rows;
+        const size = event.rows;
+
+        let params = {};
+
+        params['page'] = page;
+        params['size'] = size;
+
         if (this.loggedInUserBranch) {
             params['branch'] = this.loggedInUserBranch?._id;
         } else {
@@ -289,6 +300,7 @@ export class DashboardComponent implements OnInit {
             .getCurrentMonthPaymentDone(params)
             .subscribe((res: any) => {
                 this.payments_done = res;
+                this.currentMonthPaidtotalRecords = res.total;
             });
     }
 

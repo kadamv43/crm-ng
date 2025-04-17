@@ -17,6 +17,10 @@
             </ng-template>
 
             <ng-template pTemplate="right">
+                <!-- <div>
+                    <button (click)="sendMessage()">Login with Facebook</button>
+                </div> -->
+
                 <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload> -->
                 <!-- <button pButton pRipple label="Export" icon="pi pi-download" class="p-button-help secondary"
                     (click)="exportExcel()"></button> -->
@@ -82,14 +86,16 @@
     <div class="col-12">
         <div class="card mb-0">
             <h5>Smart View</h5>
-            <p-table #dt1 [value]="smartView" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
-                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
-                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+            <p-table #dt1 [value]="smartView" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="50"
+                [totalRecords]="smartViewRecords" styleClass="p-datatable-gridlines"
+                [rowsPerPageOptions]="[50,100,150,200]" [paginator]="true" (onLazyLoad)="getSmartView($event)"
+                [globalFilterFields]="[
                     'name',
                     'country.name',
                     'representative.name',
                     'status'
-                ]" responsiveLayout="scroll">
+                ]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [showCurrentPageReport]="true" responsiveLayout="scroll">
 
                 <ng-template pTemplate="header">
                     <tr>
@@ -336,14 +342,16 @@
 
         <div class="card mb-0">
             <h5>Current Month Paid List</h5>
-            <p-table #dt1 [value]="payments_done?.payments" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
-                [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true"
-                (onLazyLoad)="loadBLogs($event)" [globalFilterFields]="[
+            <p-table #dt2 [value]="payments_done?.payments" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="50"
+                [rowsPerPageOptions]="[50,100,150,200]" [totalRecords]="currentMonthPaidtotalRecords"
+                styleClass="p-datatable-gridlines" [paginator]="true" (onLazyLoad)="getCurrentMonthPaymentDone($event)"
+                [globalFilterFields]="[
                     'name',
                     'country.name',
                     'representative.name',
                     'status'
-                ]" responsiveLayout="scroll">
+                ]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [showCurrentPageReport]="true" responsiveLayout="scroll">
 
                 <ng-template pTemplate="header">
                     <tr>
@@ -479,7 +487,8 @@
 
                         </td>
                         <td *ngIf="role == 'employee' || role == 'teamlead' ">
-                            <button (click)="investMore(customer)" type="button" pbutton class="p-button primary">Invest
+                            <button (click)="investMore(customer,dt1)" type="button" pbutton
+                                class="p-button primary">Invest
                                 More</button>
                         </td>
                     </tr>
