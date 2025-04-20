@@ -67,6 +67,7 @@ export class DashboardComponent implements OnInit {
     appointments: any;
     totalRecords = 0;
     currentMonthPaidtotalRecords = 0;
+    totalFreeTrialRecords = 0;
     loading = false;
     pendingInvoiceCount = 0;
     pendingInvoices = [];
@@ -86,7 +87,7 @@ export class DashboardComponent implements OnInit {
     subscription!: Subscription;
     smartView;
     smartViewRecords = 0;
-
+    tableEvent;
     isEditing = false;
     selectedOption: string = '';
     EmailOptions = [
@@ -145,12 +146,15 @@ export class DashboardComponent implements OnInit {
     }
 
     getDashBoard() {
-        // this.getSmartView();
+        let event = {};
+        event['first'] = 0;
+        event['rows'] = 50;
+        this.getSmartView(event);
         this.getTargetData();
-        this.getFreeTrialData();
+        this.getFreeTrialData(event);
         this.getTodaysPaymentDone();
         this.getTodaysExpectedPayment();
-        // this.getCurrentMonthPaymentDone();
+        this.getCurrentMonthPaymentDone(event);
     }
 
     onChangeAdmin(event) {
@@ -168,11 +172,15 @@ export class DashboardComponent implements OnInit {
         this.getEmployees(this.selectedCompany, event.value);
     }
 
-    getFreeTrialData() {
-        let params = {
-            page: 0,
-            size: 100,
-        };
+    getFreeTrialData(event) {
+        const page = event.first / event.rows;
+        const size = event.rows;
+
+        let params = {};
+
+        params['page'] = page;
+        params['size'] = size;
+
         if (this.loggedInUserBranch) {
             params['branch'] = this.loggedInUserBranch?._id;
         }
@@ -184,7 +192,29 @@ export class DashboardComponent implements OnInit {
 
         this.dashboardService.getFreeTrial(params).subscribe((res: any) => {
             this.free_trial = res;
+            this.totalFreeTrialRecords = res.total;
         });
+    }
+
+    editPayment(customer: any, te: any) {
+        this.ref = this.dialogService.open(PaymentFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'Payment Form',
+        });
+
+        this.tableEvent = te;
+        this.ref.onClose.subscribe((result: any) => {
+            this.refresh(this.tableEvent);
+        });
+    }
+
+    refresh(event) {
+        this.loading = true;
+        console.log(event);
+        this.getCurrentMonthPaymentDone(event);
     }
 
     getTodaysPaymentDone() {

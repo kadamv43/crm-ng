@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { dA } from '@fullcalendar/core/internal-common';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonService } from 'src/app/services/common/common.service';
@@ -10,34 +11,13 @@ import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service
     styleUrl: './mobile-history.component.scss',
 })
 export class MobileHistoryComponent {
-    customer: any;
-    minDate;
+    mobile: any;
 
     visible = false;
-    statusList = [
-        // { name: 'SELECT OPTION', value: '' }, // Blank option
-        { name: 'CALLBACK', code: 'CALLBACK' },
-        { name: 'FREE TRIAL', code: 'FREE_TRIAL' },
-        { name: 'RINGING', code: 'RINGING' },
-        { name: 'SWITCHED OFF', code: 'SWITCHED_OFF' },
-        { name: 'DEAD', code: 'DEAD' },
-        { name: 'NOT REACHABLE', code: 'NOT_REACHABLE' },
-        { name: 'NOT INTERESTED', code: 'NOT_INTERESTED' },
-    ];
 
-    bloodGroups = [
-        { name: 'Rahul', code: 'Rahul' },
-        { name: 'Sham', code: 'Sham' },
-    ];
     display = false;
-    selectedStatus = null;
-    selectedDate = '';
-    selectedUser = '';
     tableEvent;
     searchText = '';
-
-    // loading = false;
-    selectedProducts: any[] = [];
 
     isExpanded: boolean = false;
 
@@ -45,17 +25,11 @@ export class MobileHistoryComponent {
 
     loading: boolean = false;
 
-    appointments: any = [];
-
-    selectedStatusName;
-
     role = '';
-
-    doctors = [];
 
     totalRecords = 0;
 
-    users: any = [];
+    leads: any = [];
 
     constructor(
         public config: DynamicDialogConfig,
@@ -64,30 +38,15 @@ export class MobileHistoryComponent {
         public userLeadService: UserLeadsService,
         public authService: AuthService
     ) {
-        this.customer = config.data.leads;
-        console.log(this.customer);
+        this.mobile = config.data.mobile;
+        console.log(this.mobile);
     }
 
     ngOnInit() {
         this.role = this.authService.getRole();
     }
 
-    logSelection() {
-        console.log(this.selectedProducts);
-    }
-
-    showDialog(customer, event, tableEvent) {
-        this.selectedUser = customer;
-        this.tableEvent = tableEvent;
-        customer.selectedStatus = event.value;
-
-        this.selectedStatusName = this.statusList.find((item) => {
-            return item?.code == customer.selectedStatus;
-        });
-        this.visible = true;
-    }
-
-    loadBLogs(event: any) {
+    loadData(event: any) {
         this.loading = true;
 
         const page = event.first / event.rows;
@@ -95,51 +54,22 @@ export class MobileHistoryComponent {
 
         let params = {};
 
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
+        if (this.mobile != '') {
+            params['mobile'] = this.mobile;
         }
 
         params['page'] = page;
         params['size'] = size;
-        params['status'] = 'FRESH';
 
         let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.userLeadService.getMyLeads(queryParams).subscribe((data: any) => {
-            this.appointments = data.data.map((item) => {
-                return { ...item, selectedStatus: '' };
+        this.userLeadService
+            .getLeadHistory(queryParams)
+            .subscribe((data: any) => {
+                this.leads = data.data;
+                this.totalRecords = data.total;
+                this.loading = false;
             });
 
-            this.totalRecords = data.total;
-            this.loading = false;
-        });
-
         console.log('api called');
-    }
-
-    async clear(event) {
-        this.selectedStatus = '';
-        this.selectedDate = '';
-        this.searchText = '';
-        this.loadBLogs(event);
-    }
-
-    filter() {
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
-        }
-
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
-        }
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.userLeadService.getAll(queryParams).subscribe((res) => {
-            this.appointments = res;
-        });
     }
 }

@@ -49,17 +49,34 @@ export class PaymentFormComponent {
         console.log(this.customer);
 
         this.form = this.fb.group({
-            name: [this.customer.free_trial?.name],
-            mobile: [this.customer.free_trial?.mobile],
-            city: [this.customer.free_trial?.city],
+            name: [this.customer?.name],
+            mobile: [this.customer?.mobile],
+            city: [this.customer?.city],
             payment_amount: [
-                '',
+                this.customer?.payment_amount,
                 [Validators.required, Validators.pattern('^[0-9]*$')],
             ],
-            payment_mode: ['', Validators.required],
-            payment_details: ['', Validators.required],
-            payment_date: ['', Validators.required],
+            payment_mode: [this.customer?.payment_mode, Validators.required],
+            payment_details: [
+                this?.customer?.payment_details,
+                Validators.required,
+            ],
+            payment_date: [
+                new Date(this.customer?.payment_date),
+                Validators.required,
+            ],
         });
+
+        if (this.customer?.payment_mode) {
+            this.showPaymentOptions = true;
+            if (this.customer?.payment_mode == 'UPI') {
+                this.getUpiList();
+            } else if (this.customer?.payment_mode == 'BANK') {
+                this.getBankList();
+            } else {
+                this.getPaymentLinkList();
+            }
+        }
     }
     ngOnInit(): void {
         const today = new Date();
@@ -178,6 +195,7 @@ export class PaymentFormComponent {
                             {
                                 mobile: this.mobile.value,
                                 user: user,
+                                city: this.city.value,
                                 branch: branch?._id,
                                 status: 'PAYMENT_DONE',
                                 payment: this.form.value,

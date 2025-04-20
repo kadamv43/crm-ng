@@ -15,6 +15,7 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 import { ExpectedPaymentFormComponent } from 'src/app/leads/expected-payment-form/expected-payment-form.component';
 import { CallbackFormComponent } from 'src/app/leads/callback-form/callback-form.component';
+import { FreeTrialFormComponent } from 'src/app/leads/free-trial-form/free-trial-form.component';
 
 @Component({
     selector: 'app-report-list',
@@ -248,7 +249,7 @@ export class ReportListComponent {
         let tableEvent = this.tableEvent;
         this.visible = false;
         if (value == 'FREE_TRIAL') {
-            this.openDialog(customer, tableEvent);
+            this.openFreeTrialDialog(customer, tableEvent);
         } else if (value == 'CALLBACK') {
             this.openCallBackDialog(customer, tableEvent);
         } else if (value == 'EXPECTED_PAYMENT') {
@@ -370,6 +371,23 @@ export class ReportListComponent {
             },
             width: '50%',
             header: 'CallBack Form',
+        });
+
+        this.ref.onClose.subscribe((result) => {
+            console.log('closed');
+            setTimeout(() => {
+                this.loadAppointments(tableEvent);
+            }, 2000);
+        });
+    }
+
+    openFreeTrialDialog(customer: any, tableEvent) {
+        this.ref = this.dialogService.open(FreeTrialFormComponent, {
+            data: {
+                customer,
+            },
+            width: '50%',
+            header: 'FreeTrial Form',
         });
 
         this.ref.onClose.subscribe((result) => {
