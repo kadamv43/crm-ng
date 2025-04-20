@@ -50,7 +50,7 @@ export class PaymentFormComponent {
 
         this.form = this.fb.group({
             name: [this.customer?.name],
-            mobile: [this.customer?.mobile],
+            mobile: [{ value: this.customer?.mobile, disabled: true }],
             city: [this.customer?.city],
             payment_amount: [
                 this.customer?.payment_amount,
@@ -62,7 +62,9 @@ export class PaymentFormComponent {
                 Validators.required,
             ],
             payment_date: [
-                new Date(this.customer?.payment_date),
+                this.customer?.payment_date
+                    ? new Date(this.customer?.payment_date)
+                    : '',
                 Validators.required,
             ],
         });
@@ -183,53 +185,23 @@ export class PaymentFormComponent {
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            if (this.customer?.payment_details) {
-                console.log('dsd');
-
-                const user = localStorage.getItem('userId');
-                const branch = JSON.parse(localStorage.getItem('branch'));
-                this.userLeadsService
-                    .createBulk({
-                        user: user,
-                        leads: [
-                            {
-                                mobile: this.mobile.value,
-                                user: user,
-                                city: this.city.value,
-                                branch: branch?._id,
-                                status: 'PAYMENT_DONE',
-                                payment: this.form.value,
-                            },
-                        ],
-                    })
-                    .subscribe((res) => {
-                        this.toast.add({
-                            key: 'tst',
-                            severity: 'success',
-                            summary: 'Success Message',
-                            detail: 'Payment done successfully',
-                        });
-
-                        this.ref.close();
+            this.userLeadsService
+                .update(this.customer?._id, {
+                    status: 'PAYMENT_DONE',
+                    name: this.name.value,
+                    city: this.city.value,
+                    payment: this.form.value,
+                })
+                .subscribe((res) => {
+                    this.toast.add({
+                        key: 'tst',
+                        severity: 'success',
+                        summary: 'Success Message',
+                        detail: 'Payment done successfully',
                     });
-            } else {
-                console.log('vkl');
-                this.userLeadsService
-                    .update(this.customer?._id, {
-                        status: 'PAYMENT_DONE',
-                        payment: this.form.value,
-                    })
-                    .subscribe((res) => {
-                        this.toast.add({
-                            key: 'tst',
-                            severity: 'success',
-                            summary: 'Success Message',
-                            detail: 'Payment done successfully',
-                        });
 
-                        this.ref.close();
-                    });
-            }
+                    this.ref.close();
+                });
         }
     }
 }
