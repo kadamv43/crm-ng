@@ -201,6 +201,7 @@ export class HotLeadsListComponent {
                         detail: 'Leads Assigned Successfully',
                     });
 
+                    this.selectedProducts = [];
                     this.loadBLogs(event);
                 },
             });
@@ -220,6 +221,9 @@ export class HotLeadsListComponent {
                         summary: 'Success Message',
                         detail: 'Leads Assigned Successfully',
                     });
+
+                    this.selectedProducts = [];
+                    this.selectedUser = null;
 
                     this.loadBLogs(event);
                 },

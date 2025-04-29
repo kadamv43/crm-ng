@@ -200,6 +200,7 @@ export class DashboardComponent implements OnInit {
         this.ref = this.dialogService.open(PaymentFormComponent, {
             data: {
                 customer,
+                invest_more: false,
             },
             width: '50%',
             header: 'Payment Form',
@@ -288,14 +289,8 @@ export class DashboardComponent implements OnInit {
         console.log(customer);
         this.ref = this.dialogService.open(PaymentFormComponent, {
             data: {
-                customer: {
-                    payment_details: customer.payment_details,
-                    free_trial: {
-                        name: customer?.name,
-                        mobile: customer?.mobile,
-                        city: customer?.city,
-                    },
-                },
+                customer,
+                invest_more: true,
             },
             width: '50%',
             header: 'Payment Form',

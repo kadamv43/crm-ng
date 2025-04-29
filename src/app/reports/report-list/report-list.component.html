@@ -26,10 +26,10 @@
                 </div>
             </ng-template>
 
-            <!-- <ng-template pTemplate="right">
-                <button pButton pRipple label="Export" icon="pi pi-download" class="p-button-help secondary"
-                    (click)="exportExcel()"></button>
-            </ng-template> -->
+            <ng-template pTemplate="right">
+                <button *ngIf="role=='admin'" pButton pRipple label="Export" icon="pi pi-download"
+                    class="p-button-help secondary" (click)="exportExcel()"></button>
+            </ng-template>
         </p-toolbar>
     </div>
 </div>

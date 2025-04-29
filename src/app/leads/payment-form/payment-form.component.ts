@@ -33,6 +33,7 @@ export class PaymentFormComponent {
     ];
 
     payment_options = [];
+    invest_more = false;
 
     constructor(
         private userLeadsService: UserLeadsService,
@@ -46,6 +47,10 @@ export class PaymentFormComponent {
         public bankService: BanksService
     ) {
         this.customer = config.data.customer;
+        this.invest_more = config.data?.invest_more;
+
+        console.log(config);
+
         console.log(this.customer);
 
         this.form = this.fb.group({
@@ -53,7 +58,9 @@ export class PaymentFormComponent {
             mobile: [{ value: this.customer?.mobile, disabled: true }],
             city: [this.customer?.city],
             payment_amount: [
-                this.customer?.payment_amount,
+                config.data?.invest_more === false
+                    ? this.customer?.payment_amount
+                    : '',
                 [Validators.required, Validators.pattern('^[0-9]*$')],
             ],
             payment_mode: [this.customer?.payment_mode, Validators.required],
@@ -185,23 +192,52 @@ export class PaymentFormComponent {
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            this.userLeadsService
-                .update(this.customer?._id, {
-                    status: 'PAYMENT_DONE',
-                    name: this.name.value,
-                    city: this.city.value,
-                    payment: this.form.value,
-                })
-                .subscribe((res) => {
-                    this.toast.add({
-                        key: 'tst',
-                        severity: 'success',
-                        summary: 'Success Message',
-                        detail: 'Payment done successfully',
-                    });
+            if (this.invest_more) {
+                const user = localStorage.getItem('userId');
+                const branch = JSON.parse(localStorage.getItem('branch'));
+                this.userLeadsService
+                    .createBulk({
+                        user: user,
+                        leads: [
+                            {
+                                mobile: this.mobile.value,
+                                user: user,
+                                city: this.city.value,
+                                branch: branch?._id,
+                                status: 'PAYMENT_DONE',
+                                payment: this.form.value,
+                            },
+                        ],
+                    })
+                    .subscribe((res) => {
+                        this.toast.add({
+                            key: 'tst',
+                            severity: 'success',
+                            summary: 'Success Message',
+                            detail: 'Payment done successfully',
+                        });
 
-                    this.ref.close();
-                });
+                        this.ref.close();
+                    });
+            } else {
+                this.userLeadsService
+                    .update(this.customer?._id, {
+                        status: 'PAYMENT_DONE',
+                        name: this.name.value,
+                        city: this.city.value,
+                        payment: this.form.value,
+                    })
+                    .subscribe((res) => {
+                        this.toast.add({
+                            key: 'tst',
+                            severity: 'success',
+                            summary: 'Success Message',
+                            detail: 'Payment done successfully',
+                        });
+
+                        this.ref.close();
+                    });
+            }
         }
     }
 }

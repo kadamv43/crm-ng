@@ -46,9 +46,15 @@ export class FreeTrialFormComponent {
 
         this.form = this.fb.group({
             mobile: [
-                this.customer?.mobile ?? this.customer?.free_trial?.mobile,
+                {
+                    value:
+                        this.customer?.mobile ??
+                        this.customer?.free_trial?.mobile,
+                    disabled: true,
+                },
                 Validators.required,
             ],
+
             name: [this.customer?.name ?? this.customer?.free_trial?.name],
             city: [this.customer?.free_trial?.city],
             investment: [
@@ -159,6 +165,8 @@ export class FreeTrialFormComponent {
             console.log(data);
             this.userLeadsService
                 .update(this.customer?._id, {
+                    name: this.name.value,
+                    city: this.city.value,
                     status: 'FREE_TRIAL',
                     free_trial: data,
                 })

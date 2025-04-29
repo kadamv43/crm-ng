@@ -477,14 +477,15 @@ export class ReportListComponent {
     }
 
     exportExcel() {
+        console.log(this.appointments);
         const doctors = this.appointments.map((item) => {
             return {
-                appointment_number: item.appointment_number,
-                first_name: item.patient.first_name,
-                last_name: item.patient.last_name,
-                mobile: item.patient.mobile,
+                lead_type: item.is_hot_lead ? 'Hot Lead' : 'Normal Lead',
+                username: item.userDetails?.username,
+                mobile: item.mobile,
+                name: item?.payment?.name,
+                city: item.city,
                 status: item.status,
-                email: item.patient.email,
             };
         });
         import('xlsx').then((xlsx) => {
@@ -497,7 +498,7 @@ export class ReportListComponent {
                 bookType: 'xlsx',
                 type: 'array',
             });
-            this.saveAsExcelFile(excelBuffer, 'appointments');
+            this.saveAsExcelFile(excelBuffer, 'report');
         });
     }
 
