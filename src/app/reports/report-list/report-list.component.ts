@@ -60,6 +60,7 @@ export class ReportListComponent {
     ];
 
     display = false;
+    excel = false;
     selectedStatus = '';
     selectedType = '';
     selectedDate = [];
@@ -143,7 +144,7 @@ export class ReportListComponent {
         this.loadAppointments(data);
     }
 
-    onDateChange(value: any) {
+    onDateChange(value: any, dt) {
         this.selectedDate = value;
 
         if (this.selectedDate[0]) {
@@ -154,8 +155,7 @@ export class ReportListComponent {
             this.queryParams['to'] = this.convertToUTC(this.selectedDate[1]);
         }
 
-        let data = { first: 0, rows: 10 };
-        this.loadAppointments(data);
+        this.loadAppointments(dt);
     }
 
     selectTodaysDate() {
@@ -399,6 +399,7 @@ export class ReportListComponent {
     }
 
     loadAppointments(event: any) {
+        this.tableEvent = event;
         this.loading = true;
 
         const page = event.first / event.rows;
@@ -435,6 +436,10 @@ export class ReportListComponent {
 
         if (this.selectedType) {
             params['lead_type'] = this.selectedType;
+        }
+
+        if (this.excel == true) {
+            params['excel'] = true;
         }
 
         params['page'] = page;
@@ -476,8 +481,9 @@ export class ReportListComponent {
         });
     }
 
-    exportExcel() {
-        console.log(this.appointments);
+    async exportExcel() {
+        this.excel = true;
+        await this.loadAppointments(this.tableEvent);
         const doctors = this.appointments.map((item) => {
             return {
                 lead_type: item.is_hot_lead ? 'Hot Lead' : 'Normal Lead',
@@ -499,6 +505,7 @@ export class ReportListComponent {
                 type: 'array',
             });
             this.saveAsExcelFile(excelBuffer, 'report');
+            this.excel = false;
         });
     }
 

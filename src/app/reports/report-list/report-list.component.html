@@ -61,8 +61,8 @@
                         </div>
                         <div class="col-3">
                             <p-calendar [showIcon]="true" [hourFormat]="12" inputId="icon" [style]="{ width: '100%' }"
-                                [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event)" selectionMode="range"
-                                dateFormat="dd/mm/yy"></p-calendar>
+                                [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event,dt1)"
+                                selectionMode="range" dateFormat="dd/mm/yy"></p-calendar>
                         </div>
 
                         <div class="col-1">
