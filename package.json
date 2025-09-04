@@ -110,5 +110,12 @@
         "karma-jasmine-html-reporter": "~2.1.0",
         "node-fetch": "^3.3.2",
         "typescript": "~5.2.2"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "core-js",
+            "electron",
+            "esbuild"
+        ]
     }
 }

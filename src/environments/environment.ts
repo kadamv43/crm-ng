@@ -4,8 +4,8 @@
 
 export const environment = {
     production: false,
-    baseUrl: 'https://api.advisorycrm.in/',
-    uploadPath: 'https://api.advisorycrm.in/uploads/',
+    baseUrl: 'https://apinew.advisorycrm.in/',
+    uploadPath: 'https://apinew.advisorycrm.in/uploads/',
 };
 
 /*

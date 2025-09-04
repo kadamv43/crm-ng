@@ -63,4 +63,11 @@ export class UserHotLeadsService {
         const url = `${this.baseUrl}/global-search/?q=${query}`;
         return this.httpService.get(url);
     }
+
+    deleteBulk(user) {
+        const url = this.baseUrl + '/delete-bulk';
+        return this.httpService.post(url, user);
+    }
+
+
 }

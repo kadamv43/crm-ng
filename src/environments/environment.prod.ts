@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    baseUrl: 'https://api.advisorycrm.in/',
-    uploadPath: 'https://api.advisorycrm.in/uploads/',
+    baseUrl: 'https://apinew.advisorycrm.in/',
+    uploadPath: 'https://apinew.advisorycrm.in/uploads/',
 };

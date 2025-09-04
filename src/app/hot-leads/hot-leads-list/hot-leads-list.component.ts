@@ -186,8 +186,8 @@ export class HotLeadsListComponent {
         this.loadBLogs(event);
     }
 
-    deleteLeads() {
-        this.userLeadService
+    deleteLeads(event) {
+        this.hotLeadsService
             .deleteBulk({
                 user: this.selectedUser,
                 leads: this.selectedProducts,
@@ -198,7 +198,7 @@ export class HotLeadsListComponent {
                         key: 'tst',
                         severity: 'success',
                         summary: 'Success Message',
-                        detail: 'Leads Assigned Successfully',
+                        detail: 'Leads Deleted Successfully',
                     });
 
                     this.selectedProducts = [];
