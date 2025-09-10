@@ -26,6 +26,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { UpdateModalComponent } from './update-modal/update-modal.component';
 import { MobileHistoryComponent } from './mobile-history/mobile-history.component';
 import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { SwitchPopupComponent } from './switch-popup/switch-popup.component';
+
 
 @NgModule({
     declarations: [
@@ -36,6 +39,7 @@ import { TableModule } from 'primeng/table';
         AppSidebarComponent,
         AppLayoutComponent,
         NotepadComponent,
+        SwitchPopupComponent,
         UpdateModalComponent,
         MobileHistoryComponent,
     ],
@@ -59,6 +63,7 @@ import { TableModule } from 'primeng/table';
         ButtonModule,
         ReactiveFormsModule,
         TableModule,
+        DialogModule
     ],
     exports: [AppLayoutComponent],
 })

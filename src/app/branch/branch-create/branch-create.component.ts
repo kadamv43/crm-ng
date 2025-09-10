@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { environment } from 'src/environments/environment';
 

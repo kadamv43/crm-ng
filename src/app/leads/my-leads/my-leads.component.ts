@@ -7,7 +7,6 @@ import { ApiService } from 'src/app/services/api.service';
 import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
-import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
 import * as FileSaver from 'file-saver';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 import { UsersService } from 'src/app/services/users/users.service';

@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { br } from '@fullcalendar/core/internal-common';
-import { options } from '@fullcalendar/core/preact';
-import { run } from 'node:test';
 import { MessageService } from 'primeng/api';
 import {
     DialogService,

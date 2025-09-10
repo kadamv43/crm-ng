@@ -2,8 +2,6 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { escape } from 'querystring';
-import { ApiService } from 'src/app/services/api.service';
 import { ContactDetailsService } from 'src/app/services/contact-details/contact-details.service';
 
 @Component({

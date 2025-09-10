@@ -6,7 +6,6 @@ import { ApiService } from 'src/app/services/api.service';
 import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
-import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
 import * as FileSaver from 'file-saver';
 import { SpotIncentiveService } from 'src/app/services/spot-incentive/spot-incentive.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -185,15 +184,6 @@ export class SpotIncentiveListComponent {
                 summary: 'Success Message',
                 detail: 'Status updated successfully',
             });
-        });
-    }
-
-    openDialog(id: string) {
-        this.ref = this.dialogService.open(FileUploadFormComponent, {
-            data: {
-                id,
-            },
-            header: 'File Upload',
         });
     }
 

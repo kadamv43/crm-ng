@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { InvoicesService } from 'src/app/services/invoices/invoices.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { PendingInvoiceComponent } from './pending-invoice/pending-invoice.component';
 import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
@@ -99,7 +98,6 @@ export class DashboardComponent implements OnInit {
 
     constructor(
         public layoutService: LayoutService,
-        private invoiceService: InvoicesService,
         private userLeadService: UserLeadsService,
         private userService: UsersService,
         private commonService: CommonService,

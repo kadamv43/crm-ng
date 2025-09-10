@@ -2,11 +2,9 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
-import { BranchesService } from 'src/app/services/branches/branches.service';
-import { environment } from 'src/environments/environment';
 import * as FileSaver from 'file-saver';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
     selector: 'app-hot-leads-bulk-create',
@@ -16,7 +14,7 @@ import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 })
 export class HotLeadsBulkCreateComponent {
     form: FormGroup;
-    imageBasePath = environment.uploadPath;
+    imageBasePath = '';
     selectedFile: File | null = null;
     imagePreview: string | ArrayBuffer | null = null;
 
@@ -24,8 +22,10 @@ export class HotLeadsBulkCreateComponent {
         private hotLeadsService: HotLeadsService,
         private toast: MessageService,
         private router: Router,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private http: HttpService
     ) {
+        this.imageBasePath = this.http.currentUploadPath;
         this.form = this.fb.group({
             file: ['', Validators.required],
         });

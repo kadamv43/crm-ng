@@ -5,8 +5,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ApiService } from 'src/app/services/api.service';
 import { CommonService } from 'src/app/services/common/common.service';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DatePipe } from '@angular/common';
-import { FileUploadFormComponent } from 'src/app/appointments/file-upload-form/file-upload-form.component';
+import { DatePipe } from '@angular/common';;
 import * as FileSaver from 'file-saver';
 import { PaymentLinksService } from 'src/app/services/payment-links/payment-links.service';
 
@@ -175,15 +174,6 @@ export class PaymentLinkListComponent {
                 summary: 'Success Message',
                 detail: 'Status updated successfully',
             });
-        });
-    }
-
-    openDialog(id: string) {
-        this.ref = this.dialogService.open(FileUploadFormComponent, {
-            data: {
-                id,
-            },
-            header: 'File Upload',
         });
     }
 

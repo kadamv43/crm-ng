@@ -8,9 +8,9 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { BlogsService } from 'src/app/services/blogs/blogs.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
+import { HttpService } from 'src/app/services/http.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -21,7 +21,7 @@ import { environment } from 'src/environments/environment';
 })
 export class HotLeadsCreateComponent {
     form: FormGroup;
-    imageBasePath = environment.uploadPath;
+    imageBasePath = '';
     selectedFile: File | null = null;
     imagePreview: string | ArrayBuffer | null = null;
 
@@ -29,8 +29,10 @@ export class HotLeadsCreateComponent {
         private hotLeadsService: HotLeadsService,
         private toast: MessageService,
         private router: Router,
+        private http: HttpService,
         private fb: FormBuilder
     ) {
+        this.imageBasePath = this.http.currentUploadPath;
         this.form = this.fb.group({
             mobile: ['', [Validators.required, this.mobileNumberValidator]],
             name: [''],

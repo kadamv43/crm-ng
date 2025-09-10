@@ -1,0 +1,15 @@
+<p-dialog
+    header="Network Change Detected"
+    [(visible)]="network.showDialog"
+    [modal]="true"
+    [closable]="false"
+    [dismissableMask]="false"
+>
+    <div style="text-align: center; padding: 10px">
+        <h3>
+            Switching to
+            {{ network.targetStatus ? "ONLINE" : "OFFLINE" }} mode
+        </h3>
+        <p>Please wait for {{ formattedTime }}...</p>
+    </div>
+</p-dialog>

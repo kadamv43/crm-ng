@@ -21,14 +21,6 @@ import { AuthGuard } from './auth.guard';
                                 ).then((m) => m.DashboardModule),
                         },
                         {
-                            path: 'appointments',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import(
-                                    './appointments/appointments.module'
-                                ).then((m) => m.AppointmentsModule),
-                        },
-                        {
                             path: 'users',
                             canActivate: [AuthGuard],
                             loadChildren: () =>
@@ -45,44 +37,12 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
-                            path: 'doctors',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./doctors/doctors.module').then(
-                                    (m) => m.DoctorsModule
-                                ),
-                        },
-                        {
-                            path: 'patients',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./patients/patients.module').then(
-                                    (m) => m.PatientsModule
-                                ),
-                        },
-                        {
-                            path: 'invoices',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./invoices/invoices.module').then(
-                                    (m) => m.InvoicesModule
-                                ),
-                        },
-                        {
                             path: 'contact-details',
                             canActivate: [AuthGuard],
                             loadChildren: () =>
                                 import(
                                     './contact-details/contact-details.module'
                                 ).then((m) => m.ContactDetailsModule),
-                        },
-                        {
-                            path: 'blogs',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./blog/blog.module').then(
-                                    (m) => m.BlogModule
-                                ),
                         },
                         {
                             path: 'banks',
@@ -164,22 +124,7 @@ import { AuthGuard } from './auth.guard';
                                     (m) => m.BranchModule
                                 ),
                         },
-                        {
-                            path: 'gallery',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./gallery/gallery.module').then(
-                                    (m) => m.GalleryModule
-                                ),
-                        },
-                        {
-                            path: 'banners',
-                            canActivate: [AuthGuard],
-                            loadChildren: () =>
-                                import('./banners/banners.module').then(
-                                    (m) => m.BannersModule
-                                ),
-                        },
+
                         {
                             path: 'reports',
                             canActivate: [AuthGuard],

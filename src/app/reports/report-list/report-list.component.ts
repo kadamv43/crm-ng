@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { AppointmentService } from 'src/app/services/appointment/appointment.service';
 import { AuthService } from 'src/app/services/auth.service';
 import * as FileSaver from 'file-saver';
 import { CommonService } from 'src/app/services/common/common.service';
@@ -8,7 +7,6 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DatePipe } from '@angular/common';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UploadReportsComponent } from 'src/app/appointments/upload-reports/upload-reports.component';
 import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
@@ -106,7 +104,6 @@ export class ReportListComponent {
     tlList = [];
     visible;
     constructor(
-        private appointmentService: AppointmentService,
         private dashboardService: DashboardService,
         private authService: AuthService,
         private commonService: CommonService,
