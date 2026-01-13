@@ -45,7 +45,7 @@ export class LeadsCreateComponent implements OnInit {
 
     getUsers() {
         const page = 0;
-        const size = 50;
+        const size = 200;
 
         let params = {};
 
