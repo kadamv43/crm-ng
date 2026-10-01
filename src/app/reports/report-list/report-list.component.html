@@ -16,19 +16,20 @@
                     <label for="TeamLead" class="control-label">TeamLead</label>
                     <p-dropdown (onChange)="onChangeTL($event,dt1)" [filter]="true" filterBy="name"
                         [(ngModel)]="selectedTL" [options]="tlList" optionLabel="name" class="mr-3" optionValue="code"
-                        placeholder="Select TL" />
+                        placeholder="Select TL" [showClear]="true" />
                 </div>
                 <div *ngIf="role=='superadmin' || role=='admin' || role=='teamlead'" class="flex flex-column gap-2">
                     <label for="Employee" class="control-label">Employee</label>
                     <p-dropdown [filter]="true" (onChange)="onChangeFilter($event,dt1)" filterBy="name"
                         [(ngModel)]="selectedEmployee" [options]="employees" optionLabel="name" class="mr-3"
-                        optionValue="code" placeholder="Select Employee" />
+                        optionValue="code" placeholder="Select Employee" [showClear]="true" />
                 </div>
             </ng-template>
 
             <ng-template pTemplate="right">
-                <button *ngIf="role=='admin'" pButton pRipple label="Export" icon="pi pi-download"
-                    class="p-button-help secondary" (click)="exportExcel()"></button>
+                <button *ngIf="role=='admin' || role=='superadmin'" pButton pRipple label="Export"
+                    icon="pi pi-download" class="p-button-help secondary" [disabled]="excel"
+                    (click)="exportExcel()"></button>
             </ng-template>
         </p-toolbar>
     </div>
@@ -51,18 +52,18 @@
                     <div class="grid">
                         <div class="col-3">
                             <p-dropdown [options]="leadTypes" optionLabel="name" optionValue="code"
-                                placeholder="Select Lead Type" autoWidth="false" (onChange)="onLeadTypeChange($event)"
+                                placeholder="Select Lead Type" autoWidth="false" (onChange)="onLeadTypeChange($event, dt1)"
                                 [(ngModel)]="selectedType" [style]="{ width: '100%' }" />
                         </div>
                         <div class="col-3">
                             <p-dropdown [options]="statusList" optionLabel="name" optionValue="code"
-                                placeholder="Select Status" autoWidth="false" (onChange)="onStatusChange($event)"
+                                placeholder="Select Status" autoWidth="false" (onChange)="onStatusChange($event, dt1)"
                                 [(ngModel)]="selectedStatus" [style]="{ width: '100%' }" />
                         </div>
                         <div class="col-3">
                             <p-calendar [showIcon]="true" [hourFormat]="12" inputId="icon" [style]="{ width: '100%' }"
                                 [(ngModel)]="selectedDate" (ngModelChange)="onDateChange($event,dt1)"
-                                selectionMode="range" dateFormat="dd/mm/yy"></p-calendar>
+                                selectionMode="range" [showButtonBar]="true" dateFormat="dd/mm/yy"></p-calendar>
                         </div>
 
                         <div class="col-1">
@@ -185,7 +186,7 @@
                     <tr>
                         <td *ngIf="customer?.is_hot_lead"> <label style="color: red;">Hot Lead</label></td>
                         <td *ngIf="!customer?.is_hot_lead"> <label style="color: green;">Normal Lead</label></td>
-                        <td>{{ customer.userDetails.username }}</td>
+                        <td>{{ customer.userDetails?.username }}</td>
                         <td>
                             {{ customer.mobile }}
                         </td>
@@ -209,7 +210,7 @@
                         </td>
 
                         <td>
-                            {{ customer.created_at | date:'dd-MM-Y' }}
+                            {{ customer.created_at | date:'dd-MM-yyyy' }}
                         </td>
 
 
@@ -217,7 +218,7 @@
                             {{ customer.free_trial?.investment}}
                         </td>
                         <td>
-                            {{ customer.free_trial?.free_trial_date | date:'dd-MM-Y'}}
+                            {{ customer.free_trial?.free_trial_date | date:'dd-MM-yyyy'}}
                         </td>
                         <td>
                             {{ customer.free_trial?.remark}}
@@ -229,7 +230,7 @@
                             {{ customer.follow_up?.expected_payment}}
                         </td>
                         <td>
-                            {{ customer.follow_up?.expected_payment_date | date:'dd-MM-Y'}}
+                            {{ customer.follow_up?.expected_payment_date | date:'dd-MM-yyyy'}}
                         </td>
                         <td>
                             {{ customer.payment?.payment_amount}}
@@ -237,37 +238,36 @@
                         <td>
                             {{ customer.payment?.payment_mode}}
                         </td>
-                        <td *ngIf="customer.payment?.payment_mode == 'LINK'">
-                            {{ customer.payment?.payment_details?.name}} <br>
-                            {{ customer.payment?.payment_details?.link}}
-                        </td>
-                        <td *ngIf="customer.payment?.payment_mode == 'BANK'">
-                            {{ customer.payment?.payment_details?.account_holder}} <br>
-                            {{ customer.payment?.payment_details?.account_number}} <br>
-                            {{ customer.payment?.payment_details?.bank_name}} <br>
-                            {{ customer.payment?.payment_details?.ifsc_code}}
-                        </td>
-                        <td *ngIf="customer.payment?.payment_mode == 'UPI'">
-                            {{ customer.payment?.payment_details?.upi_id}} <br>
-                            {{ customer.payment?.payment_details?.upi_number}}
-                        </td>
-                        <td *ngIf="!customer.payment">
-
+                        <td [ngSwitch]="customer.payment?.payment_mode">
+                            <ng-container *ngSwitchCase="'LINK'">
+                                {{ customer.payment?.payment_details?.name}} <br>
+                                {{ customer.payment?.payment_details?.link}}
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'BANK'">
+                                {{ customer.payment?.payment_details?.account_holder}} <br>
+                                {{ customer.payment?.payment_details?.account_number}} <br>
+                                {{ customer.payment?.payment_details?.bank_name}} <br>
+                                {{ customer.payment?.payment_details?.ifsc_code}}
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'UPI'">
+                                {{ customer.payment?.payment_details?.upi_id}} <br>
+                                {{ customer.payment?.payment_details?.upi_number}}
+                            </ng-container>
                         </td>
                         <td>
-                            {{ customer.payment?.payment_date | date:'dd-MM-Y'}}
+                            {{ customer.payment?.payment_date | date:'dd-MM-yyyy'}}
                         </td>
 
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="8">No Data found.</td>
+                        <td colspan="18">No Data found.</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="loadingbody">
                     <tr>
-                        <td colspan="8">
+                        <td colspan="18">
                             Loading Appointments data. Please wait.
                         </td>
                     </tr>
