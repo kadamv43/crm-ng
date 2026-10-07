@@ -1,6 +1,6 @@
 {
     "name": "CRM",
-    "version": "1.2.6",
+    "version": "1.2.7",
     "author": "Vinayak",
     "description": "CRM",
     "main": "app.js",
