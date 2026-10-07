@@ -18,6 +18,9 @@ import { ExpectedPaymentFormComponent } from 'src/app/leads/expected-payment-for
 import { CallbackFormComponent } from 'src/app/leads/callback-form/callback-form.component';
 import { FreeTrialFormComponent } from 'src/app/leads/free-trial-form/free-trial-form.component';
 
+// Keep in sync with MAX_REPORT_EXPORT_ROWS in the backend.
+export const MAX_EXPORT_ROWS = 50000;
+
 @Component({
     selector: 'app-report-list',
     templateUrl: './report-list.component.html',
@@ -119,7 +122,8 @@ export class ReportListComponent {
         private userService: UsersService,
         private userLeadService: UserLeadsService,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private messageService: MessageService
     ) {
         this.searchSubject
             .pipe(debounceTime(400), distinctUntilChanged())
@@ -588,7 +592,16 @@ export class ReportListComponent {
 
     // Exports every lead matching the current filters, not just the visible page.
     exportExcel() {
+        if (this.excel) {
+            return; // an export is already running
+        }
+
         if (this.role == 'superadmin' && !this.selectedCompany) {
+            return;
+        }
+
+        if (this.totalRecords > MAX_EXPORT_ROWS) {
+            this.showExportLimitMessage(this.totalRecords);
             return;
         }
 
@@ -602,25 +615,52 @@ export class ReportListComponent {
                 const rows = (res?.data ?? []).map((item) =>
                     this.toExportRow(item)
                 );
-                import('xlsx').then((xlsx) => {
-                    const worksheet = xlsx.utils.json_to_sheet(rows, {
-                        header: Object.keys(this.toExportRow({})),
+                import('xlsx')
+                    .then((xlsx) => {
+                        const worksheet = xlsx.utils.json_to_sheet(rows, {
+                            header: Object.keys(this.toExportRow({})),
+                        });
+                        const workbook = {
+                            Sheets: { data: worksheet },
+                            SheetNames: ['data'],
+                        };
+                        const excelBuffer: any = xlsx.write(workbook, {
+                            bookType: 'xlsx',
+                            type: 'array',
+                        });
+                        this.saveAsExcelFile(excelBuffer, 'report');
+                    })
+                    .catch(() => {
+                        this.messageService.add({
+                            key: 'tst',
+                            severity: 'error',
+                            summary: 'Export failed',
+                            detail: 'Could not create the Excel file. Please try again.',
+                        });
+                    })
+                    .finally(() => {
+                        this.excel = false;
                     });
-                    const workbook = {
-                        Sheets: { data: worksheet },
-                        SheetNames: ['data'],
-                    };
-                    const excelBuffer: any = xlsx.write(workbook, {
-                        bookType: 'xlsx',
-                        type: 'array',
-                    });
-                    this.saveAsExcelFile(excelBuffer, 'report');
-                    this.excel = false;
-                });
             },
-            error: () => {
+            error: (err) => {
                 this.excel = false;
+                // The server enforces the same limit (e.g. data changed since the table loaded).
+                if (err?.status === 400) {
+                    this.showExportLimitMessage(null, err?.error?.message);
+                }
             },
+        });
+    }
+
+    showExportLimitMessage(total: number | null, serverMessage?: string) {
+        this.messageService.add({
+            key: 'tst',
+            severity: 'warn',
+            summary: 'Too many rows to export',
+            detail:
+                serverMessage ??
+                `Export is limited to ${MAX_EXPORT_ROWS.toLocaleString('en-US')} rows but this report has ${total?.toLocaleString('en-US')}. Narrow the filters (date range, status, employee) and try again.`,
+            life: 6000,
         });
     }
 

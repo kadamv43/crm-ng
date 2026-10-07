@@ -27,7 +27,8 @@
             </ng-template>
 
             <ng-template pTemplate="right">
-                <button *ngIf="role=='admin' || role=='superadmin'" pButton pRipple label="Export"
+                <button *ngIf="role=='admin' || role=='superadmin'" pButton pRipple
+                    [label]="excel ? 'Exporting...' : 'Export'" [loading]="excel"
                     icon="pi pi-download" class="p-button-help secondary" [disabled]="excel"
                     (click)="exportExcel()"></button>
             </ng-template>

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 // HTTP responses are asynchronous; mimic that so change detection behaves as in the app.
@@ -9,7 +9,8 @@ const respond = (value: any) => of(value).pipe(delay(0));
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 
-import { ReportListComponent } from './report-list.component';
+import { ReportListComponent, MAX_EXPORT_ROWS } from './report-list.component';
+import { MessageService } from 'primeng/api';
 import { ReportsModule } from '../reports.module';
 import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 import { UsersService } from 'src/app/services/users/users.service';
@@ -434,6 +435,99 @@ describe('ReportListComponent', () => {
             await runExport();
             expect(sheetRows.length - 1).toBe(LEADS.length);
             expect(saved).toBeDefined();
+        });
+
+        it('limit is 50,000 rows', () => {
+            expect(MAX_EXPORT_ROWS).toBe(50000);
+        });
+
+        it('shows "Exporting..." with a spinner while the download is in progress, then restores the button', async () => {
+            const btn = () =>
+                Array.from<HTMLButtonElement>(
+                    fixture.nativeElement.querySelectorAll('p-toolbar button')
+                ).find((b) => /Export/.test(b.textContent));
+
+            expect(btn().textContent).toContain('Export');
+            expect(btn().textContent).not.toContain('Exporting');
+            expect(btn().disabled).toBeFalse();
+
+            component.exportExcel();
+            fixture.detectChanges();
+            expect(btn().textContent).toContain('Exporting...');
+            expect(btn().disabled).toBeTrue();
+            expect(btn().querySelector('.p-icon-spin')).toBeTruthy();
+
+            await new Promise((r) => setTimeout(r, 300));
+            fixture.detectChanges();
+            expect(btn().textContent).not.toContain('Exporting');
+            expect(btn().disabled).toBeFalse();
+            expect(btn().querySelector('.p-icon-spin')).toBeFalsy();
+        });
+
+        it('ignores a second click while an export is running', async () => {
+            dashboard.getReports.calls.reset();
+            component.exportExcel();
+            component.exportExcel();
+            await new Promise((r) => setTimeout(r, 300));
+            expect(dashboard.getReports).toHaveBeenCalledTimes(1);
+        });
+
+        it('restores the button when the export fails', async () => {
+            dashboard.getReports.and.returnValue(throwError(() => ({ status: 500 })) as any);
+            component.exportExcel();
+            fixture.detectChanges();
+            await new Promise((r) => setTimeout(r, 50));
+            fixture.detectChanges();
+            expect(component.excel).toBeFalse();
+            const btn = Array.from<HTMLButtonElement>(
+                fixture.nativeElement.querySelectorAll('p-toolbar button')
+            ).find((b) => /Export/.test(b.textContent));
+            expect(btn.textContent).not.toContain('Exporting');
+            expect(btn.disabled).toBeFalse();
+        });
+
+        it('exports normally at exactly the limit', async () => {
+            component.totalRecords = MAX_EXPORT_ROWS;
+            await runExport();
+            expect(saved).toBeDefined();
+            expect(lastParams().excel).toBe('true');
+        });
+
+        it('refuses over the limit without calling the server, and tells the user', async () => {
+            const toast = TestBed.inject(MessageService, null as any);
+            const messageService: any = (component as any).messageService;
+            spyOn(messageService, 'add');
+            component.totalRecords = MAX_EXPORT_ROWS + 1;
+            dashboard.getReports.calls.reset();
+            await runExport();
+            expect(dashboard.getReports).not.toHaveBeenCalled();
+            expect(saved).toBeUndefined();
+            const msg = (messageService.add as jasmine.Spy).calls.mostRecent().args[0];
+            expect(msg.severity).toBe('warn');
+            expect(msg.detail).toContain('50,000');
+            expect(msg.detail).toContain('50,001');
+            expect(component.excel).toBeFalse();
+        });
+
+        it('shows the server message and re-enables the button if the server rejects the export', async () => {
+            const messageService: any = (component as any).messageService;
+            spyOn(messageService, 'add');
+            dashboard.getReports.and.returnValue(
+                throwError(() => ({ status: 400, error: { message: 'Export is limited to 50,000 rows but this report has 60,000.' } })) as any
+            );
+            await runExport();
+            expect(saved).toBeUndefined();
+            expect((messageService.add as jasmine.Spy).calls.mostRecent().args[0].detail).toContain('60,000');
+            expect(component.excel).toBeFalse();
+        });
+
+        it('stays quiet when the export fails for another reason', async () => {
+            const messageService: any = (component as any).messageService;
+            spyOn(messageService, 'add');
+            dashboard.getReports.and.returnValue(throwError(() => ({ status: 500 })) as any);
+            await runExport();
+            expect(messageService.add).not.toHaveBeenCalled();
+            expect(component.excel).toBeFalse();
         });
 
         it('does not blow up on an empty result', async () => {
