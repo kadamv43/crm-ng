@@ -71,6 +71,10 @@
                             <h5>Todays Expected Payment</h5>
                             <label>{{expected_payment?.totalAmount}}</label>
                         </div>
+                        <div class="col-12" *ngIf="uniqueLeads !== null">
+                            <h5>Unique Leads</h5>
+                            <label>{{uniqueLeads}}</label>
+                        </div>
                     </div>
                 </div>
             </div>

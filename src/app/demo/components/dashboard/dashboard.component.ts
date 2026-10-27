@@ -30,6 +30,8 @@ interface CommonApiResponse {
     totalAmount?: 0;
 }
 
+import { ContactsService } from 'src/app/services/contacts/contacts.service';
+
 @Component({
     templateUrl: './dashboard.component.html',
     providers: [DialogService, MessageService],
@@ -106,9 +108,13 @@ export class DashboardComponent implements OnInit {
         private branchService: BranchesService,
         private banksService: BanksService,
         private dashboardService: DashboardService,
+        private contactsService: ContactsService,
         public dialogService: DialogService,
         private toast: MessageService
     ) {}
+
+    // total unique phone numbers (contacts) of the selected company
+    uniqueLeads: number | null = null;
 
     ngOnInit() {
         this.role = localStorage.getItem('role');
@@ -155,6 +161,29 @@ export class DashboardComponent implements OnInit {
         this.getTodaysPaymentDone();
         this.getTodaysExpectedPayment();
         this.getCurrentMonthPaymentDone(event);
+        this.getUniqueLeads();
+    }
+
+    getUniqueLeads() {
+        if (this.role != 'admin' && this.role != 'superadmin') {
+            this.uniqueLeads = null;
+            return;
+        }
+        let params = {};
+        // admins are fixed to their own company by the server; superadmin picks one
+        if (this.role == 'superadmin' && this.selectedCompany) {
+            params['branch'] = this.selectedCompany;
+        }
+        this.contactsService
+            .stats(this.commonService.getHttpParamsByJson(params))
+            .subscribe({
+                next: (res: any) => {
+                    this.uniqueLeads = res?.total_unique_leads ?? 0;
+                },
+                error: () => {
+                    this.uniqueLeads = null;
+                },
+            });
     }
 
     onChangeAdmin(event) {

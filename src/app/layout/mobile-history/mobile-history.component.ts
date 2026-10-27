@@ -4,6 +4,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonService } from 'src/app/services/common/common.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
+import { ContactsService } from 'src/app/services/contacts/contacts.service';
 
 @Component({
     selector: 'app-mobile-history',
@@ -31,12 +32,16 @@ export class MobileHistoryComponent {
 
     leads: any = [];
 
+    // how often this number was handed out / worked, and who last worked it
+    contactInfo: any = null;
+
     constructor(
         public config: DynamicDialogConfig,
         public ref: DynamicDialogRef,
         public commonService: CommonService,
         public userLeadService: UserLeadsService,
-        public authService: AuthService
+        public authService: AuthService,
+        private contactsService: ContactsService
     ) {
         this.mobile = config.data.mobile;
         console.log(this.mobile);
@@ -44,6 +49,17 @@ export class MobileHistoryComponent {
 
     ngOnInit() {
         this.role = this.authService.getRole();
+
+        if (this.mobile) {
+            this.contactsService.lookup(this.mobile).subscribe({
+                next: (res: any) => {
+                    this.contactInfo = res?.[0] ?? null;
+                },
+                error: () => {
+                    this.contactInfo = null; // the history table below still works
+                },
+            });
+        }
     }
 
     loadData(event: any) {
