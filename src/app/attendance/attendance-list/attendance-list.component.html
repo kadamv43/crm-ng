@@ -1,0 +1,65 @@
+<div class="grid">
+    <div class="col-12">
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <div *ngIf="role=='superadmin'" class="flex flex-column gap-2 mr-3">
+                    <label for="company" class="control-label">Company</label>
+                    <p-dropdown id="company" [filter]="true" filterBy="name" [options]="companies"
+                        [(ngModel)]="selectedCompany" optionLabel="name" optionValue="code"
+                        placeholder="Select company" (onChange)="onCompanyChange()"></p-dropdown>
+                </div>
+                <div class="flex flex-column gap-2">
+                    <label for="day" class="control-label">Date</label>
+                    <p-calendar inputId="day" [showIcon]="true" [(ngModel)]="selectedDate" [maxDate]="maxDate"
+                        dateFormat="dd/mm/yy" (onSelect)="onDateChange()"></p-calendar>
+                </div>
+            </ng-template>
+        </p-toolbar>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <h5>Attendance</h5>
+            <p class="text-color-secondary mt-0">
+                Who logged in on this day. A day runs from 8:00 AM to 8:00 AM the next morning (India time).
+            </p>
+            <p-table [value]="rows" dataKey="_id" [loading]="loading" [rowHover]="true"
+                styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width: 3rem">#</th>
+                        <th style="min-width: 10rem">Name</th>
+                        <th style="min-width: 8rem">Username</th>
+                        <th style="min-width: 7rem">Role</th>
+                        <th style="min-width: 9rem">First login</th>
+                        <th style="min-width: 9rem">Last login</th>
+                        <th style="min-width: 6rem">Logins</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row let-i="rowIndex">
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ fullName(row) }}</td>
+                        <td>{{ row.user?.username }}</td>
+                        <td>{{ row.user?.role }}</td>
+                        <td>{{ row.first_login_at | date:'hh:mm a':'+0530' }}</td>
+                        <td>{{ row.last_login_at | date:'hh:mm a':'+0530' }}</td>
+                        <td>{{ row.login_count }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7">Nobody logged in on this day.</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td colspan="7">Total logged in: {{ total }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

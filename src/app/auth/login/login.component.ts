@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { ApiService } from 'src/app/services/api.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -24,7 +25,8 @@ export class LoginComponent {
         private fb: FormBuilder,
         private apiService: ApiService,
         private messageService: MessageService,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) {
         this.loginForm = fb.group({
             username: ['', Validators.required],
@@ -46,8 +48,8 @@ export class LoginComponent {
             this.loading = true;
             this.apiService.login(this.loginForm.value).subscribe(
                 (res: any) => {
-                    let token = res.accessToken;
-                    localStorage.setItem('token', token);
+                    // stores the token, when it ends (11 PM) and starts the auto logout
+                    this.authService.setSession(res);
 
                     this.apiService
                         .getAuthUserDetails()

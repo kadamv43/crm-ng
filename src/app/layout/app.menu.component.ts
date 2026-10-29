@@ -54,6 +54,16 @@ export class AppMenuComponent implements OnInit {
                     label: '',
                     items: [
                         {
+                            label: 'Attendance',
+                            icon: 'pi pi-fw pi-calendar',
+                            routerLink: ['attendance'],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
                             label: 'Reports',
                             icon: 'pi pi-fw pi-file-word',
                             routerLink: ['reports'],
@@ -70,6 +80,16 @@ export class AppMenuComponent implements OnInit {
                             label: 'Employees',
                             icon: 'pi pi-fw pi-users',
                             routerLink: ['users'],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
+                            label: 'Attendance',
+                            icon: 'pi pi-fw pi-calendar',
+                            routerLink: ['attendance'],
                         },
                     ],
                 },

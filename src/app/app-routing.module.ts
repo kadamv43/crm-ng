@@ -181,6 +181,14 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'attendance',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./attendance/attendance.module').then(
+                                    (m) => m.AttendanceModule
+                                ),
+                        },
+                        {
                             path: 'reports',
                             canActivate: [AuthGuard],
                             loadChildren: () =>
