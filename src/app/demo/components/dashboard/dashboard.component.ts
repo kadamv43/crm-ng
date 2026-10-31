@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
+import { Table } from 'primeng/table';
+import { dateRangeParams } from 'src/app/services/common/date-range';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { InvoicesService } from 'src/app/services/invoices/invoices.service';
@@ -36,7 +38,7 @@ import { ContactsService } from 'src/app/services/contacts/contacts.service';
     templateUrl: './dashboard.component.html',
     providers: [DialogService, MessageService],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
     items!: MenuItem[];
 
     options: any;
@@ -115,6 +117,32 @@ export class DashboardComponent implements OnInit {
 
     // total unique phone numbers (contacts) of the selected company
     uniqueLeads: number | null = null;
+
+    // smart view filters (admin and superadmin only)
+    svDate: any = '';
+    svSearch = '';
+    svLoggedInOnly = false;
+    svRange: { from: string; to: string } | null = null;
+    private svSearchTimer: any = null;
+    readonly maxSmartViewDays = 31;
+    today = new Date();
+    @ViewChild('smartDt') smartTable: Table;
+
+    get canFilterSmartView(): boolean {
+        return this.role == 'admin' || this.role == 'superadmin';
+    }
+
+    /** Superadmin works on the company picked in the dropdown; everyone else on their own. */
+    currentBranchId() {
+        if (this.role == 'superadmin') {
+            return this.selectedCompany;
+        }
+        return this.loggedInUserBranch?._id ?? this.selectedCompany;
+    }
+
+    ngOnDestroy() {
+        clearTimeout(this.svSearchTimer);
+    }
 
     ngOnInit() {
         this.role = localStorage.getItem('role');
@@ -210,8 +238,9 @@ export class DashboardComponent implements OnInit {
         params['page'] = page;
         params['size'] = size;
 
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -252,8 +281,9 @@ export class DashboardComponent implements OnInit {
             page: 0,
             size: 100,
         };
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -269,6 +299,11 @@ export class DashboardComponent implements OnInit {
     }
 
     getSmartView(event) {
+        // superadmin has to pick a company first
+        if (this.role == 'superadmin' && !this.selectedCompany) {
+            return;
+        }
+
         const page = event.first / event.rows;
         const size = event.rows;
 
@@ -276,11 +311,9 @@ export class DashboardComponent implements OnInit {
 
         params['page'] = page;
         params['size'] = size;
-
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
-        } else {
-            params['branch'] = this.selectedCompany;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -288,10 +321,76 @@ export class DashboardComponent implements OnInit {
             params['user'] = localStorage.getItem('userId');
         }
 
+        if (this.canFilterSmartView) {
+            Object.assign(params, dateRangeParams(this.svDate));
+            const search = this.svSearch.trim();
+            if (search) {
+                params['q'] = search;
+            }
+            if (this.svLoggedInOnly) {
+                params['logged_in'] = 'true';
+            }
+        }
+
         this.dashboardService.getSmartView(params).subscribe((res: any) => {
             this.smartView = res.result;
             this.smartViewRecords = res.total;
+            this.svRange = res.range ?? null;
         });
+    }
+
+    // Reload the smart view from its first page after a filter changed.
+    applySmartViewFilters(dt?: Table) {
+        const table = dt ?? this.smartTable;
+        if (table) {
+            table.first = 0;
+        }
+        this.getSmartView({ first: 0, rows: table?.rows ?? 50 });
+    }
+
+    onSmartViewDateChange(value: any) {
+        this.svDate = value ?? '';
+        const [from, to] = Array.isArray(value) ? value : [];
+
+        // a range is complete once both days are picked (or the picker was cleared)
+        if (from && !to) {
+            return;
+        }
+        if (from && to) {
+            const days = Math.round((+to - +from) / 86400000) + 1;
+            if (days > this.maxSmartViewDays) {
+                this.toast.add({
+                    severity: 'warn',
+                    summary: 'Too many days',
+                    detail: `Please choose at most ${this.maxSmartViewDays} days.`,
+                });
+                return;
+            }
+        }
+        this.applySmartViewFilters();
+    }
+
+    onSmartViewSearch() {
+        clearTimeout(this.svSearchTimer);
+        this.svSearchTimer = setTimeout(() => this.applySmartViewFilters(), 400);
+    }
+
+    clearSmartViewFilters(dt?: Table) {
+        clearTimeout(this.svSearchTimer);
+        this.svDate = '';
+        this.svSearch = '';
+        this.svLoggedInOnly = false;
+        this.applySmartViewFilters(dt);
+    }
+
+    /** "2025-03-10" as 10/03/2025 */
+    dayLabel(ymd: string): string {
+        const [y, m, d] = (ymd ?? '').split('-');
+        return y && m && d ? `${d}/${m}/${y}` : '';
+    }
+
+    get svIsRange(): boolean {
+        return !!this.svRange && this.svRange.from !== this.svRange.to;
     }
 
     onOptionSelect(customer) {
@@ -340,10 +439,9 @@ export class DashboardComponent implements OnInit {
         params['page'] = page;
         params['size'] = size;
 
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
-        } else {
-            params['branch'] = this.selectedCompany;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -367,10 +465,9 @@ export class DashboardComponent implements OnInit {
             page: 0,
             size: 100,
         };
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
-        } else {
-            params['branch'] = this.selectedCompany;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;
@@ -402,10 +499,9 @@ export class DashboardComponent implements OnInit {
             page: 0,
             size: 100,
         };
-        if (this.loggedInUserBranch) {
-            params['branch'] = this.loggedInUserBranch?._id;
-        } else {
-            params['branch'] = this.selectedCompany;
+        const branchId = this.currentBranchId();
+        if (branchId) {
+            params['branch'] = branchId;
         }
         if (this.selectedEmployee) {
             params['user'] = this.selectedEmployee;

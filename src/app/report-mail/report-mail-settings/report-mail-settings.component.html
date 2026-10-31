@@ -1,0 +1,122 @@
+<p-toast></p-toast>
+
+<div class="grid">
+    <div class="col-12" *ngIf="role=='superadmin'">
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <div class="flex flex-column gap-2">
+                    <label for="company" class="control-label">Company</label>
+                    <p-dropdown id="company" [filter]="true" filterBy="name" [options]="companies"
+                        [(ngModel)]="selectedCompany" optionLabel="name" optionValue="code"
+                        placeholder="Select company" (onChange)="onCompanyChange()"></p-dropdown>
+                </div>
+            </ng-template>
+        </p-toolbar>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <h5>Report Emails</h5>
+            <p class="text-color-secondary mt-0">
+                An email with the smart view of the day, sent every hour to the addresses below.
+                Hours are India time.
+            </p>
+
+            <p *ngIf="role=='superadmin' && !selectedCompany">Choose a company first.</p>
+
+            <div *ngIf="ready" class="flex flex-column gap-4">
+                <div class="flex align-items-center gap-3">
+                    <p-inputSwitch inputId="enabled" [(ngModel)]="model.enabled"></p-inputSwitch>
+                    <label for="enabled" class="mb-0">Send the hourly email</label>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label for="recipients" class="control-label">Email addresses</label>
+                    <p-chips inputId="recipients" [(ngModel)]="model.recipients" separator=","
+                        [addOnBlur]="true" [allowDuplicate]="false" [max]="maxRecipients"
+                        placeholder="Type an address and press Enter" styleClass="w-full"
+                        (onAdd)="onAddRecipient($event)"></p-chips>
+                    <small class="text-color-secondary">
+                        Up to {{ maxRecipients }} addresses. Everyone gets the same email.
+                        ({{ model.recipients.length }} added)
+                    </small>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex flex-column gap-2">
+                        <label for="fromHour" class="control-label">First email at</label>
+                        <p-dropdown inputId="fromHour" [options]="hours" optionLabel="label" optionValue="value"
+                            [(ngModel)]="model.from_hour" appendTo="body"></p-dropdown>
+                    </div>
+                    <div class="flex flex-column gap-2">
+                        <label for="toHour" class="control-label">Last email at</label>
+                        <p-dropdown inputId="toHour" [options]="hours" optionLabel="label" optionValue="value"
+                            [(ngModel)]="model.to_hour" appendTo="body"></p-dropdown>
+                    </div>
+                </div>
+
+                <div class="flex align-items-center gap-3">
+                    <p-inputSwitch inputId="onlyLoggedIn" [(ngModel)]="model.only_logged_in"></p-inputSwitch>
+                    <label for="onlyLoggedIn" class="mb-0">Only people who logged in today</label>
+                </div>
+
+                <div class="flex align-items-center gap-3">
+                    <p-inputSwitch inputId="skipUnchanged" [(ngModel)]="model.skip_if_unchanged"></p-inputSwitch>
+                    <label for="skipUnchanged" class="mb-0">Skip an hour when nothing changed</label>
+                </div>
+
+                <div class="flex flex-wrap align-items-center gap-3">
+                    <button pButton type="button" label="Save" icon="pi pi-save" [disabled]="!dirty || saving"
+                        [loading]="saving" (click)="save()"></button>
+                    <button pButton type="button" class="p-button-secondary" icon="pi pi-send"
+                        [label]="testing ? 'Sending...' : 'Send test email now'" [loading]="testing"
+                        [disabled]="!canTest" (click)="sendTest()"></button>
+                    <small *ngIf="dirty" class="text-color-secondary">You have unsaved changes.</small>
+                    <small *ngIf="!dirty && !saved" class="text-color-secondary">
+                        Not saved yet. Save to turn this on.
+                    </small>
+                </div>
+
+                <div class="surface-100 border-round p-3" *ngIf="lastStatus">
+                    <div>
+                        <b>Last email:</b>
+                        {{ lastSentAt | date:'d MMM, h:mm a':'+0530' }} -
+                        <span [ngClass]="lastStatus == 'FAILED' ? 'text-red-500 font-bold' : ''">{{ lastStatus }}</span>
+                    </div>
+                    <div *ngIf="lastError" class="text-red-500 mt-1">{{ lastError }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12" *ngIf="ready">
+        <div class="card">
+            <h5>Recent emails</h5>
+            <p-table [value]="logs" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Hour</th>
+                        <th>Result</th>
+                        <th>Sent to</th>
+                        <th>Problem</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-log>
+                    <tr>
+                        <td>{{ slotLabel(log.slot) }}</td>
+                        <td>
+                            <span [ngClass]="log.status == 'FAILED' ? 'text-red-500 font-bold' : ''">{{ log.status }}</span>
+                        </td>
+                        <td>{{ log.recipients_count }}</td>
+                        <td>{{ log.error }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4">No emails sent yet.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>

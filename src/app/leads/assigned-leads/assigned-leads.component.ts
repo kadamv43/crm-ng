@@ -16,6 +16,8 @@ import { UsersService } from 'src/app/services/users/users.service';
 import { UserHotLeadsService } from 'src/app/services/user-hot-leads/user-hot-leads.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 
+import { dateRangeParams } from 'src/app/services/common/date-range';
+
 @Component({
     selector: 'app-assigned-leads',
     templateUrl: './assigned-leads.component.html',
@@ -31,7 +33,7 @@ export class AssignedLeadsComponent {
     ];
     display = false;
     selectedStatus = '';
-    selectedDate = '';
+    selectedDate: any = '';
     searchText = '';
     selectedProducts: any[] = [];
 
@@ -96,16 +98,7 @@ export class AssignedLeadsComponent {
             params['status'] = this.selectedStatus;
         }
 
-        if (this.selectedDate != '') {
-            params['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
-            params['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
-        }
+        Object.assign(params, dateRangeParams(this.selectedDate));
 
         params['page'] = page;
         params['size'] = size;
@@ -179,11 +172,11 @@ export class AssignedLeadsComponent {
         });
     }
 
-    async clear(event) {
+    clear(dt?: any) {
         this.selectedStatus = '';
         this.selectedDate = '';
         this.searchText = '';
-        this.loadBLogs(event);
+        this.filter(dt);
     }
 
     deleteLeads(tableEvent) {
@@ -226,31 +219,12 @@ export class AssignedLeadsComponent {
             });
     }
 
-    filter() {
-        let params = {};
-        if (this.searchText != '') {
-            params['q'] = this.searchText;
+    // Filter button: always start from the first page of the new results.
+    filter(dt?: any) {
+        if (dt) {
+            dt.first = 0;
         }
-
-        if (this.selectedStatus != '') {
-            params['status'] = this.selectedStatus;
-        }
-
-        if (this.selectedDate != '') {
-            params['from'] = this.datePipe.transform(
-                this.selectedDate[0],
-                'yyyy-MM-dd'
-            );
-            params['to'] = this.datePipe.transform(
-                this.selectedDate[1],
-                'yyyy-MM-dd'
-            );
-        }
-
-        let queryParams = this.commonService.getHttpParamsByJson(params);
-        this.hotLeadsService.getAll(queryParams).subscribe((res) => {
-            this.appointments = res;
-        });
+        this.loadBLogs({ first: 0, rows: dt?.rows ?? 50 });
     }
     async updateStatus(id, status) {
         this.hotLeadsService.update(id, { status }).subscribe((res) => {

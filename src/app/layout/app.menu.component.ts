@@ -64,6 +64,21 @@ export class AppMenuComponent implements OnInit {
                     label: '',
                     items: [
                         {
+                            label: 'Report Emails',
+                            icon: 'pi pi-fw pi-envelope',
+                            routerLink: ['report-mail'],
+                        },
+                        {
+                            label: 'Campaigns',
+                            icon: 'pi pi-fw pi-sync',
+                            routerLink: ['campaigns'],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
                             label: 'Reports',
                             icon: 'pi pi-fw pi-file-word',
                             routerLink: ['reports'],
@@ -90,6 +105,21 @@ export class AppMenuComponent implements OnInit {
                             label: 'Attendance',
                             icon: 'pi pi-fw pi-calendar',
                             routerLink: ['attendance'],
+                        },
+                    ],
+                },
+                {
+                    label: '',
+                    items: [
+                        {
+                            label: 'Report Emails',
+                            icon: 'pi pi-fw pi-envelope',
+                            routerLink: ['report-mail'],
+                        },
+                        {
+                            label: 'Campaigns',
+                            icon: 'pi pi-fw pi-sync',
+                            routerLink: ['campaigns'],
                         },
                     ],
                 },

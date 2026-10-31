@@ -1,0 +1,147 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="grid">
+    <div class="col-12" *ngIf="role=='superadmin'">
+        <p-toolbar styleClass="mb-4">
+            <ng-template pTemplate="left">
+                <div class="flex flex-column gap-2">
+                    <label for="company" class="control-label">Company</label>
+                    <p-dropdown id="company" [filter]="true" filterBy="name" [options]="companies"
+                        [(ngModel)]="selectedCompany" optionLabel="name" optionValue="code"
+                        placeholder="Select company" (onChange)="onCompanyChange()"></p-dropdown>
+                </div>
+            </ng-template>
+        </p-toolbar>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="flex align-items-center justify-content-between mb-3">
+                <h5 class="m-0">Campaigns</h5>
+                <button pButton type="button" label="New campaign" icon="pi pi-plus" id="newCampaign"
+                    [disabled]="!hasCompany" (click)="openCreate()"></button>
+            </div>
+            <p class="text-color-secondary mt-0">
+                Share leads between the staff who are in today. Each round every batch moves on to the next
+                person, so nobody gets the same number twice and every lead is called by everyone.
+            </p>
+
+            <p *ngIf="!hasCompany && companiesLoaded && companies.length == 0" id="noCompanies">
+                There are no companies yet. Create one under Company, add its admin and staff, then come back.
+            </p>
+            <p *ngIf="!hasCompany && !(companiesLoaded && companies.length == 0)">Choose a company first.</p>
+
+            <p-table [value]="campaigns" [loading]="loading" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Round</th>
+                        <th>Staff</th>
+                        <th>Leads</th>
+                        <th>Started by</th>
+                        <th>Started on</th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>
+                            <p-tag [value]="row.status == 'ACTIVE' ? 'Running' : 'Closed'"
+                                [severity]="row.status == 'ACTIVE' ? 'success' : 'secondary'"></p-tag>
+                        </td>
+                        <td>{{ row.round }} of {{ row.rounds }}</td>
+                        <td>{{ row.staff }}</td>
+                        <td>{{ row.total_leads }}</td>
+                        <td>{{ row.created_by }}</td>
+                        <td>{{ row.created_at | date:'d MMM y, h:mm a':'+0530' }}</td>
+                        <td><button pButton type="button" class="p-button-text open-campaign" label="Open" (click)="open(row)"></button></td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr><td colspan="8">No campaigns yet.</td></tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<p-dialog header="New campaign" [(visible)]="showCreate" [modal]="true" [style]="{ width: '34rem', maxWidth: '95vw' }" [draggable]="false">
+    <div class="flex flex-column gap-4 pt-2">
+        <div class="flex flex-column gap-2">
+            <label for="cname" class="control-label">Name</label>
+            <input pInputText id="cname" maxlength="80" [(ngModel)]="form.name" placeholder="e.g. Diwali leads" />
+        </div>
+        <div class="flex flex-column gap-2">
+            <label for="cstaff" class="control-label">Staff (those who logged in today are ticked)</label>
+            <p-multiSelect inputId="cstaff" [options]="staffOptions" [(ngModel)]="form.staff" [filter]="true"
+                optionLabel="label" optionValue="value" appendTo="body" display="chip"
+                placeholder="Choose staff" styleClass="w-full"></p-multiSelect>
+            <small class="text-color-secondary">{{ form.staff.length }} chosen</small>
+        </div>
+        <div class="flex flex-column gap-2">
+            <label for="ccount" class="control-label">How many leads to take from the pool (oldest first)</label>
+            <p-inputNumber inputId="ccount" [(ngModel)]="form.count" [min]="1" [max]="maxLeads" [useGrouping]="false"></p-inputNumber>
+        </div>
+        <div class="surface-100 border-round p-3" *ngIf="preview">{{ preview }}</div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button" class="p-button-text" label="Cancel" (click)="showCreate=false"></button>
+        <button pButton type="button" id="startCampaign" label="Start" icon="pi pi-play"
+            [loading]="creating" [disabled]="creating" (click)="create()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [header]="detail ? detail.name : 'Campaign'" [(visible)]="showDetail" [modal]="true"
+    [style]="{ width: '56rem', maxWidth: '95vw' }" [draggable]="false">
+    <p *ngIf="!detail">Loading...</p>
+    <div *ngIf="detail" class="flex flex-column gap-3">
+        <div class="flex flex-wrap gap-4">
+            <div><b>Round</b><div class="text-2xl">{{ detail.round }} of {{ detail.rounds }}</div></div>
+            <div><b>Leads</b><div class="text-2xl">{{ detail.total_leads }}</div></div>
+            <div><b>Finished</b><div class="text-2xl">{{ detail.finished }}</div></div>
+            <div><b>Not called yet</b><div class="text-2xl">{{ detail.untouched }}</div></div>
+            <div><b>Status</b>
+                <div><p-tag [value]="detail.status == 'ACTIVE' ? 'Running' : 'Closed'"
+                    [severity]="detail.status == 'ACTIVE' ? 'success' : 'secondary'"></p-tag></div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2" *ngIf="statusList().length">
+            <p-tag *ngFor="let s of statusList()" [value]="s.status + ': ' + s.count" severity="info"></p-tag>
+        </div>
+
+        <p-table [value]="detail.staff" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Staff</th>
+                    <th>Holding now</th>
+                    <th>Not called yet</th>
+                    <th>Leads received so far</th>
+                    <th>Leads called so far</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-s>
+                <tr>
+                    <td>{{ s.username }}<span *ngIf="s.name" class="text-color-secondary"> ({{ s.name }})</span></td>
+                    <td>{{ s.holding }}</td>
+                    <td>{{ s.untouched }}</td>
+                    <td>{{ s.assigned_total }}</td>
+                    <td>{{ s.worked_total }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <small class="text-color-secondary" *ngIf="detail.status == 'ACTIVE' && !detail.can_next_round">
+            This is the last round: everyone has had every lead.
+        </small>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button" class="p-button-secondary" label="Close campaign" id="closeCampaign"
+            *ngIf="detail && detail.status == 'ACTIVE'" [disabled]="working" (click)="askClose()"></button>
+        <button pButton type="button" label="Start next round" icon="pi pi-forward" id="nextRound"
+            *ngIf="detail && detail.can_next_round" [loading]="working" [disabled]="working" (click)="askNextRound()"></button>
+    </ng-template>
+</p-dialog>

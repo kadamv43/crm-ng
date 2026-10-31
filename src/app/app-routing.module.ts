@@ -181,6 +181,22 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'report-mail',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./report-mail/report-mail.module').then(
+                                    (m) => m.ReportMailModule
+                                ),
+                        },
+                        {
+                            path: 'campaigns',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./campaigns/campaigns.module').then(
+                                    (m) => m.CampaignsModule
+                                ),
+                        },
+                        {
                             path: 'attendance',
                             canActivate: [AuthGuard],
                             loadChildren: () =>

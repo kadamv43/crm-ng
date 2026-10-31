@@ -20,6 +20,8 @@ import { EditorModule } from 'primeng/editor';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AssignedHotLeadsComponent } from './assigned-hot-leads/assigned-hot-leads.component';
 
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+
 @NgModule({
     declarations: [
         HotLeadsBulkCreateComponent,
@@ -29,6 +31,7 @@ import { AssignedHotLeadsComponent } from './assigned-hot-leads/assigned-hot-lea
         AssignedHotLeadsComponent,
     ],
     imports: [
+        ConfirmPopupModule,
         ToolbarModule,
         TableModule,
         CheckboxModule,

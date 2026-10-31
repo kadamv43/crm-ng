@@ -16,6 +16,21 @@ describe('AuthService', () => {
 
     const iso = (ms: number) => new Date(ms).toISOString();
 
+    // A service whose tab wake-up listener is captured instead of attached to
+    // the page, so other services alive in the same test run cannot react first.
+    const makeCapturingListener = () => {
+        service.dispose();
+        let wake: () => void = () => undefined;
+        spyOn(document, 'addEventListener').and.callFake(((type: string, fn: any) => {
+            if (type === 'visibilitychange') {
+                wake = fn;
+            }
+        }) as any);
+        make();
+        return () => wake();
+    };
+
+
     beforeEach(() => {
         localStorage.clear();
         make();
@@ -191,10 +206,11 @@ describe('AuthService', () => {
         }));
 
         it('checks as soon as the tab wakes up (a sleeping computer pauses timers)', fakeAsync(() => {
+            const wake = makeCapturingListener();
             login(60 * MIN);
             localStorage.setItem('tokenExpiresAt', String(Date.now() - MIN)); // time passed while asleep
             spyOnProperty(document, 'hidden', 'get').and.returnValue(false);
-            document.dispatchEvent(new Event('visibilitychange'));
+            wake();
             expect(localStorage.getItem('token')).toBeNull();
             expect(router.navigateByUrl).toHaveBeenCalledWith('auth/login');
         }));
@@ -202,6 +218,7 @@ describe('AuthService', () => {
 
     describe('a hidden tab', () => {
         it('is checked when it becomes visible again, not while it stays hidden', fakeAsync(() => {
+            const wake = makeCapturingListener();
             service.setSession({
                 accessToken: 'tok',
                 expiresAt: iso(Date.now() + 60 * MIN),
@@ -209,10 +226,10 @@ describe('AuthService', () => {
             });
             localStorage.setItem('tokenExpiresAt', String(Date.now() - MIN));
             const hidden = spyOnProperty(document, 'hidden', 'get').and.returnValue(true);
-            document.dispatchEvent(new Event('visibilitychange'));
+            wake();
             expect(localStorage.getItem('token')).toBe('tok'); // still hidden: no reaction
             hidden.and.returnValue(false);
-            document.dispatchEvent(new Event('visibilitychange'));
+            wake();
             expect(localStorage.getItem('token')).toBeNull();
         }));
     });

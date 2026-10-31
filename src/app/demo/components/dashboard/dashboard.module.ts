@@ -13,6 +13,9 @@ import { PendingInvoiceComponent } from './pending-invoice/pending-invoice.compo
 import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 @NgModule({
     imports: [
@@ -28,6 +31,9 @@ import { ToastModule } from 'primeng/toast';
         ChartModule,
         ButtonModule,
         ToastModule,
+        CalendarModule,
+        InputTextModule,
+        InputSwitchModule,
         DashboardsRoutingModule,
     ],
     declarations: [PendingInvoiceComponent, DashboardComponent],
