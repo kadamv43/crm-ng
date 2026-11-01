@@ -27,7 +27,15 @@ export class CampaignListComponent implements OnInit {
     showCreate = false;
     creating = false;
     allStaff: CampaignStaff[] = [];
-    form: { name: string; staff: string[]; count: number | null } = this.emptyForm();
+    selectedFile: File | null = null;
+    form: {
+        name: string;
+        staff: string[];
+        count: number | null;
+        leadSource: 'pool' | 'excel';
+        autoAssignment: boolean;
+        intervalMinutes: number | null;
+    } = this.emptyForm();
     readonly maxLeads = MAX_LEADS;
 
     // one campaign opened
@@ -54,7 +62,14 @@ export class CampaignListComponent implements OnInit {
     }
 
     private emptyForm() {
-        return { name: '', staff: [] as string[], count: 100 as number | null };
+        return {
+            name: '',
+            staff: [] as string[],
+            count: 100 as number | null,
+            leadSource: 'pool' as 'pool' | 'excel',
+            autoAssignment: false,
+            intervalMinutes: 60,
+        };
     }
 
     getCompanies() {
@@ -109,13 +124,13 @@ export class CampaignListComponent implements OnInit {
     openCreate() {
         if (!this.hasCompany) return;
         this.form = this.emptyForm();
+        this.selectedFile = null;
         this.allStaff = [];
         this.showCreate = true;
         this.campaignsService.staff(this.branch()).subscribe({
             next: (res: any) => {
-                this.allStaff = res ?? [];
-                // everyone who logged in today is ticked to start with
-                this.form.staff = this.allStaff.filter((s) => s.present).map((s) => s._id);
+                this.allStaff = (res ?? []).filter((staff) => staff.present);
+                this.form.staff = this.allStaff.map((staff) => staff._id);
             },
             error: (err) => this.fail(err, 'Could not load the staff'),
         });
@@ -130,7 +145,7 @@ export class CampaignListComponent implements OnInit {
             this.optionsFor = this.allStaff;
             this.optionsCache = this.allStaff.map((s) => ({
                 value: s._id,
-                label: `${s.username}${s.name ? ' (' + s.name + ')' : ''}${s.present ? '' : ' - not in today'}`,
+                label: `${s.username}${s.name ? ' (' + s.name + ')' : ''}`,
             }));
         }
         return this.optionsCache;
@@ -149,6 +164,15 @@ export class CampaignListComponent implements OnInit {
     get createProblem(): string {
         if (!this.form.name.trim()) return 'Give the campaign a name.';
         if (this.form.staff.length < 2) return 'Choose at least 2 staff.';
+        if (this.form.autoAssignment) {
+            const interval = Number(this.form.intervalMinutes);
+            if (!Number.isInteger(interval) || interval < 1 || interval > 10080) {
+                return 'Auto assignment interval must be a whole number from 1 to 10080 minutes.';
+            }
+        }
+        if (this.form.leadSource === 'excel') {
+            return this.selectedFile ? '' : 'Choose an Excel file.';
+        }
         const n = Number(this.form.count);
         if (!Number.isInteger(n) || n < 1 || n > this.maxLeads) {
             return `Leads must be a whole number from 1 to ${this.maxLeads}.`;
@@ -164,19 +188,39 @@ export class CampaignListComponent implements OnInit {
             return;
         }
         this.creating = true;
-        this.campaignsService
-            .create(
-                { name: this.form.name.trim(), staff: this.form.staff, count: Number(this.form.count) },
+        const assignment = this.form.autoAssignment
+            ? {
+                auto_assignment: true,
+                interval_minutes: Number(this.form.intervalMinutes),
+            }
+            : {};
+        const request = this.form.leadSource === 'excel'
+            ? this.campaignsService.createFromExcel(
+                {
+                    name: this.form.name.trim(),
+                    staff: this.form.staff,
+                    file: this.selectedFile!,
+                    ...assignment,
+                },
                 this.branch()
             )
-            .subscribe({
+            : this.campaignsService.create(
+                {
+                    name: this.form.name.trim(),
+                    staff: this.form.staff,
+                    count: Number(this.form.count),
+                    ...assignment,
+                },
+                this.branch()
+            );
+        request.subscribe({
                 next: (res: any) => {
                     this.creating = false;
                     this.showCreate = false;
                     this.toast.add({
                         severity: 'success',
                         summary: 'Campaign started',
-                        detail: res.message + (res.skipped ? ` (${res.skipped} no longer in the pool)` : ''),
+                        detail: res.message + (res.skipped ? ` (${res.skipped} skipped)` : ''),
                     });
                     this.load();
                 },
@@ -185,6 +229,30 @@ export class CampaignListComponent implements OnInit {
                     this.fail(err, 'Could not start the campaign');
                 },
             });
+    }
+
+    onExcelSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0] ?? null;
+        if (file && !/\.xlsx?$/i.test(file.name)) {
+            this.selectedFile = null;
+            input.value = '';
+            this.toast.add({ severity: 'warn', summary: 'Choose an Excel file', detail: 'Upload a .xls or .xlsx file.' });
+            return;
+        }
+        this.selectedFile = file;
+    }
+
+    downloadSampleExcel() {
+        import('xlsx').then((xlsx) => {
+            const worksheet = xlsx.utils.json_to_sheet([
+                { mobile: '9876543210', first_name: 'Amit', last_name: 'Sharma' },
+                { mobile: '9876543211', first_name: '', last_name: '' },
+            ], { header: ['mobile', 'first_name', 'last_name'] });
+            const workbook = xlsx.utils.book_new();
+            xlsx.utils.book_append_sheet(workbook, worksheet, 'Campaign leads');
+            xlsx.writeFile(workbook, 'campaign-leads-sample.xlsx');
+        });
     }
 
     // ------------------------------------------------------------- detail

@@ -17,6 +17,7 @@ import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service
 import { ExpectedPaymentFormComponent } from 'src/app/leads/expected-payment-form/expected-payment-form.component';
 import { CallbackFormComponent } from 'src/app/leads/callback-form/callback-form.component';
 import { FreeTrialFormComponent } from 'src/app/leads/free-trial-form/free-trial-form.component';
+import { CampaignsService } from 'src/app/services/campaigns/campaigns.service';
 
 // Keep in sync with MAX_REPORT_EXPORT_ROWS in the backend.
 export const MAX_EXPORT_ROWS = 50000;
@@ -69,6 +70,9 @@ export class ReportListComponent {
     selectedType = '';
     selectedDate: any[] = [];
     searchText = '';
+    campaignReport = false;
+    selectedCampaign = '';
+    campaignOptions: { name: string; code: string }[] = [];
 
     statuses: any[] = [];
 
@@ -121,6 +125,7 @@ export class ReportListComponent {
         private branchService: BranchesService,
         private userService: UsersService,
         private userLeadService: UserLeadsService,
+        private campaignsService: CampaignsService,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService
@@ -206,10 +211,37 @@ export class ReportListComponent {
         this.tlList = [];
         this.employees = [];
         this.getTlList();
+        if (this.campaignReport) this.loadCampaignOptions();
+        this.applyFilters(dt);
+    }
+
+    loadCampaignOptions() {
+        const branch = this.role === 'superadmin'
+            ? this.selectedCompany
+            : this.loggedInUserBranch?._id;
+        this.campaignOptions = [];
+        this.selectedCampaign = '';
+        if (this.role === 'superadmin' && !branch) return;
+        this.campaignsService.options(branch).subscribe({
+            next: (rows: any[]) => {
+                this.campaignOptions = (rows ?? []).map((row) => ({
+                    name: row.name,
+                    code: row._id,
+                }));
+            },
+            error: () => { this.campaignOptions = []; },
+        });
+    }
+
+    onCampaignChange(event: any, dt?: Table) {
+        this.selectedCampaign = event?.value ?? '';
         this.applyFilters(dt);
     }
 
     ngOnInit() {
+        this.campaignReport =
+            this.route.snapshot.data['campaignReport'] === true ||
+            this.route.parent?.snapshot.data['campaignReport'] === true;
         this.route.queryParams.subscribe((data) => {
             this.searchText = data['search'] ?? '';
             this.selectedStatus = data['status'] ?? '';
@@ -239,6 +271,7 @@ export class ReportListComponent {
         if (this.role == 'superadmin') {
             this.getCompanies();
         } else {
+            if (this.campaignReport) this.loadCampaignOptions();
             // this.loadAppointments();
             this.getTlList();
         }
@@ -326,6 +359,7 @@ export class ReportListComponent {
                 if (this.role === 'superadmin' && this.companies?.length > 0) {
                     this.selectedCompany = this.companies[0].code; // Set first option by default
                     this.getTlList();
+                    if (this.campaignReport) this.loadCampaignOptions();
                     this.applyFilters();
                 }
             },
@@ -466,6 +500,13 @@ export class ReportListComponent {
             params['lead_type'] = this.selectedType;
         }
 
+        if (this.campaignReport) {
+            params['campaign_report'] = true;
+            if (this.selectedCampaign) {
+                params['campaign_id'] = this.selectedCampaign;
+            }
+        }
+
         return params;
     }
 
@@ -511,6 +552,7 @@ export class ReportListComponent {
         this.selectTodaysDate(); // back to the default view shown when the page opens
         this.selectedTL = '';
         this.selectedEmployee = '';
+        this.selectedCampaign = '';
         this.queryParams = {};
         if (this.role != 'teamlead') {
             this.employees = [];
@@ -565,9 +607,12 @@ export class ReportListComponent {
 
     // One row per lead, columns in the same order as the report table.
     toExportRow(item: any) {
-        return {
+        const row: Record<string, any> = {
             'Lead Type': item.is_hot_lead ? 'Hot Lead' : 'Normal Lead',
             Username: item.userDetails?.username ?? '',
+            ...(this.campaignReport
+                ? { 'Campaign Name': item.campaign_name ?? '' }
+                : {}),
             Mobile: item.mobile ?? '',
             Name: item.name ?? '',
             City: item.city ?? '',
@@ -588,6 +633,7 @@ export class ReportListComponent {
             'Payment Details': this.formatPaymentDetails(item.payment),
             'Payment Date': this.formatDate(item.payment?.payment_date),
         };
+        return row;
     }
 
     // Exports every lead matching the current filters, not just the visible page.

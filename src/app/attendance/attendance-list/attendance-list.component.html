@@ -26,7 +26,7 @@
                 Who logged in on this day. A day runs from 8:00 AM to 8:00 AM the next morning (India time).
             </p>
             <p-table [value]="rows" dataKey="_id" [loading]="loading" [rowHover]="true"
-                styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                styleClass="p-datatable-gridlines" responsiveLayout="scroll" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
                 <ng-template pTemplate="header">
                     <tr>
                         <th style="min-width: 3rem">#</th>

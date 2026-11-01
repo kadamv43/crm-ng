@@ -32,14 +32,15 @@
             </p>
             <p *ngIf="!hasCompany && !(companiesLoaded && companies.length == 0)">Choose a company first.</p>
 
-            <p-table [value]="campaigns" [loading]="loading" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+            <p-table [value]="campaigns" [loading]="loading" styleClass="p-datatable-gridlines" responsiveLayout="scroll" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Name</th>
                         <th>Status</th>
                         <th>Round</th>
                         <th>Staff</th>
-                        <th>Leads</th>
+                        <th>Unique leads</th>
+                        <th>Total assignments</th>
                         <th>Started by</th>
                         <th>Started on</th>
                         <th></th>
@@ -55,13 +56,14 @@
                         <td>{{ row.round }} of {{ row.rounds }}</td>
                         <td>{{ row.staff }}</td>
                         <td>{{ row.total_leads }}</td>
+                        <td>{{ row.total_assignments }}</td>
                         <td>{{ row.created_by }}</td>
                         <td>{{ row.created_at | date:'d MMM y, h:mm a':'+0530' }}</td>
                         <td><button pButton type="button" class="p-button-text open-campaign" label="Open" (click)="open(row)"></button></td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
-                    <tr><td colspan="8">No campaigns yet.</td></tr>
+                    <tr><td colspan="9">No campaigns yet.</td></tr>
                 </ng-template>
             </p-table>
         </div>
@@ -75,17 +77,57 @@
             <input pInputText id="cname" maxlength="80" [(ngModel)]="form.name" placeholder="e.g. Diwali leads" />
         </div>
         <div class="flex flex-column gap-2">
-            <label for="cstaff" class="control-label">Staff (those who logged in today are ticked)</label>
+            <label for="cstaff" class="control-label">Staff logged in today</label>
             <p-multiSelect inputId="cstaff" [options]="staffOptions" [(ngModel)]="form.staff" [filter]="true"
                 optionLabel="label" optionValue="value" appendTo="body" display="chip"
                 placeholder="Choose staff" styleClass="w-full"></p-multiSelect>
+            <small *ngIf="allStaff.length === 0" class="text-color-secondary">No employees logged in today.</small>
             <small class="text-color-secondary">{{ form.staff.length }} chosen</small>
         </div>
         <div class="flex flex-column gap-2">
+            <label class="control-label">Leads</label>
+            <div class="flex flex-wrap gap-4">
+                <label class="flex align-items-center gap-2">
+                    <input type="radio" name="leadSource" value="pool" [(ngModel)]="form.leadSource" />
+                    <span>Take from pool</span>
+                </label>
+                <label class="flex align-items-center gap-2">
+                    <input type="radio" name="leadSource" value="excel" [(ngModel)]="form.leadSource" />
+                    <span>Upload Excel</span>
+                </label>
+            </div>
+        </div>
+        <div class="flex flex-column gap-2">
+            <label class="control-label">Auto assignment</label>
+            <div class="flex flex-wrap gap-4">
+                <label class="flex align-items-center gap-2">
+                    <input type="radio" name="autoAssignment" [value]="true" [(ngModel)]="form.autoAssignment" />
+                    <span>True</span>
+                </label>
+                <label class="flex align-items-center gap-2">
+                    <input type="radio" name="autoAssignment" [value]="false" [(ngModel)]="form.autoAssignment" />
+                    <span>False</span>
+                </label>
+            </div>
+        </div>
+        <div class="flex flex-column gap-2" *ngIf="form.autoAssignment">
+            <label for="assignmentInterval" class="control-label">Assignment interval (minutes)</label>
+            <p-inputNumber inputId="assignmentInterval" [(ngModel)]="form.intervalMinutes"
+                [min]="1" [max]="10080" [useGrouping]="false"></p-inputNumber>
+        </div>
+        <div class="flex flex-column gap-2" *ngIf="form.leadSource === 'pool'">
             <label for="ccount" class="control-label">How many leads to take from the pool (oldest first)</label>
             <p-inputNumber inputId="ccount" [(ngModel)]="form.count" [min]="1" [max]="maxLeads" [useGrouping]="false"></p-inputNumber>
         </div>
-        <div class="surface-100 border-round p-3" *ngIf="preview">{{ preview }}</div>
+        <div class="flex flex-column gap-2" *ngIf="form.leadSource === 'excel'">
+            <label for="campaignExcel" class="control-label">Excel file</label>
+            <input id="campaignExcel" type="file" accept=".xls,.xlsx" (change)="onExcelSelected($event)" />
+            <small class="text-color-secondary">Columns: mobile (required), first_name and last_name (optional).</small>
+            <button pButton type="button" class="p-button-text p-button-sm align-self-start"
+                label="Download sample Excel" icon="pi pi-download" (click)="downloadSampleExcel()"></button>
+            <small *ngIf="selectedFile" class="text-color-secondary">{{ selectedFile.name }}</small>
+        </div>
+        <div class="surface-100 border-round p-3" *ngIf="preview && form.leadSource === 'pool'">{{ preview }}</div>
     </div>
     <ng-template pTemplate="footer">
         <button pButton type="button" class="p-button-text" label="Cancel" (click)="showCreate=false"></button>
@@ -101,6 +143,7 @@
         <div class="flex flex-wrap gap-4">
             <div><b>Round</b><div class="text-2xl">{{ detail.round }} of {{ detail.rounds }}</div></div>
             <div><b>Leads</b><div class="text-2xl">{{ detail.total_leads }}</div></div>
+            <div><b>Auto assignment</b><div class="text-2xl">{{ detail.auto_assignment ? 'Every ' + detail.interval_minutes + ' min' : 'Off' }}</div></div>
             <div><b>Finished</b><div class="text-2xl">{{ detail.finished }}</div></div>
             <div><b>Not called yet</b><div class="text-2xl">{{ detail.untouched }}</div></div>
             <div><b>Status</b>
@@ -113,7 +156,7 @@
             <p-tag *ngFor="let s of statusList()" [value]="s.status + ': ' + s.count" severity="info"></p-tag>
         </div>
 
-        <p-table [value]="detail.staff" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+        <p-table [value]="detail.staff" styleClass="p-datatable-gridlines" responsiveLayout="scroll" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Staff</th>

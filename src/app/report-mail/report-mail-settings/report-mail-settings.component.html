@@ -92,7 +92,7 @@
     <div class="col-12" *ngIf="ready">
         <div class="card">
             <h5>Recent emails</h5>
-            <p-table [value]="logs" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+            <p-table [value]="logs" styleClass="p-datatable-gridlines" responsiveLayout="scroll" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Hour</th>

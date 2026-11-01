@@ -6,7 +6,7 @@
                 #dt1
                 [value]="invoices"
                 dataKey="id"
-                [lazy]="true"
+
                 [rows]="10"
                 [totalRecords]="totalRecords"
                 [rowHover]="true"
@@ -18,7 +18,9 @@
                     'status'
                 ]"
                 responsiveLayout="scroll"
-            >
+                [paginator]="true" [rowsPerPageOptions]="[10,25,50]"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [showCurrentPageReport]="true">
                 <ng-template pTemplate="caption">
                     <div
                         class="flex justify-content-between flex-column sm:flex-row"

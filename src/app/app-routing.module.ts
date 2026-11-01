@@ -213,6 +213,18 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'campaign-report',
+                            canActivate: [AuthGuard],
+                            data: {
+                                campaignReport: true,
+                                roles: ['superadmin', 'admin', 'teamlead'],
+                            },
+                            loadChildren: () =>
+                                import('./reports/reports.module').then(
+                                    (m) => m.ReportsModule
+                                ),
+                        },
+                        {
                             path: 'change-password',
                             canActivate: [AuthGuard],
                             loadChildren: () =>

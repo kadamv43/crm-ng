@@ -83,6 +83,11 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-file-word',
                             routerLink: ['reports'],
                         },
+                        {
+                            label: 'Campaign Report',
+                            icon: 'pi pi-fw pi-file',
+                            routerLink: ['campaign-report'],
+                        },
                     ],
                 }
             );
@@ -237,6 +242,11 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-file-word',
                             routerLink: ['reports'],
                         },
+                        {
+                            label: 'Campaign Report',
+                            icon: 'pi pi-fw pi-file',
+                            routerLink: ['campaign-report'],
+                        },
                     ],
                 }
             );
@@ -336,6 +346,13 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-file-word',
                             routerLink: ['reports'],
                         },
+                        ...(this.role == 'teamlead'
+                            ? [{
+                                label: 'Campaign Report',
+                                icon: 'pi pi-fw pi-file',
+                                routerLink: ['campaign-report'],
+                            }]
+                            : []),
                     ],
                 }
             );

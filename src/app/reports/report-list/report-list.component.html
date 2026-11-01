@@ -39,8 +39,8 @@
 <div class="grid">
     <div class="col-12">
         <div class="card">
-            <h5>Reports</h5>
-            <p-table #dt1 [value]="appointments" dataKey="id" [rowHover]="true" [lazy]="true" [rows]="10"
+            <h5>{{ campaignReport ? 'Campaign Report' : 'Reports' }}</h5>
+            <p-table #dt1 [value]="appointments" dataKey="id" [rowHover]="true" [lazy]="true"
                 [totalRecords]="totalRecords" styleClass="p-datatable-gridlines" [paginator]="true" [rows]="100"
                 [rowsPerPageOptions]="[50,100,150,200]" (onLazyLoad)="loadAppointments($event)" [globalFilterFields]="[
                     'name',
@@ -67,6 +67,13 @@
                                 selectionMode="range" [showButtonBar]="true" dateFormat="dd/mm/yy"></p-calendar>
                         </div>
 
+                        <div *ngIf="campaignReport" class="col-3">
+                            <p-dropdown [options]="campaignOptions" optionLabel="name" optionValue="code"
+                                placeholder="Select Campaign" [filter]="true" filterBy="name" [showClear]="true"
+                                [(ngModel)]="selectedCampaign" (onChange)="onCampaignChange($event, dt1)"
+                                [style]="{ width: '100%' }" />
+                        </div>
+
                         <div class="col-1">
                             <button pButton type="button" class="p-button-secondary" (click)="clear(dt1)" label="Clear"
                                 icon="pi pi-times"></button>
@@ -87,6 +94,7 @@
                                 <!-- <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter> -->
                             </div>
                         </th>
+                        <th *ngIf="campaignReport" style="min-width: 10rem">Campaign Name</th>
                         <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
@@ -109,7 +117,7 @@
                                 status
                             </div>
                         </th>
-                        <th style="min-width: 7rem">
+                        <th *ngIf="!campaignReport" style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Action
                             </div>
@@ -188,6 +196,7 @@
                         <td *ngIf="customer?.is_hot_lead"> <label style="color: red;">Hot Lead</label></td>
                         <td *ngIf="!customer?.is_hot_lead"> <label style="color: green;">Normal Lead</label></td>
                         <td>{{ customer.userDetails?.username }}</td>
+                        <td *ngIf="campaignReport">{{ customer.campaign_name }}</td>
                         <td>
                             {{ customer.mobile }}
                         </td>
@@ -201,7 +210,7 @@
                             {{ customer.status }}
                         </td>
 
-                        <td class="text-center">
+                        <td *ngIf="!campaignReport" class="text-center">
                             <p-toast></p-toast>
                             <p-dropdown [(ngModel)]="customer.selectedStatus"
                                 (onChange)="showDialog(customer,$event,dt1)" appendTo="body" class="w-full"
@@ -263,12 +272,12 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="18">No Data found.</td>
+                        <td [attr.colspan]="campaignReport ? 18 : 19">No Data found.</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="loadingbody">
                     <tr>
-                        <td colspan="18">
+                        <td [attr.colspan]="campaignReport ? 18 : 19">
                             Loading Appointments data. Please wait.
                         </td>
                     </tr>
