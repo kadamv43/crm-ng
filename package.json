@@ -16,6 +16,7 @@
         "lint": "ng lint",
         "e2e": "ng e2e",
         "dist": "ng build --configuration=production --aot --base-href ./ && electron-builder --win",
+        "dist:dev": "ng build --configuration=development --aot --base-href ./ && electron-builder --win",
         "electron": "ng build --configuration=production --aot --base-href ./ && electron ."
     },
     "build": {
