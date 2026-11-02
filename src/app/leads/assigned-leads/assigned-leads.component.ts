@@ -35,6 +35,8 @@ export class AssignedLeadsComponent {
     selectedStatus = '';
     selectedDate: any = '';
     searchText = '';
+    // admin and superadmin can narrow the list to one person (part of a username)
+    username = '';
     selectedProducts: any[] = [];
 
     isExpanded: boolean = false;
@@ -78,6 +80,10 @@ export class AssignedLeadsComponent {
         this.getUsers();
     }
 
+    get canFilterByUsername(): boolean {
+        return this.role == 'admin' || this.role == 'superadmin';
+    }
+
     logSelection() {
         console.log(this.selectedProducts);
     }
@@ -96,6 +102,10 @@ export class AssignedLeadsComponent {
 
         if (this.selectedStatus != '') {
             params['status'] = this.selectedStatus;
+        }
+
+        if (this.canFilterByUsername && this.username.trim() != '') {
+            params['username'] = this.username.trim();
         }
 
         Object.assign(params, dateRangeParams(this.selectedDate));
@@ -176,6 +186,7 @@ export class AssignedLeadsComponent {
         this.selectedStatus = '';
         this.selectedDate = '';
         this.searchText = '';
+        this.username = '';
         this.filter(dt);
     }
 

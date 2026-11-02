@@ -23,6 +23,16 @@ const staff = [
     { _id: 's2', username: 'riya', name: 'Riya S', present: true },
     { _id: 's3', username: 'zed', name: '', present: false },
 ];
+// a complete form, as the page itself builds it
+const full = (over: any = {}) => ({
+    name: '',
+    staff: [] as string[],
+    count: 100 as any,
+    leadSource: 'pool',
+    leadType: 'NORMAL',
+    moveStatuses: ['FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'NOT_REACHABLE', 'EXPECTED_PAYMENT'],
+    ...over,
+});
 const detail = (over: any = {}) => ({
     _id: 'c2', name: 'Diwali', status: 'ACTIVE', round: 2, rounds: 10, total_leads: 100,
     finished: 4, untouched: 7, can_next_round: true, statuses: { FRESH: 7, RINGING: 80, PAYMENT_DONE: 4 },
@@ -125,7 +135,8 @@ describe('CampaignListComponent', () => {
             expect(component.preview).toBe('101 leads over 2 staff: 50 or 51 each. After 2 rounds everyone has had every lead.');
             component.form.count = 100;
             expect(component.preview).toContain('50 each');
-            expect(component.staffOptions[2].label).toContain('not in today');
+            // only people who logged in today can be chosen
+            expect(component.staffOptions.map((o: any) => o.value)).toEqual(['s1', 's2']);
         });
 
         it('the problems are named and nothing is sent', () => {
@@ -134,14 +145,14 @@ describe('CampaignListComponent', () => {
                 component.create();
                 return api.create.calls.count();
             };
-            component.form = { name: '', staff: ['s1', 's2'], count: 10 };
+            component.form = full({ name: '', staff: ['s1', 's2'], count: 10 });
             expect(send()).toBe(0);
             expect(lastToast().detail).toContain('name');
-            component.form = { name: 'x', staff: ['s1'], count: 10 };
+            component.form = full({ name: 'x', staff: ['s1'], count: 10 });
             expect(send()).toBe(0);
             expect(lastToast().detail).toContain('2 staff');
             for (const bad of [0, -3, 1.5, 10001, null, NaN]) {
-                component.form = { name: 'x', staff: ['s1', 's2'], count: bad as any };
+                component.form = full({ name: 'x', staff: ['s1', 's2'], count: bad as any });
                 expect(send()).toBe(0);
             }
             expect(component.preview).toBe('');
@@ -153,7 +164,10 @@ describe('CampaignListComponent', () => {
             component.form.name = '  Spring  ';
             component.form.count = 40;
             component.create();
-            expect(api.create).toHaveBeenCalledWith({ name: 'Spring', staff: ['s1', 's2'], count: 40 }, undefined);
+            expect(api.create).toHaveBeenCalledWith(
+                { name: 'Spring', staff: ['s1', 's2'], count: 40, move_statuses: full().moveStatuses, lead_type: 'NORMAL' },
+                undefined
+            );
             await settle();
             expect(component.showCreate).toBeFalse();
             expect(lastToast().severity).toBe('success');
@@ -161,7 +175,7 @@ describe('CampaignListComponent', () => {
         });
 
         it('a second click while it is working sends nothing more', async () => {
-            component.form = { name: 'x', staff: ['s1', 's2'], count: 5 };
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5 });
             component.create();
             component.create();
             expect(api.create).toHaveBeenCalledTimes(1);
@@ -171,7 +185,7 @@ describe('CampaignListComponent', () => {
         it('a refusal (for example the name is taken) is shown and the dialog stays open', async () => {
             api.create.and.returnValue(throwError(() => ({ error: { message: 'A campaign with this name already exists' } })));
             component.showCreate = true;
-            component.form = { name: 'x', staff: ['s1', 's2'], count: 5 };
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5 });
             component.create();
             expect(lastToast().detail).toBe('A campaign with this name already exists');
             expect(component.showCreate).toBeTrue();
@@ -180,10 +194,257 @@ describe('CampaignListComponent', () => {
 
         it('mentions leads that were no longer in the pool', async () => {
             api.create.and.callFake((() => respond({ message: '3 leads handed to 2 staff', skipped: 1 })) as any);
-            component.form = { name: 'x', staff: ['s1', 's2'], count: 4 };
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 4 });
             component.create();
             await settle();
-            expect(lastToast().detail).toContain('1 no longer in the pool');
+            expect(lastToast().detail).toContain('1 skipped');
+        });
+    });
+
+    describe('choosing which statuses move to the next round', () => {
+        beforeEach(() => setup());
+
+        it('starts with everything except the finished statuses ticked', () => {
+            component.openCreate();
+            expect(component.form.moveStatuses).toEqual([
+                'FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'NOT_REACHABLE', 'EXPECTED_PAYMENT',
+            ]);
+            expect(component.form.moveStatuses).not.toContain('PAYMENT_DONE');
+            expect(component.form.moveStatuses).not.toContain('DEAD');
+            expect(component.form.moveStatuses).not.toContain('NOT_INTERESTED');
+        });
+
+        it('offers every status by the name staff see', () => {
+            expect(component.statusOptions.map((o: any) => o.value)).toEqual([
+                'FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'DEAD',
+                'NOT_REACHABLE', 'NOT_INTERESTED', 'EXPECTED_PAYMENT', 'PAYMENT_DONE',
+            ]);
+            expect(component.statusLabel('FRESH')).toBe('Not called yet');
+            expect(component.statusLabel('PAYMENT_DONE')).toBe('Payment done');
+            expect(component.statusLabel('SOMETHING_NEW')).toBe('SOMETHING_NEW');
+        });
+
+        it('the chosen statuses are sent with a pool campaign', async () => {
+            component.openCreate();
+            await settle();
+            component.form.name = 'Spring';
+            component.form.moveStatuses = ['RINGING', 'DEAD'];
+            component.create();
+            expect(api.create.calls.mostRecent().args[0].move_statuses).toEqual(['RINGING', 'DEAD']);
+            await settle();
+        });
+
+        it('and with an Excel campaign', async () => {
+            const createFromExcel = jasmine.createSpy('createFromExcel').and.callFake(() => respond({ message: 'ok' }));
+            (api as any).createFromExcel = createFromExcel;
+            component.openCreate();
+            await settle();
+            component.form.name = 'Sheet';
+            component.form.leadSource = 'excel';
+            component.form.moveStatuses = ['CALLBACK'];
+            component.selectedFile = new File(['x'], 'leads.xlsx');
+            component.create();
+            expect(createFromExcel.calls.mostRecent().args[0].move_statuses).toEqual(['CALLBACK']);
+            await settle();
+        });
+
+        it('choosing none is refused and nothing is sent', () => {
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5, moveStatuses: [] });
+            api.create.calls.reset();
+            component.create();
+            expect(api.create).not.toHaveBeenCalled();
+            expect(lastToast().detail).toContain('at least one status');
+        });
+
+        it('a finished status can be chosen on purpose', () => {
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5, moveStatuses: ['PAYMENT_DONE'] });
+            expect(component.createProblem).toBe('');
+        });
+
+        it('the opened campaign says which statuses move on, in plain words', async () => {
+            api.detail.and.callFake((() => respond(detail({ move_statuses: ['RINGING', 'PAYMENT_DONE', 'FRESH'] }))) as any);
+            component.open(rows[0]);
+            await settle();
+            const t = text();
+            expect(t).toContain('Moves to the next round: Ringing, Payment done, Not called yet');
+        });
+
+        it('an older campaign without the setting shows nothing odd', async () => {
+            component.open(rows[0]);
+            await settle();
+            expect(text()).not.toContain('Moves to the next round');
+            expect(component.moveStatusesLabel(undefined)).toBe('');
+        });
+
+        it('a refusal from the server is shown', async () => {
+            api.create.and.returnValue(throwError(() => ({ error: { message: 'Unknown status: LOST' } })));
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5 });
+            component.create();
+            expect(lastToast().detail).toBe('Unknown status: LOST');
+        });
+    });
+
+    describe('hot lead campaigns', () => {
+        beforeEach(() => setup());
+
+        const hotRows = [
+            { ...rows[0], lead_type: 'HOT' },
+            { ...rows[1], lead_type: 'NORMAL' },
+        ];
+
+        it('the form starts on Normal and offers Hot', async () => {
+            component.openCreate();
+            await settle();
+            expect(component.form.leadType).toBe('NORMAL');
+            const radios = Array.from(document.querySelectorAll('input[name="leadType"]')) as HTMLInputElement[];
+            expect(radios.map((r) => r.value)).toEqual(['NORMAL', 'HOT']);
+            expect(text()).toContain('Lead type');
+            expect(text()).toContain('Take from pool');
+            expect(text()).not.toContain('Leads come from the hot leads pool');
+        });
+
+        it('choosing Hot says where the leads come from and renames the pool choices', async () => {
+            component.openCreate();
+            await settle();
+            component.form.leadType = 'HOT';
+            fixture.detectChanges();
+            await settle();
+            const t = text();
+            expect(t).toContain('Leads come from the hot leads pool');
+            expect(t).toContain('Take from hot pool');
+            expect(t).toContain('How many leads to take from the hot pool');
+        });
+
+        it('a hot pool campaign is sent as HOT', async () => {
+            component.openCreate();
+            await settle();
+            component.form.name = 'Hot spring';
+            component.form.leadType = 'HOT';
+            component.create();
+            expect(api.create.calls.mostRecent().args[0].lead_type).toBe('HOT');
+            await settle();
+        });
+
+        it('a hot Excel campaign is sent as HOT', async () => {
+            const createFromExcel = jasmine.createSpy('createFromExcel').and.callFake(() => respond({ message: 'ok' }));
+            (api as any).createFromExcel = createFromExcel;
+            component.openCreate();
+            await settle();
+            component.form.name = 'Hot sheet';
+            component.form.leadType = 'HOT';
+            component.form.leadSource = 'excel';
+            component.selectedFile = new File(['x'], 'leads.xlsx');
+            component.create();
+            expect(createFromExcel.calls.mostRecent().args[0].lead_type).toBe('HOT');
+            await settle();
+        });
+
+        it('a normal campaign is sent as NORMAL', async () => {
+            component.openCreate();
+            await settle();
+            component.form.name = 'Plain';
+            component.create();
+            expect(api.create.calls.mostRecent().args[0].lead_type).toBe('NORMAL');
+            await settle();
+        });
+
+        it('opening the form again starts on Normal, not on the last choice', async () => {
+            component.openCreate();
+            await settle();
+            component.form.leadType = 'HOT';
+            component.openCreate();
+            await settle();
+            expect(component.form.leadType).toBe('NORMAL');
+        });
+
+        it('the list shows each campaign\'s type; older ones without a type read as Normal', async () => {
+            api.list.and.callFake((() => respond([...hotRows, { ...rows[1], _id: 'c0', name: 'Ancient' }])) as any);
+            component.load();
+            await settle();
+            const tags = Array.from(document.querySelectorAll('p-tag.campaign-type')).map((e) => e.textContent.trim());
+            expect(tags).toEqual(['Hot', 'Normal', 'Normal']);
+            expect(text()).toContain('Type');
+        });
+
+        it('the opened campaign says what kind of leads it holds', async () => {
+            api.detail.and.callFake((() => respond(detail({ lead_type: 'HOT' }))) as any);
+            component.open(rows[0]);
+            await settle();
+            expect(document.querySelector('#detailType').textContent.trim()).toBe('Hot leads');
+        });
+
+        it('and an older campaign without a type reads as Normal', async () => {
+            component.open(rows[0]);
+            await settle();
+            expect(document.querySelector('#detailType').textContent.trim()).toBe('Normal leads');
+            expect(component.typeLabel(undefined)).toBe('Normal');
+            expect(component.typeLabel('HOT')).toBe('Hot');
+        });
+
+        it('a refusal about an empty hot pool is shown', async () => {
+            api.create.and.returnValue(throwError(() => ({ error: { message: 'There are no hot leads in the pool to take' } })));
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5, leadType: 'HOT' });
+            component.create();
+            expect(lastToast().detail).toBe('There are no hot leads in the pool to take');
+            expect(component.creating).toBeFalse();
+        });
+    });
+
+    describe('rounds are started by hand only', () => {
+        beforeEach(() => setup());
+
+        it('the new-campaign form has no auto assignment or interval', async () => {
+            component.openCreate();
+            await settle();
+            const t = text();
+            expect(t).not.toContain('Auto assignment');
+            expect(t).not.toContain('Assignment interval');
+            expect(document.querySelector('#assignmentInterval')).toBeNull();
+            expect(document.querySelector('input[name="autoAssignment"]')).toBeNull();
+            expect('autoAssignment' in component.form).toBeFalse();
+            expect('intervalMinutes' in component.form).toBeFalse();
+        });
+
+        it('a pool campaign is sent without any automatic settings', async () => {
+            component.openCreate();
+            await settle();
+            component.form.name = 'Plain';
+            component.create();
+            const body = api.create.calls.mostRecent().args[0] as any;
+            expect(Object.keys(body).sort()).toEqual(['count', 'lead_type', 'move_statuses', 'name', 'staff']);
+            await settle();
+        });
+
+        it('an Excel campaign is sent without any automatic settings', async () => {
+            const createFromExcel = jasmine.createSpy('createFromExcel').and.callFake(() => respond({ message: 'ok' }));
+            (api as any).createFromExcel = createFromExcel;
+            component.openCreate();
+            await settle();
+            component.form.name = 'Sheet';
+            component.form.leadSource = 'excel';
+            component.selectedFile = new File(['x'], 'leads.xlsx');
+            component.create();
+            const input = createFromExcel.calls.mostRecent().args[0];
+            expect(Object.keys(input).sort()).toEqual(['file', 'lead_type', 'move_statuses', 'name', 'staff']);
+            await settle();
+        });
+
+        it('an opened campaign shows no auto-assignment tile, but still has the button for the next round', async () => {
+            api.detail.and.callFake((() => respond(detail({ auto_assignment: true, interval_minutes: 5 }))) as any);
+            component.open(rows[0]);
+            await settle();
+            expect(text()).not.toContain('Auto assignment');
+            expect(text()).not.toContain('Every 5 min');
+            expect(document.querySelector('#nextRound')).toBeTruthy();
+        });
+
+        it('pressing the button asks first and then starts exactly one round', async () => {
+            component.open(rows[0]);
+            await settle();
+            component.askNextRound();
+            expect(confirm).toHaveBeenCalledTimes(1);
+            expect(api.nextRound).toHaveBeenCalledTimes(1);
+            await settle();
         });
     });
 
@@ -272,7 +533,7 @@ describe('CampaignListComponent', () => {
             component.openCreate();
             expect(api.staff).toHaveBeenCalledWith('CA');
             await settle();
-            component.form = { name: 'x', staff: ['s1', 's2'], count: 5 };
+            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5 });
             component.create();
             expect(api.create).toHaveBeenCalledWith(jasmine.anything(), 'CA');
             await settle();

@@ -6,6 +6,24 @@ import { CampaignsService, CampaignStaff } from 'src/app/services/campaigns/camp
 
 export const MAX_LEADS = 10000;
 
+// The statuses a lead can be in, and the ones that move to the next person
+// unless the admin chooses otherwise (everything but the finished ones).
+export const STATUS_OPTIONS = [
+    { value: 'FRESH', label: 'Not called yet' },
+    { value: 'CALLBACK', label: 'Callback' },
+    { value: 'FREE_TRIAL', label: 'Free trial' },
+    { value: 'RINGING', label: 'Ringing' },
+    { value: 'SWITCHED_OFF', label: 'Switched off' },
+    { value: 'DEAD', label: 'Dead' },
+    { value: 'NOT_REACHABLE', label: 'Not reachable' },
+    { value: 'NOT_INTERESTED', label: 'Not interested' },
+    { value: 'EXPECTED_PAYMENT', label: 'Expected payment' },
+    { value: 'PAYMENT_DONE', label: 'Payment done' },
+];
+export const DEFAULT_MOVE_STATUSES = STATUS_OPTIONS.map((s) => s.value).filter(
+    (s) => !['PAYMENT_DONE', 'NOT_INTERESTED', 'DEAD'].includes(s)
+);
+
 // Lead rotation: leads are split between the staff who are in today, and each
 // round every batch moves on to the next person.
 @Component({
@@ -33,10 +51,11 @@ export class CampaignListComponent implements OnInit {
         staff: string[];
         count: number | null;
         leadSource: 'pool' | 'excel';
-        autoAssignment: boolean;
-        intervalMinutes: number | null;
+        leadType: 'NORMAL' | 'HOT';
+        moveStatuses: string[];
     } = this.emptyForm();
     readonly maxLeads = MAX_LEADS;
+    readonly statusOptions = STATUS_OPTIONS;
 
     // one campaign opened
     showDetail = false;
@@ -67,9 +86,23 @@ export class CampaignListComponent implements OnInit {
             staff: [] as string[],
             count: 100 as number | null,
             leadSource: 'pool' as 'pool' | 'excel',
-            autoAssignment: false,
-            intervalMinutes: 60,
+            leadType: 'NORMAL' as 'NORMAL' | 'HOT',
+            moveStatuses: [...DEFAULT_MOVE_STATUSES],
         };
+    }
+
+    /** "Hot" or "Normal", as shown in the list and the opened campaign */
+    typeLabel(type: string | undefined): string {
+        return type === 'HOT' ? 'Hot' : 'Normal';
+    }
+
+    /** the name staff see for a status */
+    statusLabel(status: string): string {
+        return STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
+    }
+
+    moveStatusesLabel(statuses: string[] | undefined): string {
+        return (statuses ?? []).map((s) => this.statusLabel(s)).join(', ');
     }
 
     getCompanies() {
@@ -164,11 +197,8 @@ export class CampaignListComponent implements OnInit {
     get createProblem(): string {
         if (!this.form.name.trim()) return 'Give the campaign a name.';
         if (this.form.staff.length < 2) return 'Choose at least 2 staff.';
-        if (this.form.autoAssignment) {
-            const interval = Number(this.form.intervalMinutes);
-            if (!Number.isInteger(interval) || interval < 1 || interval > 10080) {
-                return 'Auto assignment interval must be a whole number from 1 to 10080 minutes.';
-            }
+        if (this.form.moveStatuses.length === 0) {
+            return 'Choose at least one status to move to the next round.';
         }
         if (this.form.leadSource === 'excel') {
             return this.selectedFile ? '' : 'Choose an Excel file.';
@@ -188,12 +218,10 @@ export class CampaignListComponent implements OnInit {
             return;
         }
         this.creating = true;
-        const assignment = this.form.autoAssignment
-            ? {
-                auto_assignment: true,
-                interval_minutes: Number(this.form.intervalMinutes),
-            }
-            : {};
+        const assignment = {
+            move_statuses: this.form.moveStatuses,
+            lead_type: this.form.leadType,
+        };
         const request = this.form.leadSource === 'excel'
             ? this.campaignsService.createFromExcel(
                 {

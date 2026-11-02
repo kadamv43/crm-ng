@@ -43,7 +43,13 @@ export class CampaignsService {
     }
 
     create(
-        body: { name: string; staff: string[]; count: number; auto_assignment?: boolean; interval_minutes?: number },
+        body: {
+            name: string;
+            staff: string[];
+            count: number;
+            move_statuses?: string[];
+            lead_type?: 'NORMAL' | 'HOT';
+        },
         branch?: string
     ) {
         return this.httpService.post(this.url('', branch), body);
@@ -54,19 +60,21 @@ export class CampaignsService {
             name: string;
             staff: string[];
             file: File;
-            auto_assignment?: boolean;
-            interval_minutes?: number;
+            move_statuses?: string[];
+            lead_type?: 'NORMAL' | 'HOT';
         },
         branch?: string
     ) {
         const form = new FormData();
+        if (input.lead_type) {
+            form.append('lead_type', input.lead_type);
+        }
+        if (input.move_statuses) {
+            form.append('move_statuses', JSON.stringify(input.move_statuses));
+        }
         form.append('name', input.name);
         form.append('staff', JSON.stringify(input.staff));
         form.append('file', input.file);
-        form.append('auto_assignment', String(input.auto_assignment ?? false));
-        if (input.interval_minutes !== undefined) {
-            form.append('interval_minutes', String(input.interval_minutes));
-        }
         return this.httpService.post(this.url('import-excel', branch), form);
     }
 
