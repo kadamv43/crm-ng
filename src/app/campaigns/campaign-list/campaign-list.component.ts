@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import * as FileSaver from 'file-saver';
 import { AuthService } from 'src/app/services/auth.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { CampaignsService, CampaignStaff } from 'src/app/services/campaigns/campaigns.service';
+import { CommonService } from 'src/app/services/common/common.service';
+import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 
 export const MAX_LEADS = 10000;
 
@@ -61,13 +64,16 @@ export class CampaignListComponent implements OnInit {
     showDetail = false;
     detail: any = null;
     working = false;
+    exportingCampaignId: string | null = null;
 
     constructor(
         private campaignsService: CampaignsService,
         private branchService: BranchesService,
         private authService: AuthService,
         private toast: MessageService,
-        private confirm: ConfirmationService
+        private confirm: ConfirmationService,
+        private dashboardService: DashboardService,
+        private commonService: CommonService
     ) {}
 
     ngOnInit() {
@@ -289,6 +295,93 @@ export class CampaignListComponent implements OnInit {
         this.showDetail = true;
         this.detail = null;
         this.loadDetail(row._id);
+    }
+
+    downloadReport(row: any) {
+        if (this.exportingCampaignId) return;
+
+        const params: Record<string, any> = {
+            user: localStorage.getItem('userId'),
+            campaign_report: true,
+            campaign_id: row._id,
+            excel: true,
+        };
+        const branch = this.branch();
+        if (branch) params['branch'] = branch;
+
+        this.exportingCampaignId = row._id;
+        const query = this.commonService.getHttpParamsByJson(params);
+        this.dashboardService.getReports(query).subscribe({
+            next: (res: any) => {
+                const records = res?.data ?? [];
+                import('xlsx')
+                    .then((xlsx) => {
+                        const workbook = xlsx.utils.book_new();
+                        const reportedRounds = records.map(
+                            (item: any) => Number(item.campaign_round) || 1
+                        );
+                        const lastRound = Math.max(
+                            Number(row.round) || 1,
+                            ...reportedRounds
+                        );
+                        const rounds = Array.from(
+                            { length: lastRound },
+                            (_, index) => index + 1
+                        );
+
+                        rounds.forEach((round: number) => {
+                            const rows = records
+                                .filter(
+                                    (item: any) =>
+                                        (Number(item.campaign_round) || 1) === round
+                                )
+                                .map((item: any) => this.toCampaignReportRow(item, round));
+                            const worksheet = xlsx.utils.json_to_sheet(rows, {
+                                header: Object.keys(this.toCampaignReportRow({})),
+                            });
+                            xlsx.utils.book_append_sheet(workbook, worksheet, `Round ${round}`);
+                        });
+
+                        const buffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+                        const blob = new Blob([buffer], {
+                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+                        });
+                        const safeName = String(row.name || 'campaign').replace(/[^a-z0-9-_]+/gi, '-');
+                        FileSaver.saveAs(blob, `${safeName}-report-${Date.now()}.xlsx`);
+                    })
+                    .catch(() => this.fail(null, 'Could not create the Excel report'))
+                    .finally(() => (this.exportingCampaignId = null));
+            },
+            error: (err) => {
+                this.exportingCampaignId = null;
+                this.fail(err, 'Could not download the campaign report');
+            },
+        });
+    }
+
+    private toCampaignReportRow(item: any, round = Number(item.campaign_round) || 1) {
+        return {
+            Round: round,
+            'Lead Type': item.is_hot_lead ? 'Hot Lead' : 'Normal Lead',
+            'Assigned Staff': item.userDetails?.username ?? '',
+            'Campaign Name': item.campaign_name ?? '',
+            Mobile: item.mobile ?? '',
+            Name: item.name ?? '',
+            City: item.city ?? '',
+            Status: item.status ?? '',
+            'Created Date': item.created_at ?? '',
+            'Free Trial Investment': item.free_trial?.investment ?? '',
+            'Free Trial Date': item.free_trial?.free_trial_date ?? '',
+            'Free Trial Remark': item.free_trial?.remark ?? '',
+            'Free Trial Options': Array.isArray(item.free_trial?.options)
+                ? item.free_trial.options.join(', ')
+                : item.free_trial?.options ?? '',
+            'Expected Payment': item.follow_up?.expected_payment ?? '',
+            'Expected Payment Date': item.follow_up?.expected_payment_date ?? '',
+            'Paid Amount': item.payment?.payment_amount ?? '',
+            'Payment Mode': item.payment?.payment_mode ?? '',
+            'Payment Date': item.payment?.payment_date ?? '',
+        };
     }
 
     private loadDetail(id: string) {

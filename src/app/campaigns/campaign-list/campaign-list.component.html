@@ -64,7 +64,15 @@
                         <td>{{ row.total_assignments }}</td>
                         <td>{{ row.created_by }}</td>
                         <td>{{ row.created_at | date:'d MMM y, h:mm a':'+0530' }}</td>
-                        <td><button pButton type="button" class="p-button-text open-campaign" label="Open" (click)="open(row)"></button></td>
+                        <td>
+                            <div class="flex flex-wrap gap-2">
+                                <button pButton type="button" class="p-button-text open-campaign" label="Open" (click)="open(row)"></button>
+                                <button pButton type="button" class="p-button-text campaign-report"
+                                    [label]="exportingCampaignId === row._id ? 'Preparing...' : 'Report'"
+                                    icon="pi pi-download" [loading]="exportingCampaignId === row._id"
+                                    [disabled]="!!exportingCampaignId" (click)="downloadReport(row)"></button>
+                            </div>
+                        </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
