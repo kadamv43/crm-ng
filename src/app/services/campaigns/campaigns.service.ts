@@ -47,7 +47,6 @@ export class CampaignsService {
             name: string;
             staff: string[];
             count: number;
-            move_statuses?: string[];
             lead_type?: 'NORMAL' | 'HOT';
         },
         branch?: string
@@ -60,7 +59,6 @@ export class CampaignsService {
             name: string;
             staff: string[];
             file: File;
-            move_statuses?: string[];
             lead_type?: 'NORMAL' | 'HOT';
         },
         branch?: string
@@ -69,17 +67,15 @@ export class CampaignsService {
         if (input.lead_type) {
             form.append('lead_type', input.lead_type);
         }
-        if (input.move_statuses) {
-            form.append('move_statuses', JSON.stringify(input.move_statuses));
-        }
         form.append('name', input.name);
         form.append('staff', JSON.stringify(input.staff));
         form.append('file', input.file);
         return this.httpService.post(this.url('import-excel', branch), form);
     }
 
-    nextRound(id: string, branch?: string) {
-        return this.httpService.post(this.url(`${encodeURIComponent(id)}/next-round`, branch), {});
+    // the staff and the statuses are chosen again for every round
+    nextRound(id: string, body: { staff: string[]; move_statuses: string[] }, branch?: string) {
+        return this.httpService.post(this.url(`${encodeURIComponent(id)}/next-round`, branch), body);
     }
 
     close(id: string, branch?: string) {

@@ -10,6 +10,7 @@ import { CampaignsModule } from '../campaigns.module';
 import { CampaignsService } from 'src/app/services/campaigns/campaigns.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { DashboardService } from 'src/app/services/dashboard/dashboard.service';
 
 const respond = (value: any) => of(value).pipe(delay(0));
 const pause = (ms = 20) => new Promise((r) => setTimeout(r, ms));
@@ -30,7 +31,6 @@ const full = (over: any = {}) => ({
     count: 100 as any,
     leadSource: 'pool',
     leadType: 'NORMAL',
-    moveStatuses: ['FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'NOT_REACHABLE', 'EXPECTED_PAYMENT'],
     ...over,
 });
 const detail = (over: any = {}) => ({
@@ -66,6 +66,7 @@ describe('CampaignListComponent', () => {
             providers: [
                 { provide: CampaignsService, useValue: api },
                 { provide: BranchesService, useValue: branches },
+                { provide: DashboardService, useValue: jasmine.createSpyObj('DashboardService', ['getReports']) },
                 { provide: AuthService, useValue: { getRole: () => role } },
                 { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
                 { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
@@ -94,9 +95,11 @@ describe('CampaignListComponent', () => {
 
         it('shows each campaign with its round, staff, leads and who started it', () => {
             expect(text()).toContain('Diwali');
-            expect(text()).toContain('2 of 10');
+            expect(text()).not.toContain('2 of 10');
+            const diwali = Array.from(document.querySelectorAll('tbody tr')).find((r) => r.textContent.includes('Diwali'));
+            expect(Array.from(diwali.querySelectorAll('td')).map((c) => c.textContent.trim())).toContain('2'); // the round
             expect(text()).toContain('Old one');
-            expect(text()).toContain('3 of 3');
+            expect(text()).not.toContain('3 of 3');
             expect(text()).toContain('Running');
             expect(text()).toContain('Closed');
             expect(api.list).toHaveBeenCalledWith(undefined);
@@ -165,7 +168,7 @@ describe('CampaignListComponent', () => {
             component.form.count = 40;
             component.create();
             expect(api.create).toHaveBeenCalledWith(
-                { name: 'Spring', staff: ['s1', 's2'], count: 40, move_statuses: full().moveStatuses, lead_type: 'NORMAL' },
+                { name: 'Spring', staff: ['s1', 's2'], count: 40, lead_type: 'NORMAL' },
                 undefined
             );
             await settle();
@@ -201,86 +204,190 @@ describe('CampaignListComponent', () => {
         });
     });
 
-    describe('choosing which statuses move to the next round', () => {
+    describe('the status choice is not part of creating a campaign', () => {
         beforeEach(() => setup());
 
-        it('starts with everything except the finished statuses ticked', () => {
-            component.openCreate();
-            expect(component.form.moveStatuses).toEqual([
-                'FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'NOT_REACHABLE', 'EXPECTED_PAYMENT',
-            ]);
-            expect(component.form.moveStatuses).not.toContain('PAYMENT_DONE');
-            expect(component.form.moveStatuses).not.toContain('DEAD');
-            expect(component.form.moveStatuses).not.toContain('NOT_INTERESTED');
-        });
-
-        it('offers every status by the name staff see', () => {
-            expect(component.statusOptions.map((o: any) => o.value)).toEqual([
-                'FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'DEAD',
-                'NOT_REACHABLE', 'NOT_INTERESTED', 'EXPECTED_PAYMENT', 'PAYMENT_DONE',
-            ]);
-            expect(component.statusLabel('FRESH')).toBe('Not called yet');
-            expect(component.statusLabel('PAYMENT_DONE')).toBe('Payment done');
-            expect(component.statusLabel('SOMETHING_NEW')).toBe('SOMETHING_NEW');
-        });
-
-        it('the chosen statuses are sent with a pool campaign', async () => {
+        it('the new-campaign form has no status dropdown', async () => {
             component.openCreate();
             await settle();
-            component.form.name = 'Spring';
-            component.form.moveStatuses = ['RINGING', 'DEAD'];
-            component.create();
-            expect(api.create.calls.mostRecent().args[0].move_statuses).toEqual(['RINGING', 'DEAD']);
-            await settle();
+            expect(document.querySelector('#cmove')).toBeNull();
+            expect(text()).not.toContain('Move to the next round');
+            expect('moveStatuses' in component.form).toBeFalse();
         });
 
-        it('and with an Excel campaign', async () => {
-            const createFromExcel = jasmine.createSpy('createFromExcel').and.callFake(() => respond({ message: 'ok' }));
-            (api as any).createFromExcel = createFromExcel;
+        it('but still has the staff dropdown', async () => {
             component.openCreate();
             await settle();
-            component.form.name = 'Sheet';
-            component.form.leadSource = 'excel';
-            component.form.moveStatuses = ['CALLBACK'];
-            component.selectedFile = new File(['x'], 'leads.xlsx');
+            expect(document.querySelector('p-multiselect[inputid="cstaff"]')).toBeTruthy();
+        });
+
+        it('a campaign is created without any statuses', async () => {
+            component.openCreate();
+            await settle();
+            component.form.name = 'Plain';
             component.create();
-            expect(createFromExcel.calls.mostRecent().args[0].move_statuses).toEqual(['CALLBACK']);
+            expect('move_statuses' in (api.create.calls.mostRecent().args[0] as any)).toBeFalse();
+            await settle();
+        });
+    });
+
+    describe('the next-round window', () => {
+        beforeEach(async () => {
+            await setup();
+            component.open(rows[0]);
             await settle();
         });
 
-        it('choosing none is refused and nothing is sent', () => {
-            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5, moveStatuses: [] });
-            api.create.calls.reset();
-            component.create();
-            expect(api.create).not.toHaveBeenCalled();
+        const open = async () => {
+            component.askNextRound();
+            await settle();
+        };
+
+        it('the button opens a window with a staff dropdown and a status dropdown', async () => {
+            document.querySelector<HTMLButtonElement>('#nextRound').click();
+            await settle();
+            expect(component.showRound).toBeTrue();
+            expect(document.querySelector('p-multiselect[inputid="rstatus"]')).toBeTruthy();
+            expect(document.querySelector('p-multiselect[inputid="rstaff"]')).toBeTruthy();
+            expect(text()).toContain('Statuses that move on');
+            expect(text()).toContain('Staff for this round');
+        });
+
+        it('nothing is sent just by opening it', async () => {
+            await open();
+            expect(api.nextRound).not.toHaveBeenCalled();
+            expect(confirm).not.toHaveBeenCalled();
+        });
+
+        it('starts with everyone who is in today ticked, and the last statuses used', async () => {
+            api.detail.and.callFake((() => respond(detail({ move_statuses: ['RINGING', 'CALLBACK'] }))) as any);
+            component.open(rows[0]);
+            await settle();
+            await open();
+            expect(api.staff).toHaveBeenCalledWith(undefined);
+            expect(component.roundStaff).toEqual(['s1', 's2']); // zed is not in today
+            expect(component.roundStaffOptions.map((o: any) => o.value)).toEqual(['s1', 's2']);
+            expect(component.roundStatuses).toEqual(['RINGING', 'CALLBACK']);
+        });
+
+        it('with no earlier choice it starts from the usual statuses', async () => {
+            api.detail.and.callFake((() => respond(detail({ move_statuses: undefined }))) as any);
+            component.open(rows[0]);
+            await settle();
+            await open();
+            expect(component.roundStatuses).toEqual(['FRESH', 'CALLBACK', 'FREE_TRIAL', 'RINGING', 'SWITCHED_OFF', 'NOT_REACHABLE', 'EXPECTED_PAYMENT']);
+        });
+
+        it('Start sends the chosen staff and statuses, then closes the window and refreshes', async () => {
+            await open();
+            component.roundStaff = ['s2'];
+            component.roundStatuses = ['RINGING'];
+            component.startRound();
+            expect(api.nextRound).toHaveBeenCalledWith('c2', { staff: ['s2'], move_statuses: ['RINGING'] }, undefined);
+            await settle();
+            expect(component.showRound).toBeFalse();
+            expect(lastToast().detail).toContain('Round 3');
+            expect(api.detail).toHaveBeenCalledTimes(2);
+            expect(component.roundStarting).toBeFalse();
+        });
+
+        it('when the round finishes the campaign, the message says so and the closed campaign is reloaded', async () => {
+            api.nextRound.and.returnValue(respond({ closed: true, message: 'Round 4: 12 leads moved on. Nothing can move any further, so the campaign is now closed' }) as any);
+            api.detail.and.callFake((() => respond(detail({ status: 'COMPLETED', can_next_round: false }))) as any);
+            await open();
+            component.startRound();
+            await settle();
+            expect(lastToast().detail).toContain('now closed');
+            expect(api.detail).toHaveBeenCalledTimes(2);
+            expect(component.showRound).toBeFalse();
+            expect(document.querySelector('#nextRound')).toBeNull();
+        });
+
+        it('clicking the Start button does the same', async () => {
+            await open();
+            document.querySelector<HTMLButtonElement>('#startRound').click();
+            expect(api.nextRound).toHaveBeenCalledTimes(1);
+            await settle();
+        });
+
+        it('a second click while it is working sends nothing more', async () => {
+            await open();
+            component.startRound();
+            component.startRound();
+            expect(api.nextRound).toHaveBeenCalledTimes(1);
+            await settle();
+        });
+
+        it('no staff or no statuses: the problem is named and nothing is sent', async () => {
+            await open();
+            component.roundStaff = [];
+            component.startRound();
+            expect(lastToast().detail).toContain('at least one staff');
+            component.roundStaff = ['s1'];
+            component.roundStatuses = [];
+            component.startRound();
             expect(lastToast().detail).toContain('at least one status');
+            expect(api.nextRound).not.toHaveBeenCalled();
+            expect(component.showRound).toBeTrue();
         });
 
-        it('a finished status can be chosen on purpose', () => {
-            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5, moveStatuses: ['PAYMENT_DONE'] });
-            expect(component.createProblem).toBe('');
-        });
-
-        it('the opened campaign says which statuses move on, in plain words', async () => {
-            api.detail.and.callFake((() => respond(detail({ move_statuses: ['RINGING', 'PAYMENT_DONE', 'FRESH'] }))) as any);
-            component.open(rows[0]);
+        it('a refusal is shown, the window stays open so the choice can be changed, and the page refreshes', async () => {
+            api.nextRound.and.returnValue(throwError(() => ({ error: { message: 'No lead can move this round: 4 not in the chosen statuses. Change the statuses or the staff.' } })));
+            await open();
+            component.startRound();
             await settle();
-            const t = text();
-            expect(t).toContain('Moves to the next round: Ringing, Payment done, Not called yet');
+            expect(lastToast().detail).toContain('No lead can move');
+            expect(component.showRound).toBeTrue();
+            expect(component.roundStarting).toBeFalse();
+            expect(api.detail).toHaveBeenCalledTimes(2);
         });
 
-        it('an older campaign without the setting shows nothing odd', async () => {
-            component.open(rows[0]);
+        it('mentions the leads nobody has called yet, and says nothing when there are none', async () => {
+            await open();
+            expect(document.querySelector('#roundNote').textContent).toContain('7 leads have not been called yet');
+            component.detail = detail({ untouched: 0 });
+            fixture.detectChanges();
+            expect(document.querySelector('#roundNote')).toBeNull();
+        });
+
+        it('when nobody can move any more, there is no button, only a note', async () => {
+            component.detail = detail({ can_next_round: false });
+            fixture.detectChanges();
+            expect(document.querySelector('#nextRound')).toBeNull();
+            expect(document.querySelector('#noMoreRounds')).toBeTruthy();
+        });
+
+        it('a closed campaign has no button and no note', async () => {
+            component.detail = detail({ status: 'COMPLETED', can_next_round: false });
+            fixture.detectChanges();
+            expect(document.querySelector('#nextRound')).toBeNull();
+            expect(document.querySelector('#closeCampaign')).toBeNull();
+            expect(document.querySelector('#noMoreRounds')).toBeNull();
+        });
+
+        it('shows what each earlier round did', async () => {
+            component.detail = detail({
+                history: [
+                    { round: 2, move_statuses: ['RINGING', 'CALLBACK'], staff: 5, moved: 40, stayed: 10, no_candidate: 2 },
+                    { round: 3, move_statuses: ['FRESH'], staff: 3, moved: 12, stayed: 0, no_candidate: 0 },
+                ],
+            });
+            fixture.detectChanges();
             await settle();
-            expect(text()).not.toContain('Moves to the next round');
-            expect(component.moveStatusesLabel(undefined)).toBe('');
+            const t = document.querySelector('#roundHistory').textContent.replace(/\s+/g, ' ');
+            expect(t).toContain('Rounds so far');
+            expect(t).toContain('Ringing, Callback');
+            expect(t).toContain('Not called yet');
+            expect(document.querySelectorAll('#roundHistory tbody tr').length).toBe(2);
         });
 
-        it('a refusal from the server is shown', async () => {
-            api.create.and.returnValue(throwError(() => ({ error: { message: 'Unknown status: LOST' } })));
-            component.form = full({ name: 'x', staff: ['s1', 's2'], count: 5 });
-            component.create();
-            expect(lastToast().detail).toBe('Unknown status: LOST');
+        it('there is no history block before the second round', () => {
+            expect(document.querySelector('#roundHistory')).toBeNull();
+        });
+
+        it('the round number is shown without a total', async () => {
+            expect(text()).not.toContain('of 10');
+            expect(text()).toContain('Round');
         });
     });
 
@@ -411,7 +518,7 @@ describe('CampaignListComponent', () => {
             component.form.name = 'Plain';
             component.create();
             const body = api.create.calls.mostRecent().args[0] as any;
-            expect(Object.keys(body).sort()).toEqual(['count', 'lead_type', 'move_statuses', 'name', 'staff']);
+            expect(Object.keys(body).sort()).toEqual(['count', 'lead_type', 'name', 'staff']);
             await settle();
         });
 
@@ -425,7 +532,7 @@ describe('CampaignListComponent', () => {
             component.selectedFile = new File(['x'], 'leads.xlsx');
             component.create();
             const input = createFromExcel.calls.mostRecent().args[0];
-            expect(Object.keys(input).sort()).toEqual(['file', 'lead_type', 'move_statuses', 'name', 'staff']);
+            expect(Object.keys(input).sort()).toEqual(['file', 'lead_type', 'name', 'staff']);
             await settle();
         });
 
@@ -438,11 +545,13 @@ describe('CampaignListComponent', () => {
             expect(document.querySelector('#nextRound')).toBeTruthy();
         });
 
-        it('pressing the button asks first and then starts exactly one round', async () => {
+        it('pressing the button only opens the window; a round starts when Start is pressed', async () => {
             component.open(rows[0]);
             await settle();
             component.askNextRound();
-            expect(confirm).toHaveBeenCalledTimes(1);
+            await settle();
+            expect(api.nextRound).not.toHaveBeenCalled();
+            component.startRound();
             expect(api.nextRound).toHaveBeenCalledTimes(1);
             await settle();
         });
@@ -458,53 +567,11 @@ describe('CampaignListComponent', () => {
         it('shows the round, the totals and what each person holds and has called', () => {
             expect(api.detail).toHaveBeenCalledWith('c2', undefined);
             const t = text();
-            expect(t).toContain('2 of 10');
+            expect(t).toContain('Round');
             expect(t).toContain('amit (Amit K)');
             expect(t).toContain('RINGING: 80');
             expect(t).toContain('Start next round');
             expect(t).toContain('Close campaign');
-        });
-
-        it('next round: asks first, mentions the leads nobody called, then moves and refreshes', async () => {
-            component.askNextRound();
-            expect(confirm.calls.mostRecent().args[0].message).toContain('7 leads have not been called yet');
-            expect(confirm.calls.mostRecent().args[0].message).toContain('round 3 of 10');
-            expect(api.nextRound).toHaveBeenCalledWith('c2', undefined);
-            await settle();
-            expect(lastToast().detail).toContain('Round 3');
-            expect(api.detail).toHaveBeenCalledTimes(2);
-            expect(component.working).toBeFalse();
-        });
-
-        it('says nothing about uncalled leads when there are none', () => {
-            component.detail = detail({ untouched: 0 });
-            component.askNextRound();
-            expect(confirm.calls.mostRecent().args[0].message).not.toContain('not been called');
-        });
-
-        it('a refused next round (someone else clicked first) is shown and the page refreshes', async () => {
-            api.nextRound.and.returnValue(throwError(() => ({ error: { message: 'The round was just changed by someone else.' } })));
-            component.askNextRound();
-            await settle();
-            expect(lastToast().detail).toContain('just changed');
-            expect(api.detail).toHaveBeenCalledTimes(2);
-            expect(component.working).toBeFalse();
-        });
-
-        it('the last round has no next-round button, only a note', async () => {
-            component.detail = detail({ round: 10, can_next_round: false });
-            fixture.detectChanges();
-            expect(fixture.nativeElement.ownerDocument.querySelector('#nextRound')).toBeNull();
-            expect(text()).toContain('This is the last round');
-        });
-
-        it('a closed campaign has no buttons', async () => {
-            component.detail = detail({ status: 'COMPLETED', can_next_round: false });
-            fixture.detectChanges();
-            const doc = fixture.nativeElement.ownerDocument;
-            expect(doc.querySelector('#nextRound')).toBeNull();
-            expect(doc.querySelector('#closeCampaign')).toBeNull();
-            expect(text()).not.toContain('This is the last round');
         });
 
         it('closing asks first, then closes and refreshes', async () => {
@@ -540,7 +607,10 @@ describe('CampaignListComponent', () => {
             component.open(rows[0]);
             component.detail = detail();
             component.askNextRound();
-            expect(api.nextRound).toHaveBeenCalledWith('c2', 'CA');
+            expect(api.staff).toHaveBeenCalledWith('CA');
+            await settle();
+            component.startRound();
+            expect(api.nextRound).toHaveBeenCalledWith('c2', jasmine.anything(), 'CA');
             await settle();
         });
 

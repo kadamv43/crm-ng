@@ -58,7 +58,7 @@
                             <p-tag [value]="row.status == 'ACTIVE' ? 'Running' : 'Closed'"
                                 [severity]="row.status == 'ACTIVE' ? 'success' : 'secondary'"></p-tag>
                         </td>
-                        <td>{{ row.round }} of {{ row.rounds }}</td>
+                        <td>{{ row.round }}</td>
                         <td>{{ row.staff }}</td>
                         <td>{{ row.total_leads }}</td>
                         <td>{{ row.total_assignments }}</td>
@@ -126,16 +126,6 @@
                 </label>
             </div>
         </div>
-        <div class="flex flex-column gap-2">
-            <label for="cmove" class="control-label">Move to the next round (by status)</label>
-            <p-multiSelect inputId="cmove" [options]="statusOptions" [(ngModel)]="form.moveStatuses"
-                optionLabel="label" optionValue="value" appendTo="body" display="chip"
-                placeholder="Choose statuses" styleClass="w-full"></p-multiSelect>
-            <small class="text-color-secondary">
-                When the next round starts, only leads in these statuses go to the next person.
-                The others stay with whoever has them.
-            </small>
-        </div>
         <div class="flex flex-column gap-2" *ngIf="form.leadSource === 'pool'">
             <label for="ccount" class="control-label">How many leads to take from the {{ form.leadType === 'HOT' ? 'hot ' : '' }}pool (oldest first)</label>
             <p-inputNumber inputId="ccount" [(ngModel)]="form.count" [min]="1" [max]="maxLeads" [useGrouping]="false"></p-inputNumber>
@@ -163,7 +153,7 @@
     <div *ngIf="detail" class="flex flex-column gap-3">
         <div class="flex flex-wrap gap-4">
             <div><b>Type</b><div class="text-2xl" id="detailType">{{ typeLabel(detail.lead_type) }} leads</div></div>
-            <div><b>Round</b><div class="text-2xl">{{ detail.round }} of {{ detail.rounds }}</div></div>
+            <div><b>Round</b><div class="text-2xl">{{ detail.round }}</div></div>
             <div><b>Leads</b><div class="text-2xl">{{ detail.total_leads }}</div></div>
             <div><b>Finished</b><div class="text-2xl">{{ detail.finished }}</div></div>
             <div><b>Not called yet</b><div class="text-2xl">{{ detail.untouched }}</div></div>
@@ -173,9 +163,6 @@
             </div>
         </div>
 
-        <div class="text-color-secondary" id="moveStatuses" *ngIf="detail.move_statuses">
-            <b>Moves to the next round:</b> {{ moveStatusesLabel(detail.move_statuses) }}
-        </div>
 
         <div class="flex flex-wrap gap-2" *ngIf="statusList().length">
             <p-tag *ngFor="let s of statusList()" [value]="s.status + ': ' + s.count" severity="info"></p-tag>
@@ -202,8 +189,34 @@
             </ng-template>
         </p-table>
 
-        <small class="text-color-secondary" *ngIf="detail.status == 'ACTIVE' && !detail.can_next_round">
-            This is the last round: everyone has had every lead.
+        <div *ngIf="detail.history?.length" id="roundHistory">
+            <h6 class="mt-3 mb-2">Rounds so far</h6>
+            <p-table [value]="detail.history" styleClass="p-datatable-gridlines" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Round</th>
+                        <th>Statuses moved</th>
+                        <th>Staff</th>
+                        <th>Moved</th>
+                        <th>Stayed</th>
+                        <th>Nobody left to take</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-h>
+                    <tr>
+                        <td>{{ h.round }}</td>
+                        <td>{{ moveStatusesLabel(h.move_statuses) }}</td>
+                        <td>{{ h.staff }}</td>
+                        <td>{{ h.moved }}</td>
+                        <td>{{ h.stayed }}</td>
+                        <td>{{ h.no_candidate }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <small class="text-color-secondary" id="noMoreRounds" *ngIf="detail.status == 'ACTIVE' && !detail.can_next_round">
+            Everyone in the company has already had every lead that is still going. Close the campaign when you are done.
         </small>
     </div>
     <ng-template pTemplate="footer">
@@ -211,5 +224,39 @@
             *ngIf="detail && detail.status == 'ACTIVE'" [disabled]="working" (click)="askClose()"></button>
         <button pButton type="button" label="Start next round" icon="pi pi-forward" id="nextRound"
             *ngIf="detail && detail.can_next_round" [loading]="working" [disabled]="working" (click)="askNextRound()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Start next round" [(visible)]="showRound" [modal]="true"
+    [style]="{ width: '34rem', maxWidth: '95vw' }" [draggable]="false">
+    <div class="flex flex-column gap-4 pt-2" *ngIf="detail">
+        <div class="flex flex-column gap-2">
+            <label for="rstatus" class="control-label">Statuses that move on</label>
+            <p-multiSelect inputId="rstatus" [options]="statusOptions" [(ngModel)]="roundStatuses"
+                optionLabel="label" optionValue="value" appendTo="body" display="chip"
+                placeholder="Choose statuses" styleClass="w-full"></p-multiSelect>
+            <small class="text-color-secondary">
+                Only leads in these statuses go to someone new. The others stay with whoever has them.
+            </small>
+        </div>
+        <div class="flex flex-column gap-2">
+            <label for="rstaff" class="control-label">Staff for this round (logged in today)</label>
+            <p-multiSelect inputId="rstaff" [options]="roundStaffOptions" [(ngModel)]="roundStaff" [filter]="true"
+                optionLabel="label" optionValue="value" appendTo="body" display="chip"
+                placeholder="Choose staff" styleClass="w-full"></p-multiSelect>
+            <small *ngIf="roundStaffList.length === 0" class="text-color-secondary">No employees logged in today.</small>
+            <small class="text-color-secondary">
+                {{ roundStaff.length }} chosen. A lead never goes to someone who already had it.
+            </small>
+        </div>
+        <div class="surface-100 border-round p-3" id="roundNote" *ngIf="detail.untouched">
+            {{ detail.untouched }} lead{{ detail.untouched == 1 ? ' has' : 's have' }} not been called yet.
+            They move on too if "Not called yet" is chosen.
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button" class="p-button-text" label="Cancel" (click)="showRound=false"></button>
+        <button pButton type="button" id="startRound" label="Start round" icon="pi pi-forward"
+            [loading]="roundStarting" [disabled]="roundStarting" (click)="startRound()"></button>
     </ng-template>
 </p-dialog>

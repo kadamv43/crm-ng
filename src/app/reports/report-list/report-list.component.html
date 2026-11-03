@@ -74,6 +74,12 @@
                                 [style]="{ width: '100%' }" />
                         </div>
 
+                        <div *ngIf="campaignReport" class="col-2">
+                            <input id="roundFilter" pInputText type="number" min="1" step="1" placeholder="Round"
+                                class="w-full" [(ngModel)]="selectedRound" (change)="onRoundChange(dt1)"
+                                (keyup.enter)="onRoundChange(dt1)" />
+                        </div>
+
                         <div class="col-1">
                             <button pButton type="button" class="p-button-secondary" (click)="clear(dt1)" label="Clear"
                                 icon="pi pi-times"></button>
@@ -95,6 +101,7 @@
                             </div>
                         </th>
                         <th *ngIf="campaignReport" style="min-width: 10rem">Campaign Name</th>
+                        <th *ngIf="campaignReport" style="min-width: 5rem">Round</th>
                         <th style="min-width: 7rem">
                             <div class="flex justify-content-between align-items-center">
                                 Mobile
@@ -197,6 +204,7 @@
                         <td *ngIf="!customer?.is_hot_lead"> <label style="color: green;">Normal Lead</label></td>
                         <td>{{ customer.userDetails?.username }}</td>
                         <td *ngIf="campaignReport">{{ customer.campaign_name }}</td>
+                        <td *ngIf="campaignReport" class="round-cell">{{ customer.campaign_round }}</td>
                         <td>
                             {{ customer.mobile }}
                         </td>
@@ -272,12 +280,12 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td [attr.colspan]="campaignReport ? 18 : 19">No Data found.</td>
+                        <td colspan="19">No Data found.</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="loadingbody">
                     <tr>
-                        <td [attr.colspan]="campaignReport ? 18 : 19">
+                        <td colspan="19">
                             Loading Appointments data. Please wait.
                         </td>
                     </tr>

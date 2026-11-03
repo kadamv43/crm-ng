@@ -72,6 +72,7 @@ export class ReportListComponent {
     searchText = '';
     campaignReport = false;
     selectedCampaign = '';
+    selectedRound: number | string | null = null;
     campaignOptions: { name: string; code: string }[] = [];
 
     statuses: any[] = [];
@@ -231,6 +232,10 @@ export class ReportListComponent {
             },
             error: () => { this.campaignOptions = []; },
         });
+    }
+
+    onRoundChange(dt?: Table) {
+        this.applyFilters(dt);
     }
 
     onCampaignChange(event: any, dt?: Table) {
@@ -505,6 +510,10 @@ export class ReportListComponent {
             if (this.selectedCampaign) {
                 params['campaign_id'] = this.selectedCampaign;
             }
+            const round = Number(this.selectedRound);
+            if (this.selectedRound !== null && this.selectedRound !== '' && Number.isInteger(round) && round >= 1) {
+                params['campaign_round'] = round;
+            }
         }
 
         return params;
@@ -553,6 +562,7 @@ export class ReportListComponent {
         this.selectedTL = '';
         this.selectedEmployee = '';
         this.selectedCampaign = '';
+        this.selectedRound = null;
         this.queryParams = {};
         if (this.role != 'teamlead') {
             this.employees = [];
@@ -611,7 +621,7 @@ export class ReportListComponent {
             'Lead Type': item.is_hot_lead ? 'Hot Lead' : 'Normal Lead',
             Username: item.userDetails?.username ?? '',
             ...(this.campaignReport
-                ? { 'Campaign Name': item.campaign_name ?? '' }
+                ? { 'Campaign Name': item.campaign_name ?? '', Round: item.campaign_round ?? '' }
                 : {}),
             Mobile: item.mobile ?? '',
             Name: item.name ?? '',

@@ -55,7 +55,6 @@ export class CampaignListComponent implements OnInit {
         count: number | null;
         leadSource: 'pool' | 'excel';
         leadType: 'NORMAL' | 'HOT';
-        moveStatuses: string[];
     } = this.emptyForm();
     readonly maxLeads = MAX_LEADS;
     readonly statusOptions = STATUS_OPTIONS;
@@ -64,6 +63,13 @@ export class CampaignListComponent implements OnInit {
     showDetail = false;
     detail: any = null;
     working = false;
+
+    // the window for starting round 2, 3, ...
+    showRound = false;
+    roundStarting = false;
+    roundStatuses: string[] = [];
+    roundStaff: string[] = [];
+    roundStaffList: CampaignStaff[] = [];
     exportingCampaignId: string | null = null;
 
     constructor(
@@ -93,7 +99,6 @@ export class CampaignListComponent implements OnInit {
             count: 100 as number | null,
             leadSource: 'pool' as 'pool' | 'excel',
             leadType: 'NORMAL' as 'NORMAL' | 'HOT',
-            moveStatuses: [...DEFAULT_MOVE_STATUSES],
         };
     }
 
@@ -203,9 +208,6 @@ export class CampaignListComponent implements OnInit {
     get createProblem(): string {
         if (!this.form.name.trim()) return 'Give the campaign a name.';
         if (this.form.staff.length < 2) return 'Choose at least 2 staff.';
-        if (this.form.moveStatuses.length === 0) {
-            return 'Choose at least one status to move to the next round.';
-        }
         if (this.form.leadSource === 'excel') {
             return this.selectedFile ? '' : 'Choose an Excel file.';
         }
@@ -224,10 +226,7 @@ export class CampaignListComponent implements OnInit {
             return;
         }
         this.creating = true;
-        const assignment = {
-            move_statuses: this.form.moveStatuses,
-            lead_type: this.form.leadType,
-        };
+        const assignment = { lead_type: this.form.leadType };
         const request = this.form.leadSource === 'excel'
             ? this.campaignsService.createFromExcel(
                 {
@@ -394,38 +393,71 @@ export class CampaignListComponent implements OnInit {
         });
     }
 
+    // ------------------------------------------------------- next round
+
+    /** Opens the window where the admin picks the statuses and the staff for this round. */
     askNextRound() {
-        if (!this.detail || this.working) return;
-        const d = this.detail;
-        const waiting = d.untouched
-            ? ` ${d.untouched} lead${d.untouched == 1 ? ' has' : 's have'} not been called yet; they will be taken from their holder and moved on too.`
-            : '';
-        this.confirm.confirm({
-            header: 'Start the next round?',
-            message: `Every lead that is not finished moves to the next person (round ${d.round + 1} of ${d.rounds}).${waiting}`,
-            acceptLabel: 'Start next round',
-            rejectLabel: 'Cancel',
-            accept: () => this.nextRound(),
+        if (!this.detail || this.working || this.roundStarting) return;
+        this.roundStatuses = [...(this.detail.move_statuses?.length ? this.detail.move_statuses : DEFAULT_MOVE_STATUSES)];
+        this.roundStaff = [];
+        this.roundStaffList = [];
+        this.showRound = true;
+        this.campaignsService.staff(this.branch()).subscribe({
+            next: (res: any) => {
+                this.roundStaffList = (res ?? []).filter((staff) => staff.present);
+                // everyone who logged in today is ticked to start with
+                this.roundStaff = this.roundStaffList.map((staff) => staff._id);
+            },
+            error: (err) => this.fail(err, 'Could not load the staff'),
         });
     }
 
-    private nextRound() {
-        if (this.working) return;
-        this.working = true;
+    // The same array on every screen check (see staffOptions).
+    private roundOptionsFor: CampaignStaff[] | null = null;
+    private roundOptionsCache: { value: string; label: string }[] = [];
+    get roundStaffOptions() {
+        if (this.roundOptionsFor !== this.roundStaffList) {
+            this.roundOptionsFor = this.roundStaffList;
+            this.roundOptionsCache = this.roundStaffList.map((s) => ({
+                value: s._id,
+                label: `${s.username}${s.name ? ' (' + s.name + ')' : ''}`,
+            }));
+        }
+        return this.roundOptionsCache;
+    }
+
+    get roundProblem(): string {
+        if (this.roundStaff.length < 1) return 'Choose at least one staff member for this round.';
+        if (this.roundStatuses.length < 1) return 'Choose at least one status to move on.';
+        return '';
+    }
+
+    startRound() {
+        if (this.roundStarting || !this.detail) return;
+        const problem = this.roundProblem;
+        if (problem) {
+            this.toast.add({ severity: 'warn', summary: 'Please check', detail: problem });
+            return;
+        }
+        this.roundStarting = true;
         const id = this.detail._id;
-        this.campaignsService.nextRound(id, this.branch()).subscribe({
-            next: (res: any) => {
-                this.working = false;
-                this.toast.add({ severity: 'success', summary: 'Next round', detail: res.message });
-                this.loadDetail(id);
-                this.load();
-            },
-            error: (err) => {
-                this.working = false;
-                this.fail(err, 'Could not start the next round');
-                this.loadDetail(id);
-            },
-        });
+        this.campaignsService
+            .nextRound(id, { staff: this.roundStaff, move_statuses: this.roundStatuses }, this.branch())
+            .subscribe({
+                next: (res: any) => {
+                    this.roundStarting = false;
+                    this.showRound = false;
+                    this.toast.add({ severity: 'success', summary: 'Next round', detail: res.message });
+                    this.loadDetail(id);
+                    this.load();
+                },
+                error: (err) => {
+                    // stay in the window so the choice can be changed and tried again
+                    this.roundStarting = false;
+                    this.fail(err, 'Could not start the next round');
+                    this.loadDetail(id);
+                },
+            });
     }
 
     askClose() {

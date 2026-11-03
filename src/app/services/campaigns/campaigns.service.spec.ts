@@ -31,7 +31,7 @@ describe('CampaignsService', () => {
         http.expectOne(base + '/c1?branch=B1').flush({});
         service.create({ name: 'n', staff: ['a', 'b'], count: 5 }, 'B1').subscribe();
         http.expectOne(base + '?branch=B1').flush({});
-        service.nextRound('c1', 'B1').subscribe();
+        service.nextRound('c1', { staff: ['a'], move_statuses: ['RINGING'] }, 'B1').subscribe();
         http.expectOne(base + '/c1/next-round?branch=B1').flush({});
         service.close('c1', 'B1').subscribe();
         http.expectOne(base + '/c1/close?branch=B1').flush({});
@@ -47,9 +47,12 @@ describe('CampaignsService', () => {
     });
 
     it('next round and close are POSTs', () => {
-        service.nextRound('c1').subscribe();
+        const choice = { staff: ['a', 'b'], move_statuses: ['RINGING', 'CALLBACK'] };
+        service.nextRound('c1', choice).subscribe();
         const a = http.expectOne(base + '/c1/next-round');
         expect(a.request.method).toBe('POST');
+        // the staff and the statuses are sent exactly as chosen, for this round
+        expect(a.request.body).toEqual(choice);
         a.flush({});
         service.close('c1').subscribe();
         const b = http.expectOne(base + '/c1/close');
