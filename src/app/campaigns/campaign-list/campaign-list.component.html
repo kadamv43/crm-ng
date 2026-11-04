@@ -90,11 +90,11 @@
             <input pInputText id="cname" maxlength="80" [(ngModel)]="form.name" placeholder="e.g. Diwali leads" />
         </div>
         <div class="flex flex-column gap-2">
-            <label for="cstaff" class="control-label">Staff logged in today</label>
+            <label for="cstaff" class="control-label">Staff</label>
             <p-multiSelect inputId="cstaff" [options]="staffOptions" [(ngModel)]="form.staff" [filter]="true"
                 optionLabel="label" optionValue="value" appendTo="body" display="chip"
                 placeholder="Choose staff" styleClass="w-full"></p-multiSelect>
-            <small *ngIf="allStaff.length === 0" class="text-color-secondary">No employees logged in today.</small>
+            <small *ngIf="allStaff.length === 0" class="text-color-secondary">There are no employees in this company yet.</small>
             <small class="text-color-secondary">{{ form.staff.length }} chosen</small>
         </div>
         <div class="flex flex-column gap-2">
@@ -240,11 +240,11 @@
             </small>
         </div>
         <div class="flex flex-column gap-2">
-            <label for="rstaff" class="control-label">Staff for this round (logged in today)</label>
+            <label for="rstaff" class="control-label">Staff for this round</label>
             <p-multiSelect inputId="rstaff" [options]="roundStaffOptions" [(ngModel)]="roundStaff" [filter]="true"
                 optionLabel="label" optionValue="value" appendTo="body" display="chip"
                 placeholder="Choose staff" styleClass="w-full"></p-multiSelect>
-            <small *ngIf="roundStaffList.length === 0" class="text-color-secondary">No employees logged in today.</small>
+            <small *ngIf="roundStaffList.length === 0" class="text-color-secondary">There are no employees in this company yet.</small>
             <small class="text-color-secondary">
                 {{ roundStaff.length }} chosen. A lead never goes to someone who already had it.
             </small>

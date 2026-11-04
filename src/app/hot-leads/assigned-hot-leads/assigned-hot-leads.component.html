@@ -22,6 +22,14 @@
                                 placeholder="Select Status" autoWidth="false" [(ngModel)]="selectedStatus"
                                 [style]="{ width: '100%' }" />
                         </div> -->
+                        <div class="col-3" *ngIf="canFilterByUsername">
+                            <span class="p-input-icon-left w-full">
+                                <i class="pi pi-user"></i>
+                                <input pInputText type="text" id="usernameFilter" [(ngModel)]="username"
+                                    (keyup.enter)="filter(dt1)" placeholder="Username" maxlength="100"
+                                    class="w-full" />
+                            </span>
+                        </div>
                         <div class="col-3">
                             <p-calendar [showIcon]="true" [hourFormat]="12" inputId="icon" [style]="{ width: '100%' }"
                                 [(ngModel)]="selectedDate" selectionMode="range" [showButtonBar]="true" dateFormat="dd/mm/yy"></p-calendar>

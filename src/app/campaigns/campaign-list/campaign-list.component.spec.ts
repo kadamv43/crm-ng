@@ -131,15 +131,16 @@ describe('CampaignListComponent', () => {
         it('ticks the staff who are in today and says what will happen', async () => {
             component.openCreate();
             await settle();
-            expect(component.form.staff).toEqual(['s1', 's2']);
+            // every employee is listed and ticked, whether or not they logged in today
+            expect(component.form.staff).toEqual(['s1', 's2', 's3']);
+            expect(component.staffOptions.map((o: any) => o.value)).toEqual(['s1', 's2', 's3']);
             component.form.name = 'Spring';
+            component.form.staff = ['s1', 's2'];
             component.form.count = 101;
             fixture.detectChanges();
             expect(component.preview).toBe('101 leads over 2 staff: 50 or 51 each. After 2 rounds everyone has had every lead.');
             component.form.count = 100;
             expect(component.preview).toContain('50 each');
-            // only people who logged in today can be chosen
-            expect(component.staffOptions.map((o: any) => o.value)).toEqual(['s1', 's2']);
         });
 
         it('the problems are named and nothing is sent', () => {
@@ -168,7 +169,7 @@ describe('CampaignListComponent', () => {
             component.form.count = 40;
             component.create();
             expect(api.create).toHaveBeenCalledWith(
-                { name: 'Spring', staff: ['s1', 's2'], count: 40, lead_type: 'NORMAL' },
+                { name: 'Spring', staff: ['s1', 's2', 's3'], count: 40, lead_type: 'NORMAL' },
                 undefined
             );
             await settle();
@@ -259,14 +260,14 @@ describe('CampaignListComponent', () => {
             expect(confirm).not.toHaveBeenCalled();
         });
 
-        it('starts with everyone who is in today ticked, and the last statuses used', async () => {
+        it('starts with every employee of the company ticked, logged in or not, and the last statuses used', async () => {
             api.detail.and.callFake((() => respond(detail({ move_statuses: ['RINGING', 'CALLBACK'] }))) as any);
             component.open(rows[0]);
             await settle();
             await open();
             expect(api.staff).toHaveBeenCalledWith(undefined);
-            expect(component.roundStaff).toEqual(['s1', 's2']); // zed is not in today
-            expect(component.roundStaffOptions.map((o: any) => o.value)).toEqual(['s1', 's2']);
+            expect(component.roundStaff).toEqual(['s1', 's2', 's3']); // everyone of the company, logged in or not
+            expect(component.roundStaffOptions.map((o: any) => o.value)).toEqual(['s1', 's2', 's3']);
             expect(component.roundStatuses).toEqual(['RINGING', 'CALLBACK']);
         });
 

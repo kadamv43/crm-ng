@@ -173,7 +173,7 @@ export class CampaignListComponent implements OnInit {
         this.showCreate = true;
         this.campaignsService.staff(this.branch()).subscribe({
             next: (res: any) => {
-                this.allStaff = (res ?? []).filter((staff) => staff.present);
+                this.allStaff = res ?? []; // every employee of the company, logged in or not
                 this.form.staff = this.allStaff.map((staff) => staff._id);
             },
             error: (err) => this.fail(err, 'Could not load the staff'),
@@ -404,8 +404,9 @@ export class CampaignListComponent implements OnInit {
         this.showRound = true;
         this.campaignsService.staff(this.branch()).subscribe({
             next: (res: any) => {
-                this.roundStaffList = (res ?? []).filter((staff) => staff.present);
-                // everyone who logged in today is ticked to start with
+                // every employee of this company, logged in or not
+                this.roundStaffList = res ?? [];
+                // everyone is ticked to start with; untick the ones to leave out
                 this.roundStaff = this.roundStaffList.map((staff) => staff._id);
             },
             error: (err) => this.fail(err, 'Could not load the staff'),
