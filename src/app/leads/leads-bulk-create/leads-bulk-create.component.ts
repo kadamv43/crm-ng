@@ -9,6 +9,8 @@ import * as FileSaver from 'file-saver';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { LeadsService } from 'src/app/services/leads/leads.service';
 
+import { uploadToast } from 'src/app/services/common/upload-summary';
+
 @Component({
     selector: 'app-leads-bulk-create',
     templateUrl: './leads-bulk-create.component.html',
@@ -52,16 +54,13 @@ export class LeadsBulkCreateComponent {
             const formData = new FormData();
             formData.append('file', this.selectedFile, this.selectedFile.name);
 
-            this.leadsService.importExcel(formData).subscribe((res) => {
-                this.toast.add({
-                    key: 'tst',
-                    severity: 'success',
-                    summary: 'Success Message',
-                    detail: 'Leads Imported successfully',
-                });
-                setTimeout(() => {
-                    this.router.navigateByUrl('leads');
-                }, 2000);
+            this.leadsService.importExcel(formData).subscribe((res: any) => {
+                this.toast.add({ key: 'tst', ...uploadToast(res) });
+                if (res?.added > 0) {
+                    setTimeout(() => {
+                        this.router.navigateByUrl('leads');
+                    }, 2000);
+                }
             });
         }
     }

@@ -7,7 +7,8 @@
     "license": "MIT",
     "scripts": {
         "ng": "ng",
-        "start": "ng serve --configuration=development",
+        "start": "ng serve --configuration=local",
+        "start:remote-dev": "ng serve --configuration=development",
         "start:prod": "ng serve --configuration=production",
         "build": "ng build --configuration=production",
         "build:dev": "ng build --configuration=development",
@@ -16,6 +17,7 @@
         "lint": "ng lint",
         "e2e": "ng e2e",
         "dist": "ng build --configuration=production --aot --base-href ./ && electron-builder --win",
+        "dist:dev": "ng build --configuration=development --aot --base-href ./ && electron-builder --win",
         "electron": "ng build --configuration=production --aot --base-href ./ && electron ."
     },
     "build": {

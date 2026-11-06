@@ -27,6 +27,10 @@ export class HttpService {
         });
     }
 
+    put(url: string, body: any) {
+        return this.http.put(environment.baseUrl + url, body);
+    }
+
     patch(url: string, body: any) {
         return this.http.patch(environment.baseUrl + url, body);
     }

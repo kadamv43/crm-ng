@@ -181,8 +181,44 @@ import { AuthGuard } from './auth.guard';
                                 ),
                         },
                         {
+                            path: 'report-mail',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./report-mail/report-mail.module').then(
+                                    (m) => m.ReportMailModule
+                                ),
+                        },
+                        {
+                            path: 'campaigns',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./campaigns/campaigns.module').then(
+                                    (m) => m.CampaignsModule
+                                ),
+                        },
+                        {
+                            path: 'attendance',
+                            canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./attendance/attendance.module').then(
+                                    (m) => m.AttendanceModule
+                                ),
+                        },
+                        {
                             path: 'reports',
                             canActivate: [AuthGuard],
+                            loadChildren: () =>
+                                import('./reports/reports.module').then(
+                                    (m) => m.ReportsModule
+                                ),
+                        },
+                        {
+                            path: 'campaign-report',
+                            canActivate: [AuthGuard],
+                            data: {
+                                campaignReport: true,
+                                roles: ['superadmin', 'admin', 'teamlead'],
+                            },
                             loadChildren: () =>
                                 import('./reports/reports.module').then(
                                     (m) => m.ReportsModule

@@ -17,6 +17,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 import { BranchesService } from 'src/app/services/branches/branches.service';
 import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service';
 import { AppointmentService } from 'src/app/services/appointment/appointment.service';
+import { CampaignsService } from 'src/app/services/campaigns/campaigns.service';
 
 const LEADS = [
     {
@@ -100,6 +101,7 @@ describe('ReportListComponent', () => {
     let dashboard: jasmine.SpyObj<DashboardService>;
     let users: jasmine.SpyObj<UsersService>;
     let branches: jasmine.SpyObj<BranchesService>;
+    let campaigns: jasmine.SpyObj<CampaignsService>;
 
     const lastParams = (callIndex = -1) => {
         const calls = dashboard.getReports.calls.all();
@@ -110,7 +112,7 @@ describe('ReportListComponent', () => {
         return out;
     };
 
-    async function setup(role: string, branch: any = { _id: 'B1' }) {
+    async function setup(role: string, branch: any = { _id: 'B1' }, campaignReport = false) {
         localStorage.clear();
         localStorage.setItem('role', role);
         localStorage.setItem('userId', 'ME');
@@ -119,6 +121,10 @@ describe('ReportListComponent', () => {
         dashboard = jasmine.createSpyObj('DashboardService', ['getReports']);
         dashboard.getReports.and.returnValue(
             respond({ data: LEADS, total: LEADS.length }) as any
+        );
+        campaigns = jasmine.createSpyObj('CampaignsService', ['options']);
+        campaigns.options.and.returnValue(
+            respond([{ _id: 'C1', name: 'Diwali' }, { _id: 'C2', name: 'Holi' }]) as any
         );
         users = jasmine.createSpyObj('UsersService', ['getAll', 'searchBy']);
         users.getAll.and.returnValue(
@@ -149,7 +155,11 @@ describe('ReportListComponent', () => {
                     provide: AppointmentService,
                     useValue: jasmine.createSpyObj('AppointmentService', ['getAll']),
                 },
-                { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
+                { provide: CampaignsService, useValue: campaigns },
+                {
+                    provide: ActivatedRoute,
+                    useValue: { queryParams: of({}), snapshot: { data: { campaignReport } } },
+                },
                 { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
             ],
         }).compileComponents();
@@ -535,6 +545,111 @@ describe('ReportListComponent', () => {
             await runExport();
             expect(sheetRows.length).toBeLessThanOrEqual(1);
             expect(component.excel).toBeFalse();
+        });
+    });
+
+    describe('campaign report page', () => {
+        const settle = () => new Promise((r) => setTimeout(r, 50));
+        const campaignRow = (extra: any = {}) => ({
+            _id: 'L9', mobile: '9000000001', name: 'Asha', city: 'Pune', status: 'RINGING',
+            is_hot_lead: false, created_at: '2026-01-01T05:00:00Z', userDetails: { username: 'sa0' },
+            campaign_name: 'Diwali', campaign_round: 2, ...extra,
+        });
+
+        beforeEach(() => TestBed.resetTestingModule());
+
+        it('the normal Reports page never asks for campaigns', async () => {
+            await setup('admin', { _id: 'B1' }, false);
+            expect(component.campaignReport).toBeFalse();
+            expect(campaigns.options).not.toHaveBeenCalled();
+            expect(lastParams().campaign_report).toBeUndefined();
+            expect(fixture.nativeElement.textContent).not.toContain('Campaign Name');
+        });
+
+        it('admin: asks for the report of campaigns only, and fills the campaign dropdown from their own company', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            expect(component.campaignReport).toBeTrue();
+            expect(lastParams().campaign_report).toBe('true');
+            expect(lastParams().campaign_id).toBeUndefined();
+            expect(campaigns.options).toHaveBeenCalledWith('B1');
+            expect(component.campaignOptions).toEqual([
+                { name: 'Diwali', code: 'C1' },
+                { name: 'Holi', code: 'C2' },
+            ]);
+            expect(fixture.nativeElement.textContent).toContain('Campaign Report');
+            expect(fixture.nativeElement.textContent).toContain('Campaign Name');
+        });
+
+        it('choosing a campaign sends its id and goes back to the first page; clearing it removes the filter', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            component.onCampaignChange({ value: 'C2' });
+            expect(lastParams().campaign_id).toBe('C2');
+            expect(lastParams().page).toBe('0');
+            component.onCampaignChange({ value: null });
+            expect(lastParams().campaign_id).toBeUndefined();
+        });
+
+        it('a round number is sent with the report; empty or invalid ones are not', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            component.selectedRound = 2;
+            component.onRoundChange();
+            expect(lastParams().campaign_round).toBe('2');
+            for (const bad of ['', null, 0, -1, 1.5, 'abc']) {
+                component.selectedRound = bad as any;
+                component.onRoundChange();
+                expect(lastParams().campaign_round).toBeUndefined();
+            }
+        });
+
+        it('Clear forgets the round, and the sheet and table show it', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            component.selectedRound = 3;
+            component.clear();
+            expect(component.selectedRound).toBeNull();
+            expect(component.toExportRow(campaignRow())['Round']).toBe(2);
+            expect(fixture.nativeElement.textContent).toContain('Round');
+        });
+
+        it('Clear forgets the chosen campaign', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            component.onCampaignChange({ value: 'C1' });
+            component.clear?.();
+            expect(component.selectedCampaign).toBe('');
+        });
+
+        it('superadmin: the first company is picked for them and its campaigns listed; changing company lists the new one', async () => {
+            await setup('superadmin', { _id: 'X' }, true);
+            await settle();
+            expect(component.selectedCompany).toBe('CA');
+            expect(campaigns.options).toHaveBeenCalledWith('CA');
+            component.onChangeCompany({ value: 'CB' });
+            expect(campaigns.options).toHaveBeenCalledWith('CB');
+            expect(lastParams().branch).toBe('CB');
+            expect(lastParams().campaign_report).toBe('true');
+        });
+
+        it('superadmin switching company drops the campaign picked in the old company', async () => {
+            await setup('superadmin', { _id: 'X' }, true);
+            component.onChangeCompany({ value: 'CA' });
+            component.onCampaignChange({ value: 'C1' });
+            component.onChangeCompany({ value: 'CB' });
+            expect(component.selectedCampaign).toBe('');
+            expect(lastParams().campaign_id).toBeUndefined();
+        });
+
+        it('if the campaign list cannot be loaded the page still works with an empty list', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            campaigns.options.and.returnValue(throwError(() => new Error('down')) as any);
+            component.loadCampaignOptions();
+            expect(component.campaignOptions).toEqual([]);
+        });
+
+        it('the Excel sheet carries the campaign name only on the campaign report', async () => {
+            await setup('admin', { _id: 'B1' }, true);
+            expect(component.toExportRow(campaignRow())['Campaign Name']).toBe('Diwali');
+            TestBed.resetTestingModule();
+            await setup('admin', { _id: 'B1' }, false);
+            expect(Object.keys(component.toExportRow(campaignRow()))).not.toContain('Campaign Name');
         });
     });
 });

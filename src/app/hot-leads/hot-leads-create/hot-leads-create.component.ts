@@ -13,6 +13,8 @@ import { BranchesService } from 'src/app/services/branches/branches.service';
 import { HotLeadsService } from 'src/app/services/hot-leads/hot-leads.service';
 import { environment } from 'src/environments/environment';
 
+import { uploadToast } from 'src/app/services/common/upload-summary';
+
 @Component({
     selector: 'app-hot-leads-create',
     templateUrl: './hot-leads-create.component.html',
@@ -68,16 +70,13 @@ export class HotLeadsCreateComponent {
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            this.hotLeadsService.create(this.form.value).subscribe((res) => {
-                this.toast.add({
-                    key: 'tst',
-                    severity: 'success',
-                    summary: 'Success Message',
-                    detail: 'Hot Lead created successfully',
-                });
-                setTimeout(() => {
-                    this.router.navigateByUrl('hot-leads');
-                }, 2000);
+            this.hotLeadsService.create(this.form.value).subscribe((res: any) => {
+                this.toast.add({ key: 'tst', ...uploadToast(res) });
+                if (res?.added > 0) {
+                    setTimeout(() => {
+                        this.router.navigateByUrl('hot-leads');
+                    }, 2000);
+                }
             });
         }
     }

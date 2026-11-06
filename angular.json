@@ -50,6 +50,26 @@
                             "outputHashing": "all"
                         },
                         "development": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.development.ts"
+                                }
+                            ],
+                            "buildOptimizer": false,
+                            "optimization": false,
+                            "vendorChunk": true,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true
+                        },
+                        "local": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.local.ts"
+                                }
+                            ],
                             "buildOptimizer": false,
                             "optimization": false,
                             "vendorChunk": true,
@@ -68,9 +88,12 @@
                         },
                         "development": {
                             "buildTarget": "sakai-ng:build:development"
+                        },
+                        "local": {
+                            "buildTarget": "sakai-ng:build:local"
                         }
                     },
-                    "defaultConfiguration": "development"
+                    "defaultConfiguration": "local"
                 },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",

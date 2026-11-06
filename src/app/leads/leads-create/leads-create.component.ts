@@ -14,6 +14,8 @@ import { UserLeadsService } from 'src/app/services/user-leads/user-leads.service
 import { UsersService } from 'src/app/services/users/users.service';
 import { environment } from 'src/environments/environment';
 
+import { uploadToast } from 'src/app/services/common/upload-summary';
+
 @Component({
     selector: 'app-leads-create',
     templateUrl: './leads-create.component.html',
@@ -76,13 +78,8 @@ export class LeadsCreateComponent implements OnInit {
     async submit() {
         this.form.markAllAsTouched();
         if (this.form.valid) {
-            this.userLeadsService.create(this.form.value).subscribe((res) => {
-                this.toast.add({
-                    key: 'tst',
-                    severity: 'success',
-                    summary: 'Success Message',
-                    detail: 'Leads Assigned successfully',
-                });
+            this.userLeadsService.create(this.form.value).subscribe((res: any) => {
+                this.toast.add({ key: 'tst', ...uploadToast(res) });
                 this.form.reset();
                 // setTimeout(() => {
                 //     this.router.navigateByUrl('leads');

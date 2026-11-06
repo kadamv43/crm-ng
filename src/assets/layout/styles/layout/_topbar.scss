@@ -23,7 +23,9 @@
         border-radius: 12px;
 
         img {
-            height: 4.5rem;
+            height: auto;
+            max-height: 4.5rem;
+            max-width: 11.5rem; // keeps a wide logo inside the 198px logo area
             margin-right: 0.5rem;
         }
 
